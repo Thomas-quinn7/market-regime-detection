@@ -61,11 +61,12 @@ src/regimes/
   turbulence.py  # multivariate Financial Turbulence (Mahalanobis) as the HMM input
   absorption.py  # Absorption Ratio (PCA fragility) + honest signal confusion matrix
   allocation.py  # regime-conditional cash/bonds/equity backtest; performance stats
+  macro.py       # point-in-time (ALFRED) macro growth/inflation quadrant regimes
   evaluate.py    # walk-forward OOS validation; regime-agreement metric
   selection.py   # state-count selection by AIC/BIC
   cross_asset.py # per-sector regimes; systemic-stress concordance and breadth (+ OOS)
   plots.py       # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
-tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (36 tests)
+tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (39 tests)
 notebooks/       # exploration only — not the headline
 ```
 

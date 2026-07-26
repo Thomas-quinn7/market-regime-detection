@@ -287,6 +287,51 @@ given up is a real cost of the insurance, and none of this is a live trading sys
 narrow: used the way the literature says to use it, the regime signal produces a genuine,
 out-of-sample, cost-aware improvement in risk-adjusted return, concentrated in drawdown reduction.
 
+## Macro growth/inflation quadrants, and the cost of doing it honestly
+
+The last piece follows Bridgewater and Kritzman-Page-Turkington: classify each day by two macro
+drivers, growth and inflation, each rising or falling, into a four-quadrant regime (goldilocks,
+overheating, stagflation, slowdown), and tilt allocation by each quadrant's asset bias. Growth is the
+Chicago Fed CFNAI activity index, inflation is core-CPI year-over-year (`regimes.macro`).
+
+For this repo the interesting part is not the 2x2, it is the data. Macro series are published weeks
+after their reference period and then revised, so a naive pull feeds the model numbers that did not
+exist at decision time. The implementation therefore uses **point-in-time** data from FRED/ALFRED:
+first-release values, indexed by their actual publication date (`realtime_start`) rather than their
+reference date, forward-filled onto the daily grid. Nothing enters the series before the day it was
+really released.
+
+Doing this honestly has a price that is itself the headline finding. ALFRED's real-time (vintage)
+archive for the CFNAI only begins in **May 2011**, even though the index itself runs back to 1967. So
+the honest, look-ahead-free macro series only exists from 2011, and after the trailing-trend warmup the
+usable backtest starts in **2012**. Using the revised series would buy a longer history at the cost of
+look-ahead, which is exactly the trade this repo refuses. Integrity costs years of sample here, and
+that is worth stating rather than hiding.
+
+The result, 2012-2023, quadrant tilt across equity/bonds/cash vs static benchmarks, after costs:
+
+| Strategy | ann return | ann vol | Sharpe | max drawdown | Calmar |
+|---|---|---|---|---|---|
+| Macro-quadrant tilt | 7.5% | 9.4% | 0.72 | -19% | 0.40 |
+| Static 100% equity | 13.8% | 16.9% | 0.80 | -34% | 0.41 |
+| Static 60/40 equity/bonds | 9.0% | 9.9% | 0.82 | -21% | 0.43 |
+
+This one does **not** work, and the honest thing is to say so. The quadrant tilt trails both benchmarks
+on return and on Sharpe; it reduces drawdown versus all-equity, but a plain 60/40 does that better. Two
+reasons, both anticipated when the feature was scoped. First, the usable window (2012-2023) is short and
+almost entirely a bull market, so a strategy that sits in cash or bonds for roughly half the days -
+every "stagflation" and "slowdown" quadrant - simply misses equity gains. Second, a monthly macro
+signal is a slow, coarse overlay, and macro regimes turn over so rarely that a decade contains only a
+few independent observations. P4 is a descriptive allocation tilt on a sample too small and too
+one-directional to add value here, and that is a more useful thing to have demonstrated than another
+flattering backtest.
+
+![Macro-quadrant tilt vs benchmarks](figures/macro_quadrants.png)
+
+(Tier 2 - full ALFRED vintage reconstruction via `get_series_as_of_date`, and survey-based expectations
+- is documented in `regimes/macro.py` as the rigorous upgrade, but it would not change the sample-size
+limitation that drives this result.)
+
 ## Reproduce
 
 ```bash
@@ -296,7 +341,11 @@ python examples/extensions.py          # state-count, cross-asset, AR + Student-
 python examples/turbulence_regimes.py  # multivariate Financial Turbulence regimes
 python examples/absorption_signal.py   # absorption-ratio spike signal, honest confusion matrix
 python examples/regime_allocation.py   # regime-conditional cash/bonds/equity allocation, after costs
+python examples/macro_quadrants.py     # macro growth/inflation quadrants (needs FRED_API_KEY)
 ```
+
+`macro_quadrants.py` needs a free FRED API key in the `FRED_API_KEY` environment variable
+(`fred.stlouisfed.org` -> My Account -> API Keys). Everything else runs with no keys.
 
 Every number and figure in this note comes straight from those scripts. The raw data pull is cached,
 so reruns are deterministic.
