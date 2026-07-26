@@ -105,23 +105,69 @@ What it does not show:
 
 - **Not a trading strategy.** A correlation with future realised vol is not a backtested P&L. Turning
   a regime signal into a position involves costs, capacity, and a sizing rule, none of which are here.
-- **Not a claim of the "right" number of regimes.** Two states is a baseline. Choosing the state count
-  by information criterion is a separate, honest step and a listed next milestone.
-- **Not robust to a Gaussian assumption.** Returns have fat tails; a Student-t or an autoregressive
-  mean could change the picture.
+- **Not a claim of the "right" number of regimes.** Two states is a baseline. The extensions below
+  test the count by information criterion, and it holds up.
+- **Still Gaussian.** Returns have fat tails. The extensions add an autoregressive mean as a
+  robustness check, but a Student-t emission is not yet implemented (statsmodels' switching models
+  are Gaussian) and remains open.
+
+## Robustness and extensions
+
+Three checks on the baseline. All confirm it rather than overturn it, which is the point of running
+them. Reproduce with `python examples/extensions.py`.
+
+### How many regimes?
+
+Fitting the model for two, three and four states on the full S&P 500 sample:
+
+| States | AIC | BIC | Converged |
+|---|---|---|---|
+| 2 | 13203 | 13242 | yes |
+| 3 | 12702 | 12780 | **no** |
+| 4 | 12668 | 12798 | **no** |
+
+The three- and four-state fits report lower information criteria, but they **fail to converge**: the
+optimiser cannot identify a stable third or fourth state on this data, so those numbers are not
+trustworthy. Among the fits that actually converged, both AIC and BIC select **two states**. The
+baseline count is the honest choice, not an assumption. (This is exactly why the `converged` flag is
+reported and non-converged fits are excluded from the selection rather than silently ranked.)
+
+### Systemic or sector-specific? Cross-asset concordance
+
+Fitting the same two-state model independently to each of the nine SPDR sector ETFs, the high-vol
+regimes move together: the mean pairwise correlation of the sectors' high-vol probabilities is
+**0.66**. Volatility stress is largely a systemic, market-wide state rather than a sector story.
+
+"Breadth" — the share of the nine sectors in their high-vol regime — makes this visible. It sits near
+zero in calm periods and saturates to all nine sectors during 2008-09, 2011, the 2020 COVID crash and
+2022.
+
+![Cross-asset breadth](figures/sector_breadth.png)
+
+(This cross-asset view is descriptive: each sector is fit on the full sample, so unlike the headline
+S&P 500 result it is not a walk-forward out-of-sample statement.)
+
+### Robust to an autoregressive mean?
+
+The baseline assumes returns are i.i.d. within a regime. Adding an AR(1) mean
+(`MarkovAutoregression`) lets the model separate "high variance" from "momentum". The regimes barely
+move: the AR and baseline high-vol probabilities correlate at **1.00** and agree on the high-vol
+classification on **99.3%** of days. The regimes are a volatility phenomenon, not an artefact of
+ignoring autocorrelation.
 
 ## Reproduce
 
 ```bash
 pip install -e .
-python examples/spx_regimes.py
+python examples/spx_regimes.py    # headline result + figures
+python examples/extensions.py     # state-count, cross-asset, AR robustness
 ```
 
-Every number and figure in this note comes straight from that script. The raw data pull is cached, so
-reruns are deterministic.
+Every number and figure in this note comes straight from those scripts. The raw data pull is cached,
+so reruns are deterministic.
 
-## Next
+## Still open
 
-- State-count selection (BIC/AIC, 2 vs 3) with the trade-off written up honestly.
-- A sector-ETF or cross-asset extension (a shared risk-on / risk-off state).
-- A Student-t or autoregressive-mean variant as a robustness check.
+- A Student-t (fat-tailed) emission as a further robustness check. This needs a custom switching
+  model; statsmodels only offers Gaussian emissions.
+- A genuinely out-of-sample (walk-forward) version of the cross-asset breadth gauge.

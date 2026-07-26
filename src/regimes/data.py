@@ -69,3 +69,23 @@ def load_index_returns(
     log_ret = np.log(prices).diff().dropna() * 100.0
     log_ret.name = "log_return_pct"
     return log_ret.sort_index()
+
+
+# The nine classic SPDR sector ETFs (pre-2015 history, so a long window is available).
+SECTOR_ETFS = ("XLB", "XLE", "XLF", "XLI", "XLK", "XLP", "XLU", "XLV", "XLY")
+
+
+def load_sector_returns(
+    tickers=SECTOR_ETFS,
+    start: str = "2005-01-01",
+    end: str = "2023-12-31",
+    *,
+    use_cache: bool = True,
+) -> pd.DataFrame:
+    """Daily log returns (percent) for several tickers, aligned on their common trading days.
+
+    Each column is one ticker. Rows with any missing ticker are dropped so every column shares the
+    same dates — the cross-asset regime analysis needs them aligned.
+    """
+    cols = {t: load_index_returns(t, start, end, use_cache=use_cache) for t in tickers}
+    return pd.DataFrame(cols).dropna(how="any").sort_index()

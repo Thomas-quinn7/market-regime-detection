@@ -26,6 +26,31 @@ def realised_vol(returns: pd.Series, window: int = 21) -> pd.Series:
 
 
 @dataclass
+class Agreement:
+    """How closely two high-vol probability series agree, on their shared dates."""
+
+    corr: float           # correlation of the two probability series
+    label_agreement: float  # fraction of dates both put on the same side of ``threshold``
+    n: int
+
+
+def regime_agreement(prob_a: pd.Series, prob_b: pd.Series, *, threshold: float = 0.5) -> Agreement:
+    """Compare two filtered high-vol probability series (e.g. baseline vs an AR-mean variant).
+
+    Used as a robustness check: if a richer model's regimes agree closely with the baseline's, the
+    baseline's regimes were not an artefact of its simpler assumptions.
+    """
+    joined = pd.concat({"a": prob_a, "b": prob_b}, axis=1, sort=True).dropna()
+    hi_a = joined["a"] >= threshold
+    hi_b = joined["b"] >= threshold
+    return Agreement(
+        corr=float(joined["a"].corr(joined["b"])),
+        label_agreement=float((hi_a == hi_b).mean()),
+        n=len(joined),
+    )
+
+
+@dataclass
 class OOSResult:
     """Outcome of the causal predictive check."""
 

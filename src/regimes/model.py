@@ -51,6 +51,29 @@ class RegimeFit:
         return self.filtered.iloc[:, -1]
 
 
+def _assemble_fit(res, n_regimes: int, index: pd.Index) -> RegimeFit:
+    """Order regimes canonically by variance and package filtered + smoothed probabilities.
+
+    ``index`` must match the number of probability rows the fit produced — this is the full return
+    index for a plain fit, or the tail of it for an autoregressive fit that consumes the first
+    ``order`` observations.
+    """
+    raw_var = np.asarray(res.params[[f"sigma2[{k}]" for k in range(n_regimes)]], dtype=float)
+    order = np.argsort(raw_var)  # ascending variance -> canonical order
+
+    filt = np.asarray(res.filtered_marginal_probabilities)[:, order]
+    smooth = np.asarray(res.smoothed_marginal_probabilities)[:, order]
+    cols = [f"regime_{k}" for k in range(n_regimes)]
+
+    return RegimeFit(
+        filtered=pd.DataFrame(filt, index=index, columns=cols),
+        smoothed=pd.DataFrame(smooth, index=index, columns=cols),
+        variances=raw_var[order],
+        order=order,
+        result=res,
+    )
+
+
 def fit_regimes(returns: pd.Series, n_regimes: int = 2) -> RegimeFit:
     """Fit a switching-variance Markov model to a return series.
 
@@ -69,20 +92,26 @@ def fit_regimes(returns: pd.Series, n_regimes: int = 2) -> RegimeFit:
     # straight in only earns a "no frequency" warning — irregular trading days have no clean freq and
     # statsmodels ignores it anyway.
     y_fit = y.reset_index(drop=True)
-    model = MarkovRegression(y_fit, k_regimes=n_regimes, trend="c", switching_variance=True)
-    res = model.fit(disp=False)
+    res = MarkovRegression(y_fit, k_regimes=n_regimes, trend="c", switching_variance=True).fit(disp=False)
+    return _assemble_fit(res, n_regimes, y.index)
 
-    raw_var = np.asarray(res.params[[f"sigma2[{k}]" for k in range(n_regimes)]], dtype=float)
-    order = np.argsort(raw_var)  # ascending variance -> canonical order
 
-    filt = np.asarray(res.filtered_marginal_probabilities)[:, order]
-    smooth = np.asarray(res.smoothed_marginal_probabilities)[:, order]
-    cols = [f"regime_{k}" for k in range(n_regimes)]
+def fit_regimes_ar(returns: pd.Series, n_regimes: int = 2, order: int = 1) -> RegimeFit:
+    """Robustness variant: a Markov-switching **autoregressive** model.
 
-    return RegimeFit(
-        filtered=pd.DataFrame(filt, index=y.index, columns=cols),
-        smoothed=pd.DataFrame(smooth, index=y.index, columns=cols),
-        variances=raw_var[order],
-        order=order,
-        result=res,
-    )
+    The baseline ``fit_regimes`` assumes returns are i.i.d. within a regime. This variant adds an
+    AR(``order``) mean, so it can tell apart "high variance" from "persistent momentum". If the
+    inferred high-vol regime survives this richer mean structure, that is evidence the regimes are a
+    volatility phenomenon and not an artefact of ignoring autocorrelation.
+
+    The AR model consumes the first ``order`` observations, so the returned probabilities are aligned
+    to ``returns.index[order:]``.
+    """
+    from statsmodels.tsa.regime_switching.markov_autoregression import MarkovAutoregression
+
+    y = returns.astype(float)
+    y_fit = y.reset_index(drop=True)
+    res = MarkovAutoregression(
+        y_fit, k_regimes=n_regimes, order=order, trend="c", switching_variance=True
+    ).fit(disp=False)
+    return _assemble_fit(res, n_regimes, y.index[order:])

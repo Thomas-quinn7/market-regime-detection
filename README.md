@@ -47,19 +47,22 @@ about 0.62. The gap is the look-ahead premium, and the honest number is the one 
 
 ```bash
 pip install -e .
-python examples/spx_regimes.py   # reproduces every number and figure in the write-up
+python examples/spx_regimes.py   # headline result + figures
+python examples/extensions.py    # state-count selection, cross-asset concordance, AR robustness
 ```
 
 ## Layout
 
 ```
 src/regimes/
-  data.py       # cached, deterministic S&P 500 daily data
-  model.py      # Markov-switching fit; canonical regime ordering; filtered + smoothed probs
-  evaluate.py   # train/test split; out-of-sample realised-vol validation
-  plots.py      # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
-tests/          # synthetic-regime recovery + an explicit no-look-ahead assertion
-notebooks/      # exploration only — not the headline
+  data.py        # cached, deterministic index + sector-ETF daily data
+  model.py       # Markov-switching fit (baseline + AR variant); canonical ordering; filtered + smoothed
+  evaluate.py    # walk-forward OOS validation; regime-agreement metric
+  selection.py   # state-count selection by AIC/BIC
+  cross_asset.py # per-sector regimes; systemic-stress concordance and breadth
+  plots.py       # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
+tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (15 tests)
+notebooks/       # exploration only — not the headline
 ```
 
 ## Limits (stated up front)
