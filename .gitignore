@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Cached market data — keep the fetch code deterministic, not the bulk pulls.
+# A small sample may be committed explicitly; large pulls stay local.
+data/*.csv
+data/*.parquet
+!data/sample_*.csv
