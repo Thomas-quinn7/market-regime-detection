@@ -184,12 +184,43 @@ genuinely heavy tails, and close enough to the nu = 5 used above that the fixed 
 It is offered as an option rather than the default because the nu likelihood is famously flat, so a
 fixed, documented value is the more honest robustness setting.
 
+## Multivariate regimes: a Financial Turbulence input
+
+Everything above defines regimes from a single asset's returns. Real systematic funds do not: they use
+a multivariate stress measure. The canonical one is **Financial Turbulence** (Kritzman & Li 2010) - the
+Mahalanobis distance of the day's cross-asset return vector from its history,
+`FT = (r - mu)' Sigma^-1 (r - mu)`, which fires both on uncharacteristically large moves and on breaks
+in the cross-asset correlation structure. Feeding that series into the same 2-state HMM is standard
+practice (see `../MARKET_REGIME_INDUSTRY_ROADMAP.md`).
+
+The implementation (`regimes.turbulence`) computes turbulence across the nine SPDR sectors with the
+mean and covariance estimated causally from a trailing window, so it inherits the same look-ahead
+discipline as the rest of the repo, and fits the HMM ordered by mean turbulence (normal vs ex-normal).
+
+The honest comparison, on the S&P 500 (2005-2023):
+
+| Regime signal | corr with next-month S&P 500 realised vol |
+|---|---|
+| Single-asset S&P 500 volatility regime | 0.55 |
+| Multivariate turbulence regime (9 sectors) | 0.39 |
+
+The turbulence regime is a genuinely *different* signal - it agrees with the single-asset labelling on
+only 74% of days. And it scores **lower** on predicting the S&P 500's own next-month volatility. That
+is expected, not a failure: the single-asset model is almost tautologically tied to S&P 500 vol because
+it is built from it, whereas turbulence measures broader cross-asset fragility that a single-asset model
+cannot see. Its value is as a systemic-stress gauge and, per the literature, as an input to
+regime-conditional *allocation* across assets - not as a sharper predictor of one index's volatility.
+Testing it on that narrower task is the fair, unflattering comparison, so that is the one reported here.
+
+![S&P 500 with multivariate turbulence regimes](figures/turbulence_regimes.png)
+
 ## Reproduce
 
 ```bash
 pip install -e .
-python examples/spx_regimes.py    # headline result + figures
-python examples/extensions.py     # state-count, cross-asset, AR robustness
+python examples/spx_regimes.py         # headline result + figures
+python examples/extensions.py          # state-count, cross-asset, AR + Student-t robustness
+python examples/turbulence_regimes.py  # multivariate Financial Turbulence regimes
 ```
 
 Every number and figure in this note comes straight from those scripts. The raw data pull is cached,

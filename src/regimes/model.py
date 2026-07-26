@@ -51,15 +51,25 @@ class RegimeFit:
         return self.filtered.iloc[:, -1]
 
 
-def _assemble_fit(res, n_regimes: int, index: pd.Index) -> RegimeFit:
-    """Order regimes canonically by variance and package filtered + smoothed probabilities.
+def _assemble_fit(res, n_regimes: int, index: pd.Index, *, order_by: str = "variance") -> RegimeFit:
+    """Order regimes canonically and package filtered + smoothed probabilities.
 
-    ``index`` must match the number of probability rows the fit produced — this is the full return
-    index for a plain fit, or the tail of it for an autoregressive fit that consumes the first
-    ``order`` observations.
+    ``order_by`` selects the ranking key: ``"variance"`` (ascending fitted variance — the default, for
+    volatility regimes) or ``"mean"`` (ascending fitted constant — for level series like turbulence,
+    where the stressed state is high-*level*, not high-variance). Either way regime 0 is the calmest
+    and the last regime is the most stressed, so ``high_vol_filtered`` always returns the stressed one.
+
+    ``index`` must match the number of probability rows the fit produced — the full return index for a
+    plain fit, or its tail for an autoregressive fit that consumes the first ``order`` observations.
     """
     raw_var = np.asarray(res.params[[f"sigma2[{k}]" for k in range(n_regimes)]], dtype=float)
-    order = np.argsort(raw_var)  # ascending variance -> canonical order
+    if order_by == "mean":
+        key = np.asarray(res.params[[f"const[{k}]" for k in range(n_regimes)]], dtype=float)
+    elif order_by == "variance":
+        key = raw_var
+    else:
+        raise ValueError("order_by must be 'variance' or 'mean'")
+    order = np.argsort(key)  # ascending -> canonical order (regime 0 calmest, last most stressed)
 
     filt = np.asarray(res.filtered_marginal_probabilities)[:, order]
     smooth = np.asarray(res.smoothed_marginal_probabilities)[:, order]
@@ -74,7 +84,7 @@ def _assemble_fit(res, n_regimes: int, index: pd.Index) -> RegimeFit:
     )
 
 
-def fit_regimes(returns: pd.Series, n_regimes: int = 2) -> RegimeFit:
+def fit_regimes(returns: pd.Series, n_regimes: int = 2, *, order_by: str = "variance") -> RegimeFit:
     """Fit a switching-variance Markov model to a return series.
 
     Parameters
@@ -84,6 +94,9 @@ def fit_regimes(returns: pd.Series, n_regimes: int = 2) -> RegimeFit:
     n_regimes : int
         Number of latent regimes. Default 2 (calm / stressed). State-count *selection* by
         information criterion is a separate evaluation step, not baked in here.
+    order_by : {"variance", "mean"}
+        Canonical regime ordering key. "variance" for volatility regimes (default); "mean" for level
+        series such as turbulence, where the stressed state is the high-level one.
     """
     from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
@@ -93,7 +106,7 @@ def fit_regimes(returns: pd.Series, n_regimes: int = 2) -> RegimeFit:
     # statsmodels ignores it anyway.
     y_fit = y.reset_index(drop=True)
     res = MarkovRegression(y_fit, k_regimes=n_regimes, trend="c", switching_variance=True).fit(disp=False)
-    return _assemble_fit(res, n_regimes, y.index)
+    return _assemble_fit(res, n_regimes, y.index, order_by=order_by)
 
 
 def fit_regimes_ar(returns: pd.Series, n_regimes: int = 2, order: int = 1) -> RegimeFit:
