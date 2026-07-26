@@ -8,6 +8,10 @@ dist/
 .venv/
 venv/
 
+# Secrets: the macro (FRED) example reads FRED_API_KEY from the environment. Never commit a key.
+.env
+.env.*
+
 # Tooling
 .pytest_cache/
 .ruff_cache/
