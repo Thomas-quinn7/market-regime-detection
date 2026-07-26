@@ -1,5 +1,7 @@
 # market-regime-detection
 
+[![CI](https://github.com/Thomas-quinn7/market-regime-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/Thomas-quinn7/market-regime-detection/actions/workflows/ci.yml)
+
 Detecting **volatility regimes** in equity index returns with a Markov-switching model — and doing
 it **without look-ahead bias**, which is the part most implementations get wrong.
 
@@ -7,7 +9,21 @@ The look-ahead-free baseline then extends toward how systematic funds actually d
 multivariate Financial Turbulence input, the Kritzman Absorption Ratio (with the false-alarm rate the
 papers omit), a regime-conditional cross-asset allocation backtest, and point-in-time macro quadrants.
 Every result is reproducible, and the honest framing includes the extensions that do **not** beat their
-benchmarks. Full write-up: **[docs/WRITEUP.md](docs/WRITEUP.md)**.
+benchmarks.
+
+**Start with the full write-up: [docs/WRITEUP.md](docs/WRITEUP.md)** — methodology, figures, and
+caveats for every result below.
+
+## Results at a glance
+
+| Layer | Honest result |
+|---|---|
+| Volatility-regime baseline | 0.57 correlation with next-month realised vol, walk-forward out-of-sample (a naive full-sample evaluation reports 0.62 — the look-ahead premium) |
+| Robustness | AIC/BIC pick 2 states; regimes survive an AR(1) mean (99% agreement) and from-scratch Student-t emissions (90%) |
+| Cross-asset turbulence | stress is systemic (0.67 sector concordance, OOS); a genuinely different signal from single-asset vol |
+| Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4–1.8x) — but **76–92% of alerts are false**, the number the papers omit |
+| Regime allocation | Sharpe 0.66 vs 0.53 buy-and-hold, max drawdown -15% vs -52%: loss avoidance, not alpha (out-of-sample, after costs) |
+| Macro quadrants | does **not** beat a static 60/40 — an honest null result, kept for the point-in-time data discipline it demonstrates |
 
 ## The idea
 

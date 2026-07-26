@@ -127,7 +127,6 @@ def fit_regimes_student_t(
         bound ``nu_bounds[0]`` should stay above 2 so the variance exists.
     """
     x = returns.astype(float).to_numpy()
-    T = x.size
     K = n_regimes
 
     # Deterministic init: scales spread across the empirical spread, means at the sample mean, a
