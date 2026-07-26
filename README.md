@@ -20,7 +20,8 @@ caveats for every result below.
 |---|---|
 | Volatility-regime baseline | 0.57 correlation with next-month realised vol, walk-forward out-of-sample (a naive full-sample evaluation reports 0.62 — the look-ahead premium) |
 | Robustness | AIC/BIC pick 2 states; regimes survive an AR(1) mean (99% agreement) and from-scratch Student-t emissions (90%) |
-| Cross-asset turbulence | stress is systemic (0.67 sector concordance, OOS); a genuinely different signal from single-asset vol |
+| Cross-asset concordance | stress is systemic: the nine per-sector regimes agree at 0.67 mean pairwise correlation, out-of-sample |
+| Multivariate turbulence | a genuinely different signal from single-asset vol (74% label agreement); correlates 0.39 with next-month realised vol vs the single-asset model's 0.55 on its home turf — expected, its value is correlation-break detection |
 | Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4–1.8x) — but **76–92% of alerts are false**, the number the papers omit |
 | Regime allocation | Sharpe 0.66 vs 0.53 buy-and-hold, max drawdown -15% vs -52%: loss avoidance, not alpha (out-of-sample, after costs) |
 | Macro quadrants | does **not** beat a static 60/40 — an honest null result, kept for the point-in-time data discipline it demonstrates |
@@ -70,7 +71,7 @@ python examples/extensions.py          # state-count, cross-asset concordance, A
 python examples/turbulence_regimes.py  # multivariate Financial Turbulence regimes
 python examples/absorption_signal.py   # absorption-ratio spike signal, honest confusion matrix
 python examples/regime_allocation.py   # regime-conditional cash/bonds/equity allocation, after costs
-python examples/macro_quadrants.py     # macro growth/inflation quadrants (needs FRED_API_KEY)
+python examples/macro_quadrants.py     # macro growth/inflation quadrants (runs offline from the committed cache)
 ```
 
 Everything runs with no API keys. `macro_quadrants.py` uses FRED/ALFRED data whose small first-release

@@ -351,7 +351,7 @@ python examples/extensions.py          # state-count, cross-asset, AR + Student-
 python examples/turbulence_regimes.py  # multivariate Financial Turbulence regimes
 python examples/absorption_signal.py   # absorption-ratio spike signal, honest confusion matrix
 python examples/regime_allocation.py   # regime-conditional cash/bonds/equity allocation, after costs
-python examples/macro_quadrants.py     # macro growth/inflation quadrants (needs FRED_API_KEY)
+python examples/macro_quadrants.py     # macro growth/inflation quadrants (runs offline from the committed cache)
 ```
 
 `macro_quadrants.py` uses FRED/ALFRED data whose small first-release cache is committed, so it runs

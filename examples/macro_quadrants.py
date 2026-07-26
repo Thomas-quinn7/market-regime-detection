@@ -4,7 +4,8 @@ Point-in-time macro data (first-release, publication-date-aligned) from FRED/ALF
 growth x inflation quadrant each day; each quadrant maps to a simple asset tilt, backtested with the
 existing causal, cost-aware allocation machinery.
 
-Requires a free FRED API key in the FRED_API_KEY environment variable.
+Runs offline from the committed first-release caches in data/. A free FRED API key in the
+FRED_API_KEY environment variable is needed only to refresh those caches from ALFRED.
 
 Run from the repo root:
 
