@@ -247,6 +247,46 @@ far below the paper's near-100%, partly from the smaller universe and a differen
 This is not a refutation of the paper. It is the missing half of the picture: even taking the leading-
 indicator claim at face value, the signal is a high-false-alarm one with a genuine but small lift.
 
+## Regime-conditional allocation: holding the signal to a P&L standard
+
+Everything so far measures a regime signal against volatility. The literature (Ang & Bekaert 2004) is
+clear that the actual value of regime detection shows up somewhere else: not in predicting one index's
+volatility, but in switching across assets to avoid losses. So this is the capstone test - turn the
+regime probability into a position and score it on profit and loss.
+
+The rules are deliberately strict on look-ahead: the regime probability is the **walk-forward
+out-of-sample** one (parameters estimated only on past data), the position for each day is decided from
+the prior day's information, and turnover is charged 5 basis points. When the filtered high-vol
+probability is below 0.5 the strategy holds equity (SPY); at or above it, the strategy switches to cash
+(BIL) or to 7-10y Treasuries (IEF). Benchmarks are static 100% equity and a static 60/40. Window:
+2008-2023 (where the OOS signal exists).
+
+| Strategy | ann return | ann vol | Sharpe | max drawdown | Calmar |
+|---|---|---|---|---|---|
+| Regime switch equity / cash | 7.7% | 10.9% | **0.66** | **-15%** | **0.51** |
+| Regime switch equity / bonds | 8.5% | 12.0% | 0.67 | -17% | 0.51 |
+| Static 100% equity | **10.0%** | 20.4% | 0.53 | -52% | 0.19 |
+| Static 60/40 equity / bonds | 7.8% | 11.6% | 0.64 | -31% | 0.25 |
+
+![Regime-conditional allocation vs benchmarks](figures/regime_allocation.png)
+
+The honest reading, and it is exactly what the literature predicts. Regime switching **does not make
+more money** than buy-and-hold equity - it earns less (7.7% vs 10.0%), because sitting out flagged
+periods means missing some of the rebounds. What it does is earn a similar amount with **half the
+volatility and a third of the drawdown**: max drawdown falls from -52% to -15%, and risk-adjusted
+return improves clearly (Sharpe 0.66 vs 0.53, Calmar 0.51 vs 0.19). The chart shows where it comes
+from: the regime strategies sidestep almost all of 2008 and most of 2020, and give the ground back
+slowly during the long bull run. This is loss avoidance, not alpha, and it is the value Ang & Bekaert
+attribute to regimes.
+
+Caveats, because this is the result most easily oversold. It is a single out-of-sample path on one
+market over one 16-year window, and that window is bracketed by two large crashes that flatter a
+loss-avoidance strategy; a different sample could look very different (Ang & Bekaert flag the same
+sample-specificity about their own numbers). The binary switch is crude, the ~2.3% of annual return
+given up is a real cost of the insurance, and none of this is a live trading system. The claim is
+narrow: used the way the literature says to use it, the regime signal produces a genuine,
+out-of-sample, cost-aware improvement in risk-adjusted return, concentrated in drawdown reduction.
+
 ## Reproduce
 
 ```bash
@@ -255,6 +295,7 @@ python examples/spx_regimes.py         # headline result + figures
 python examples/extensions.py          # state-count, cross-asset, AR + Student-t robustness
 python examples/turbulence_regimes.py  # multivariate Financial Turbulence regimes
 python examples/absorption_signal.py   # absorption-ratio spike signal, honest confusion matrix
+python examples/regime_allocation.py   # regime-conditional cash/bonds/equity allocation, after costs
 ```
 
 Every number and figure in this note comes straight from those scripts. The raw data pull is cached,

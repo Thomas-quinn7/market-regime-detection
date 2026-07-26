@@ -60,11 +60,12 @@ src/regimes/
   student_t.py   # from-scratch Student-t emission model (EM); fat-tail robustness
   turbulence.py  # multivariate Financial Turbulence (Mahalanobis) as the HMM input
   absorption.py  # Absorption Ratio (PCA fragility) + honest signal confusion matrix
+  allocation.py  # regime-conditional cash/bonds/equity backtest; performance stats
   evaluate.py    # walk-forward OOS validation; regime-agreement metric
   selection.py   # state-count selection by AIC/BIC
   cross_asset.py # per-sector regimes; systemic-stress concordance and breadth (+ OOS)
   plots.py       # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
-tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (31 tests)
+tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (36 tests)
 notebooks/       # exploration only — not the headline
 ```
 
