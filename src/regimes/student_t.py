@@ -30,6 +30,32 @@ from .model import RegimeFit
 _VAR_FLOOR = 1e-8  # keep a scale from collapsing onto a single point
 
 
+def _update_nu(smoothed: np.ndarray, delta: np.ndarray, nu_old: float,
+               nu_min: float, nu_max: float) -> float:
+    """EM update for the (shared) degrees of freedom.
+
+    There is no closed form. Given the current responsibilities and squared standardised residuals,
+    the ML update for nu solves ``log(nu/2) - digamma(nu/2) + 1 + S = 0``, where S is the
+    responsibility-weighted mean of ``E[log u] - E[u]`` under the scale-mixture posterior (Liu &
+    Rubin 1995; McLachlan & Peel 2000). ``log(nu/2) - digamma(nu/2)`` is positive and decreases to 0
+    as nu grows, so a finite root exists only when ``S < -1``; otherwise the data are effectively
+    Gaussian and nu is pinned to ``nu_max``.
+    """
+    from scipy.optimize import brentq
+    from scipy.special import digamma
+
+    u = (nu_old + 1.0) / (nu_old + delta)
+    elog_u = digamma((nu_old + 1.0) / 2.0) - np.log((nu_old + delta) / 2.0)
+    s = float((smoothed * (elog_u - u)).sum() / smoothed.sum())  # responsibilities sum to T
+
+    def f(nu):
+        return np.log(nu / 2.0) - digamma(nu / 2.0) + 1.0 + s
+
+    if f(nu_min) * f(nu_max) > 0:  # no sign change -> no interior root
+        return nu_max if f(nu_max) > 0 else nu_min
+    return float(brentq(f, nu_min, nu_max))
+
+
 def _t_logpdf(x: np.ndarray, mu: np.ndarray, sigma: np.ndarray, nu: float) -> np.ndarray:
     """Log Student-t density, shape (T, K) for x:(T,), mu/sigma:(K,)."""
     from scipy.special import gammaln
@@ -82,6 +108,8 @@ def fit_regimes_student_t(
     n_regimes: int = 2,
     *,
     nu: float = 5.0,
+    estimate_nu: bool = False,
+    nu_bounds: tuple[float, float] = (2.1, 200.0),
     max_iter: int = 200,
     tol: float = 1e-6,
 ) -> RegimeFit:
@@ -90,10 +118,13 @@ def fit_regimes_student_t(
     Parameters
     ----------
     nu : float
-        Degrees of freedom (fixed). Smaller = heavier tails; nu -> infinity recovers the Gaussian.
-        Held fixed rather than estimated because the degrees-of-freedom likelihood is famously flat
-        and unstable; the robustness question is whether the regimes hold under fat tails, not what
-        the exact tail index is.
+        Degrees of freedom. If ``estimate_nu`` is False this is fixed; otherwise it is the starting
+        value. Smaller = heavier tails; nu -> infinity recovers the Gaussian.
+    estimate_nu : bool
+        If True, estimate a single shared degrees-of-freedom by EM alongside the other parameters
+        (see ``_update_nu``). Off by default: the nu likelihood is famously flat, so a fixed value is
+        the safer robustness default, and the fitted nu is offered for those who want it. The lower
+        bound ``nu_bounds[0]`` should stay above 2 so the variance exists.
     """
     x = returns.astype(float).to_numpy()
     T = x.size
@@ -125,6 +156,11 @@ def fit_regimes_student_t(
         sigma = np.sqrt(np.maximum(var, _VAR_FLOOR))
         pi = smoothed[0] / smoothed[0].sum()
         A = xi_sum / xi_sum.sum(axis=1, keepdims=True)
+
+        if estimate_nu:
+            # Update nu against the just-updated mu/sigma (multicycle ECM), shared across states.
+            new_delta = ((x[:, None] - mu[None, :]) / sigma[None, :]) ** 2
+            nu = _update_nu(smoothed, new_delta, nu, nu_bounds[0], nu_bounds[1])
 
         if ll - prev_ll < tol:
             break

@@ -144,8 +144,14 @@ zero in calm periods and saturates to all nine sectors during 2008-09, 2011, the
 
 ![Cross-asset breadth](figures/sector_breadth.png)
 
-(This cross-asset view is descriptive: each sector is fit on the full sample, so unlike the headline
-S&P 500 result it is not a walk-forward out-of-sample statement.)
+The figure above fits each sector on the full sample, so it is descriptive. Running the same idea
+through the walk-forward machinery instead - each sector's high-vol probability comes from
+`evaluate.walk_forward_oos`, so it used only past data and past-estimated parameters - gives a breadth
+gauge you could have computed in real time. The systemic story survives the stricter test: the
+out-of-sample mean pairwise correlation is **0.67**, essentially unchanged from the descriptive 0.66,
+and the crisis structure is the same.
+
+![Out-of-sample cross-asset breadth](figures/sector_breadth_oos.png)
 
 ### Robust to an autoregressive mean?
 
@@ -172,6 +178,12 @@ direction: some days the Gaussian labelled high-vol were isolated outliers, whic
 in the calm regime rather than treating as a change of state. This is the most informative of the
 three checks, because it actually moves something, and in the way the theory predicts.
 
+The degrees of freedom can also be estimated rather than fixed (`estimate_nu=True`), via an EM update
+that solves the digamma equation for nu each iteration. On the S&P 500 the estimate is **nu = 4.75** —
+genuinely heavy tails, and close enough to the nu = 5 used above that the fixed choice was a fair one.
+It is offered as an option rather than the default because the nu likelihood is famously flat, so a
+fixed, documented value is the more honest robustness setting.
+
 ## Reproduce
 
 ```bash
@@ -183,8 +195,13 @@ python examples/extensions.py     # state-count, cross-asset, AR robustness
 Every number and figure in this note comes straight from those scripts. The raw data pull is cached,
 so reruns are deterministic.
 
-## Still open
+## Possible extensions
 
-- Estimating the Student-t degrees of freedom rather than fixing it, if a stable estimator can be
-  found (the nu likelihood is notoriously flat).
-- A genuinely out-of-sample (walk-forward) version of the cross-asset breadth gauge.
+The core is complete: a baseline, an honest walk-forward, state-count selection, and four robustness
+and cross-asset angles, all reproducible. Natural directions from here, none of them started:
+
+- Intraday or higher-frequency data, where regime switches are faster and the filtered-vs-smoothed
+  distinction bites harder.
+- Other asset classes (rates, FX, commodities) and a genuine risk-on / risk-off state across them.
+- A trading overlay that turns the filtered regime probability into a position, with costs, so the
+  correlation-with-realised-vol result can be held to a P&L standard.

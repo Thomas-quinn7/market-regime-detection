@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-from regimes.cross_asset import sector_regime_concordance
+from regimes.cross_asset import sector_regime_concordance, walk_forward_breadth
 
 
 def _common_regime_panel(seed: int = 7) -> pd.DataFrame:
@@ -43,3 +43,26 @@ def test_requires_at_least_two_assets():
     except ValueError:
         return
     raise AssertionError("expected ValueError for a single asset")
+
+
+def _interleaved_panel(seed: int = 11) -> pd.DataFrame:
+    """calm, storm, calm, storm (250 each) so a training window spanning the first half sees BOTH
+    regimes and can identify them before the out-of-sample span begins."""
+    rng = np.random.default_rng(seed)
+    vols = np.concatenate([np.full(250, 0.5), np.full(250, 3.0),
+                           np.full(250, 0.5), np.full(250, 3.0)])
+    cols = {name: rng.normal(0.0, 1.0, len(vols)) * vols for name in ("A", "B", "C")}
+    idx = pd.date_range("2010-01-01", periods=len(vols), freq="B")
+    return pd.DataFrame(cols, index=idx)
+
+
+def test_walk_forward_breadth_is_causal_and_spikes_in_storm():
+    panel = _interleaved_panel()
+    res = walk_forward_breadth(panel, min_train=500, step=100, horizon=21)
+    # Causal: the OOS breadth cannot start before the initial training window.
+    assert res.breadth.index.min() == panel.index[500]
+    assert res.breadth.between(0.0, 1.0).all()
+    # Out-of-sample span is the second half: calm [500:750] then storm [750:1000].
+    oos_calm = res.breadth[(res.breadth.index >= panel.index[500]) & (res.breadth.index < panel.index[750])]
+    oos_storm = res.breadth[res.breadth.index >= panel.index[750]]
+    assert oos_storm.mean() > oos_calm.mean() + 0.3

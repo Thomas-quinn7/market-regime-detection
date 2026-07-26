@@ -42,3 +42,23 @@ def test_reduces_to_gaussian_as_nu_grows():
     ag = regime_agreement(t_big, gauss)
     assert ag.corr > 0.99
     assert ag.label_agreement > 0.99
+
+
+def _two_regime_big(seed: int, fat: bool) -> pd.Series:
+    rng = np.random.default_rng(seed)
+    if fat:
+        calm, storm = rng.standard_t(4, 2000) * 0.5, rng.standard_t(4, 2000) * 3.0
+    else:
+        calm, storm = rng.normal(0.0, 0.5, 2000), rng.normal(0.0, 3.0, 2000)
+    y = np.concatenate([calm, storm])
+    return pd.Series(y, index=pd.date_range("2000-01-01", periods=len(y), freq="B"))
+
+
+def test_estimate_nu_recovers_fat_tails():
+    fit = fit_regimes_student_t(_two_regime_big(0, fat=True), n_regimes=2, nu=8.0, estimate_nu=True)
+    assert 2.5 < fit.result["nu"] < 8.0  # true nu is 4
+
+
+def test_estimate_nu_goes_large_for_gaussian():
+    fit = fit_regimes_student_t(_two_regime_big(0, fat=False), n_regimes=2, nu=8.0, estimate_nu=True)
+    assert fit.result["nu"] > 20.0  # light tails -> nu pushed high toward Gaussian

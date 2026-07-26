@@ -18,7 +18,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from regimes.cross_asset import sector_regime_concordance  # noqa: E402
+from regimes.cross_asset import sector_regime_concordance, walk_forward_breadth  # noqa: E402
 from regimes.data import load_index_returns, load_sector_returns  # noqa: E402
 from regimes.evaluate import regime_agreement  # noqa: E402
 from regimes.model import fit_regimes, fit_regimes_ar  # noqa: E402
@@ -57,6 +57,23 @@ def main() -> None:
     agt = regime_agreement(base, tfit.high_vol_filtered())
     print(f"baseline vs Student-t(nu=5): corr {agt.corr:.3f}, "
           f"label agreement {agt.label_agreement:.3f} (n={agt.n})")
+    tfit_est = fit_regimes_student_t(spx, n_regimes=2, nu=8.0, estimate_nu=True)
+    print(f"estimated degrees of freedom (EM): nu = {tfit_est.result['nu']:.2f}\n")
+
+    print("== 5. Out-of-sample cross-asset breadth (9 SPDR sectors) ==")
+    wfb = walk_forward_breadth(sectors, n_regimes=2, min_train=756, step=63, horizon=21)
+    print(f"OOS mean pairwise corr of sector high-vol probabilities: {wfb.mean_pairwise_corr:.3f}")
+    print(f"OOS breadth mean {wfb.breadth.mean():.2f}, max {wfb.breadth.max():.2f}")
+
+    fig2, ax2 = plt.subplots(figsize=(12, 3.6))
+    ax2.fill_between(wfb.breadth.index, 0, wfb.breadth.values, color="#2e7d32", alpha=0.5)
+    ax2.set_ylim(0, 1)
+    ax2.set_ylabel("share of sectors\nin high-vol regime")
+    ax2.set_title("Out-of-sample cross-asset breadth (walk-forward, causal)")
+    ax2.margins(x=0)
+    fig2.tight_layout()
+    fig2.savefig(FIG_DIR / "sector_breadth_oos.png", dpi=140)
+    print(f"figure written to {FIG_DIR / 'sector_breadth_oos.png'}")
 
     # Figure: cross-asset breadth over time — a systemic-stress gauge.
     fig, ax = plt.subplots(figsize=(12, 3.6))

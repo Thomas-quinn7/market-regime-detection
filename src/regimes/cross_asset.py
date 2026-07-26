@@ -53,6 +53,10 @@ def sector_regime_concordance(returns: pd.DataFrame, n_regimes: int = 2) -> Cros
              for col in returns.columns}
     hv = pd.DataFrame(probs).dropna(how="any")
 
+    return _package(hv)
+
+
+def _package(hv: pd.DataFrame) -> "CrossAssetRegimes":
     corr = hv.corr().to_numpy()
     off_diag = corr[~np.eye(corr.shape[0], dtype=bool)]  # exclude the 1.0 diagonal
     return CrossAssetRegimes(
@@ -60,3 +64,35 @@ def sector_regime_concordance(returns: pd.DataFrame, n_regimes: int = 2) -> Cros
         breadth=hv.mean(axis=1).rename("breadth"),
         mean_pairwise_corr=float(off_diag.mean()),
     )
+
+
+def walk_forward_breadth(
+    returns: pd.DataFrame,
+    *,
+    n_regimes: int = 2,
+    min_train: int = 756,
+    step: int = 63,
+    horizon: int = 21,
+) -> CrossAssetRegimes:
+    """Out-of-sample cross-asset breadth.
+
+    The descriptive ``sector_regime_concordance`` fits each sector on the full sample. This is its
+    causal counterpart: each sector's high-vol probability comes from ``evaluate.walk_forward_oos``,
+    so every value used only past returns and past-estimated parameters. The resulting breadth is a
+    gauge you could actually have computed in real time, not one that peeked at the future.
+
+    Slower than the descriptive version (one walk-forward per asset), so intended for a considered
+    run rather than an inner loop.
+    """
+    from .evaluate import walk_forward_oos
+
+    if returns.shape[1] < 2:
+        raise ValueError("need at least two assets to measure concordance")
+
+    probs = {}
+    for col in returns.columns:
+        wf = walk_forward_oos(returns[col].dropna(), n_regimes=n_regimes,
+                              min_train=min_train, step=step, horizon=horizon)
+        probs[col] = wf.high_vol_prob
+    hv = pd.DataFrame(probs).dropna(how="any")
+    return _package(hv)
