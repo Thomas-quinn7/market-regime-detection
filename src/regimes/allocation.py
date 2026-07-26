@@ -1,4 +1,4 @@
-"""Regime-conditional allocation across cash, bonds and equity (roadmap P3).
+"""Regime-conditional allocation across cash, bonds and equity.
 
 This is the capstone: it turns a regime probability into a position and holds it to a P&L standard,
 which is where the literature (Ang & Bekaert 2004) says the value of regime detection actually shows

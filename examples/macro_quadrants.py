@@ -1,4 +1,4 @@
-"""Roadmap P4 (Tier 1): macro growth/inflation quadrant regimes and quadrant-conditional allocation.
+"""Macro growth/inflation quadrant regimes and quadrant-conditional allocation.
 
 Point-in-time macro data (first-release, publication-date-aligned) from FRED/ALFRED defines a
 growth x inflation quadrant each day; each quadrant maps to a simple asset tilt, backtested with the

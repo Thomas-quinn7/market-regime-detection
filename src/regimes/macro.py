@@ -1,8 +1,8 @@
-"""Macro growth/inflation quadrant regimes (roadmap P4, Tier 1).
+"""Macro growth/inflation quadrant regimes (Tier 1).
 
 Bridgewater's All Weather and Kritzman-Page-Turkington reduce the macro world to two drivers, growth
 and inflation, each rising or falling, giving a four-quadrant regime map. Each quadrant has asset
-"environmental biases", which is the basis for regime-conditional allocation (reuses P3).
+"environmental biases", which is the basis for regime-conditional allocation (reuses ``allocation``).
 
 The hard part is not the 2x2 - it is avoiding look-ahead. Macro series are published weeks after their
 reference period and are then revised, so a naive pull uses numbers that did not exist at decision
@@ -13,14 +13,15 @@ time. This module uses **point-in-time** data from FRED/ALFRED:
   removes the release-lag look-ahead and uses first prints, not future-revised numbers.
 - **Tier 2 (documented, not implemented):** full ALFRED vintage reconstruction via
   ``Fred.get_series_as_of_date(series_id, date)`` at each rebalance date, which also captures later
-  revisions as they became known. Use it only if P4 becomes a headline result; it costs one API call
-  per vintage date and needs care with the monthly cadence.
+  revisions as they became known. Use it only if the macro layer becomes a headline result; it costs
+  one API call per vintage date and needs care with the monthly cadence.
 
-Requires a free FRED API key in the ``FRED_API_KEY`` environment variable (never commit it).
+The first-release caches are committed (small, static public data), so this runs offline. A free FRED
+API key in the ``FRED_API_KEY`` environment variable is needed only to refresh or extend them.
 
 Honest limitation, stated loudly: macro regimes turn over slowly, so a 2005-2023 window holds only a
-handful of complete cycles. Treat P4 as a descriptive allocation tilt, not a statistically powerful
-predictor.
+handful of complete cycles. Treat the macro layer as a descriptive allocation tilt, not a
+statistically powerful predictor.
 """
 from __future__ import annotations
 

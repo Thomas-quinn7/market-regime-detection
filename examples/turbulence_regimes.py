@@ -1,4 +1,4 @@
-"""Roadmap P1: multivariate Financial Turbulence regimes vs the single-asset model.
+"""Multivariate Financial Turbulence regimes vs the single-asset model.
 
 Answers the question the industry research raised: does feeding a multivariate cross-asset turbulence
 series into the HMM add anything over the single-asset S&P 500 volatility model?

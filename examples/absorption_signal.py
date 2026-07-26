@@ -1,4 +1,4 @@
-"""Roadmap P2: the Absorption Ratio spike signal, evaluated honestly.
+"""The Absorption Ratio spike signal, evaluated honestly.
 
 The Kritzman et al. papers report that essentially all major drawdowns were preceded by an absorption-
 ratio spike (a recall statistic). They do not report how often a spike fires with no drawdown

@@ -1,8 +1,7 @@
 """Financial Turbulence: a multivariate regime input (Kritzman & Li 2010).
 
-This is roadmap item P1 (see ../../MARKET_REGIME_INDUSTRY_ROADMAP.md). Real systematic funds do not
-define regimes from a single asset's returns; they use a multivariate stress measure. Financial
-Turbulence is the canonical one:
+Real systematic funds do not define regimes from a single asset's returns; they use a multivariate
+stress measure. Financial Turbulence is the canonical one:
 
     FT_t = (r_t - mu)' Sigma^-1 (r_t - mu)
 

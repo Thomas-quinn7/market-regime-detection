@@ -4,10 +4,10 @@ The claim under test is deliberately narrow and falsifiable: *does the filtered 
 probability carry out-of-sample information about next-period realised volatility?* If it does not,
 the regimes are decorative and we say so.
 
-Design notes / honest limits (see MARKET_REGIMES_DESIGN.md §2):
-- This first cut demonstrates the filtered-vs-smoothed distinction and a causal predictive check.
-- A fully rigorous walk-forward that *re-estimates parameters* on each train window (so even the
-  emission/transition params are free of future data) is the documented next step, marked TODO below.
+Two levels of rigour live here:
+- ``oos_realised_vol_check`` demonstrates the filtered-vs-smoothed distinction on a full-sample fit.
+- ``walk_forward_oos`` is the fully rigorous version: it *re-estimates parameters* on each expanding
+  train window, so even the emission/transition parameters are free of future data.
 """
 from __future__ import annotations
 
@@ -68,7 +68,8 @@ def oos_realised_vol_check(returns: pd.Series, fit: RegimeFit, horizon: int = 21
     have banked as "signal".
 
     NOTE: ``fit`` here is estimated on the full sample, so ``corr_filtered`` still enjoys full-sample
-    *parameter* estimation. The train/test split that removes that is the next milestone (TODO).
+    *parameter* estimation. Use ``walk_forward_oos`` (below) for the version that removes that leak by
+    re-estimating parameters on past data only.
     """
     fut_vol = realised_vol(returns, horizon).shift(-horizon)  # realised vol over the NEXT horizon
     hv_filt = fit.high_vol_filtered()

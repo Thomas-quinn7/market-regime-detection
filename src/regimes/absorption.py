@@ -1,7 +1,7 @@
 """Absorption Ratio (Kritzman, Li, Page & Rigobon 2011) and the honest signal evaluation.
 
-Roadmap item P2 (see ../../MARKET_REGIME_INDUSTRY_ROADMAP.md). The Absorption Ratio (AR) is the
-fraction of a cross-section's total return variance absorbed by its first few principal components.
+The Absorption Ratio (AR) is the fraction of a cross-section's total return variance absorbed by its
+first few principal components.
 A high AR means risk is concentrated in a few factors, i.e. markets are tightly coupled and fragile;
 a low AR means risk is dispersed and markets are resilient. It is definitionally cross-sectional.
 

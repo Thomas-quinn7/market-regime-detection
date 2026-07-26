@@ -3,9 +3,11 @@
 Detecting **volatility regimes** in equity index returns with a Markov-switching model — and doing
 it **without look-ahead bias**, which is the part most implementations get wrong.
 
-> **Status: work in progress (scaffolding).** The structure, honest-evaluation design, and tests are
-> being built first. Nothing here claims a result yet. This README describes what the code does as it
-> lands, and states its limits plainly.
+The look-ahead-free baseline then extends toward how systematic funds actually do regime analysis: a
+multivariate Financial Turbulence input, the Kritzman Absorption Ratio (with the false-alarm rate the
+papers omit), a regime-conditional cross-asset allocation backtest, and point-in-time macro quadrants.
+Every result is reproducible, and the honest framing includes the extensions that do **not** beat their
+benchmarks. Full write-up: **[docs/WRITEUP.md](docs/WRITEUP.md)**.
 
 ## The idea
 
@@ -47,9 +49,17 @@ about 0.62. The gap is the look-ahead premium, and the honest number is the one 
 
 ```bash
 pip install -e .
-python examples/spx_regimes.py   # headline result + figures
-python examples/extensions.py    # state-count selection, cross-asset concordance, AR robustness
+python examples/spx_regimes.py         # headline vol-regime result + figures
+python examples/extensions.py          # state-count, cross-asset concordance, AR + Student-t robustness
+python examples/turbulence_regimes.py  # multivariate Financial Turbulence regimes
+python examples/absorption_signal.py   # absorption-ratio spike signal, honest confusion matrix
+python examples/regime_allocation.py   # regime-conditional cash/bonds/equity allocation, after costs
+python examples/macro_quadrants.py     # macro growth/inflation quadrants (needs FRED_API_KEY)
 ```
+
+Everything runs with no API keys. `macro_quadrants.py` uses FRED/ALFRED data whose small first-release
+cache is committed, so it runs offline too; a free `FRED_API_KEY` (`fred.stlouisfed.org` -> My Account
+-> API Keys) is needed only to refresh or extend that macro data.
 
 ## Layout
 
@@ -73,9 +83,10 @@ notebooks/       # exploration only — not the headline
 ## Limits (stated up front)
 
 - Unsupervised: no ground truth; results are about predictive content, not "true" regimes.
-- Daily frequency, single index to start. Sectors / cross-asset are later extensions.
+- Daily frequency. The baseline is single-index; the cross-asset turbulence, absorption-ratio,
+  allocation and macro layers extend it.
 - A Gaussian switching-variance model is a deliberate baseline, not the last word (fat tails,
-  autoregressive means, and more states are documented extensions, not silently assumed).
+  autoregressive means, and more states are tested extensions, not silently assumed).
 
 ## License
 

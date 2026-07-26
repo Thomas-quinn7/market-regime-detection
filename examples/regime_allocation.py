@@ -1,4 +1,4 @@
-"""Roadmap P3: regime-conditional allocation across cash, bonds and equity.
+"""Regime-conditional allocation across cash, bonds and equity.
 
 Turns the walk-forward out-of-sample regime probability into a position and holds it to a P&L
 standard, versus static benchmarks, after transaction costs. This is the test the literature says

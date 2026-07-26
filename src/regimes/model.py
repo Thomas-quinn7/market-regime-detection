@@ -1,8 +1,8 @@
 """Markov-switching volatility-regime model.
 
-Engine choice (see MARKET_REGIMES_DESIGN.md §6): ``statsmodels`` ``MarkovRegression`` with
-``switching_variance=True``. Unlike ``hmmlearn`` it exposes BOTH the filtered (causal) and the
-smoothed (full-sample) marginal probabilities, which is the entire point of this project.
+Engine choice: ``statsmodels`` ``MarkovRegression`` with ``switching_variance=True``. Unlike
+``hmmlearn`` it exposes BOTH the filtered (causal) and the smoothed (full-sample) marginal
+probabilities, which is the entire point of this project.
 
 Two traps handled explicitly here:
 - **Label switching.** Regime indices from the fit are arbitrary up to permutation. We impose a

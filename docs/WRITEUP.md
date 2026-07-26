@@ -103,8 +103,9 @@ without look-ahead.
 
 What it does not show:
 
-- **Not a trading strategy.** A correlation with future realised vol is not a backtested P&L. Turning
-  a regime signal into a position involves costs, capacity, and a sizing rule, none of which are here.
+- **The correlation itself is not a P&L.** A correlation with future realised vol is not a backtested
+  profit-and-loss. The regime-conditional allocation section further down turns the signal into a
+  costed position; this headline result is only a statement about predictive content.
 - **Not a claim of the "right" number of regimes.** Two states is a baseline. The extensions below
   test the count by information criterion, and it holds up.
 - **Fat tails matter a little.** Returns have fat tails. The extensions add both an autoregressive
@@ -113,8 +114,8 @@ What it does not show:
 
 ## Robustness and extensions
 
-Three checks on the baseline. All confirm it rather than overturn it, which is the point of running
-them. Reproduce with `python examples/extensions.py`.
+A set of checks and extensions on the baseline. The robustness checks confirm it rather than overturn
+it, which is the point of running them. Reproduce with `python examples/extensions.py`.
 
 ### How many regimes?
 
@@ -176,7 +177,7 @@ agree on the high-vol classification on **90%** of days. So the regimes are most
 tails, but not entirely: the Student-t reclassifies about one day in ten. That is the expected
 direction: some days the Gaussian labelled high-vol were isolated outliers, which the Student-t keeps
 in the calm regime rather than treating as a change of state. This is the most informative of the
-three checks, because it actually moves something, and in the way the theory predicts.
+robustness checks, because it actually moves something, and in the way the theory predicts.
 
 The degrees of freedom can also be estimated rather than fixed (`estimate_nu=True`), via an EM update
 that solves the digamma equation for nu each iteration. On the S&P 500 the estimate is **nu = 4.75** —
@@ -190,8 +191,8 @@ Everything above defines regimes from a single asset's returns. Real systematic 
 a multivariate stress measure. The canonical one is **Financial Turbulence** (Kritzman & Li 2010) - the
 Mahalanobis distance of the day's cross-asset return vector from its history,
 `FT = (r - mu)' Sigma^-1 (r - mu)`, which fires both on uncharacteristically large moves and on breaks
-in the cross-asset correlation structure. Feeding that series into the same 2-state HMM is standard
-practice (see `../MARKET_REGIME_INDUSTRY_ROADMAP.md`).
+in the cross-asset correlation structure. Feeding that series into the same 2-state HMM ("normal" vs
+"ex-normal") is standard practice among systematic managers (Kritzman & Li 2010).
 
 The implementation (`regimes.turbulence`) computes turbulence across the nine SPDR sectors with the
 mean and covariance estimated causally from a trailing window, so it inherits the same look-ahead
@@ -203,6 +204,9 @@ The honest comparison, on the S&P 500 (2005-2023):
 |---|---|
 | Single-asset S&P 500 volatility regime | 0.55 |
 | Multivariate turbulence regime (9 sectors) | 0.39 |
+
+(Both are computed on a full-sample fit here, for a like-for-like comparison; the single-asset 0.55 is
+the filtered full-sample-params number from the ladder above, not the 0.57 walk-forward headline.)
 
 The turbulence regime is a genuinely *different* signal - it agrees with the single-asset labelling on
 only 74% of days. And it scores **lower** on predicting the S&P 500's own next-month volatility. That
@@ -228,10 +232,14 @@ with no drawdown following. So the repo measures the full confusion matrix. On t
 (2005-2023), alert = one-SD dAR spike, outcome = a drawdown of at least X% within the next 21 trading
 days:
 
-| Outcome | recall | precision | false-alarm rate | base rate | lift |
+| Outcome | recall | precision | false-alarm share | base rate | lift |
 |---|---|---|---|---|---|
 | drawdown >= 5% | 0.32 | 0.24 | **0.76** | 0.18 | **1.37** |
 | drawdown >= 10% | 0.43 | 0.08 | **0.92** | 0.05 | **1.82** |
+
+("False-alarm share" here is the fraction of alerts *not* followed by a drawdown, i.e. 1 - precision,
+which is the false-discovery rate rather than the classical false-positive rate FP/(FP+TN); the code
+reports both.)
 
 The honest reading: the AR spike carries a **real but modest** edge (lift of 1.4 to 1.8 times the base
 rate, and it is larger for the more severe drawdowns, which is the right direction), but **76% to 92%
@@ -317,14 +325,16 @@ The result, 2012-2023, quadrant tilt across equity/bonds/cash vs static benchmar
 | Static 60/40 equity/bonds | 9.0% | 9.9% | 0.82 | -21% | 0.43 |
 
 This one does **not** work, and the honest thing is to say so. The quadrant tilt trails both benchmarks
-on return and on Sharpe; it reduces drawdown versus all-equity, but a plain 60/40 does that better. Two
-reasons, both anticipated when the feature was scoped. First, the usable window (2012-2023) is short and
+on return and on Sharpe (7.5% and 0.72, versus 9.0% and 0.82 for a plain 60/40 and 13.8% and 0.80 for
+all-equity). It does cut drawdown versus all-equity, to about the level of a plain 60/40 (-19% vs
+-21%), but 60/40 delivers that same risk reduction with clearly higher return and Sharpe, so the tilt
+adds nothing a static balanced fund did not. Two reasons, both anticipated when the feature was scoped. First, the usable window (2012-2023) is short and
 almost entirely a bull market, so a strategy that sits in cash or bonds for roughly half the days -
 every "stagflation" and "slowdown" quadrant - simply misses equity gains. Second, a monthly macro
 signal is a slow, coarse overlay, and macro regimes turn over so rarely that a decade contains only a
-few independent observations. P4 is a descriptive allocation tilt on a sample too small and too
-one-directional to add value here, and that is a more useful thing to have demonstrated than another
-flattering backtest.
+few independent observations. The macro-quadrant layer is a descriptive allocation tilt on a sample too
+small and too one-directional to add value here, and that is a more useful thing to have demonstrated
+than another flattering backtest.
 
 ![Macro-quadrant tilt vs benchmarks](figures/macro_quadrants.png)
 
@@ -344,19 +354,23 @@ python examples/regime_allocation.py   # regime-conditional cash/bonds/equity al
 python examples/macro_quadrants.py     # macro growth/inflation quadrants (needs FRED_API_KEY)
 ```
 
-`macro_quadrants.py` needs a free FRED API key in the `FRED_API_KEY` environment variable
-(`fred.stlouisfed.org` -> My Account -> API Keys). Everything else runs with no keys.
+`macro_quadrants.py` uses FRED/ALFRED data whose small first-release cache is committed, so it runs
+with no key; a free `FRED_API_KEY` (`fred.stlouisfed.org` -> My Account -> API Keys) is needed only to
+refresh or extend it. Everything else needs no keys.
 
 Every number and figure in this note comes straight from those scripts. The raw data pull is cached,
 so reruns are deterministic.
 
 ## Possible extensions
 
-The core is complete: a baseline, an honest walk-forward, state-count selection, and four robustness
-and cross-asset angles, all reproducible. Natural directions from here, none of them started:
+The repo spans the full arc: a look-ahead-free baseline, an honest walk-forward, state-count selection,
+four robustness and cross-asset angles, a multivariate turbulence input, the absorption-ratio confusion
+matrix, a regime-conditional allocation backtest, and point-in-time macro quadrants. Natural directions
+from here, none of them started:
 
 - Intraday or higher-frequency data, where regime switches are faster and the filtered-vs-smoothed
   distinction bites harder.
-- Other asset classes (rates, FX, commodities) and a genuine risk-on / risk-off state across them.
-- A trading overlay that turns the filtered regime probability into a position, with costs, so the
-  correlation-with-realised-vol result can be held to a P&L standard.
+- Asset classes beyond equity/bonds/cash (FX, commodities) and a richer cross-asset risk-on / risk-off
+  state.
+- Tier 2 point-in-time macro: full ALFRED vintage reconstruction and survey-based expectations (the
+  sample-size limitation would remain).
