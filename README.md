@@ -57,11 +57,12 @@ python examples/extensions.py    # state-count selection, cross-asset concordanc
 src/regimes/
   data.py        # cached, deterministic index + sector-ETF daily data
   model.py       # Markov-switching fit (baseline + AR variant); canonical ordering; filtered + smoothed
+  student_t.py   # from-scratch Student-t emission model (EM); fat-tail robustness
   evaluate.py    # walk-forward OOS validation; regime-agreement metric
   selection.py   # state-count selection by AIC/BIC
   cross_asset.py # per-sector regimes; systemic-stress concordance and breadth
   plots.py       # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
-tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (15 tests)
+tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (18 tests)
 notebooks/       # exploration only — not the headline
 ```
 

@@ -23,6 +23,7 @@ from regimes.data import load_index_returns, load_sector_returns  # noqa: E402
 from regimes.evaluate import regime_agreement  # noqa: E402
 from regimes.model import fit_regimes, fit_regimes_ar  # noqa: E402
 from regimes.selection import select_n_regimes  # noqa: E402
+from regimes.student_t import fit_regimes_student_t  # noqa: E402
 
 START, END = "2005-01-01", "2023-12-31"
 FIG_DIR = Path(__file__).resolve().parents[1] / "docs" / "figures"
@@ -49,7 +50,13 @@ def main() -> None:
     base = fit_regimes(spx, n_regimes=2).high_vol_filtered()
     ar = fit_regimes_ar(spx, n_regimes=2, order=1).high_vol_filtered()
     ag = regime_agreement(base, ar)
-    print(f"baseline vs AR(1): corr {ag.corr:.3f}, label agreement {ag.label_agreement:.3f} (n={ag.n})")
+    print(f"baseline vs AR(1): corr {ag.corr:.3f}, label agreement {ag.label_agreement:.3f} (n={ag.n})\n")
+
+    print("== 4. Student-t (fat-tail) robustness (S&P 500) ==")
+    tfit = fit_regimes_student_t(spx, n_regimes=2, nu=5.0)
+    agt = regime_agreement(base, tfit.high_vol_filtered())
+    print(f"baseline vs Student-t(nu=5): corr {agt.corr:.3f}, "
+          f"label agreement {agt.label_agreement:.3f} (n={agt.n})")
 
     # Figure: cross-asset breadth over time — a systemic-stress gauge.
     fig, ax = plt.subplots(figsize=(12, 3.6))

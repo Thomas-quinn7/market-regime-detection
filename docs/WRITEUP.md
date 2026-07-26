@@ -107,9 +107,9 @@ What it does not show:
   a regime signal into a position involves costs, capacity, and a sizing rule, none of which are here.
 - **Not a claim of the "right" number of regimes.** Two states is a baseline. The extensions below
   test the count by information criterion, and it holds up.
-- **Still Gaussian.** Returns have fat tails. The extensions add an autoregressive mean as a
-  robustness check, but a Student-t emission is not yet implemented (statsmodels' switching models
-  are Gaussian) and remains open.
+- **Fat tails matter a little.** Returns have fat tails. The extensions add both an autoregressive
+  mean and a from-scratch Student-t emission as robustness checks. The regimes survive both, though
+  the Student-t moves about 10% of the day-level labels (see below).
 
 ## Robustness and extensions
 
@@ -155,6 +155,23 @@ move: the AR and baseline high-vol probabilities correlate at **1.00** and agree
 classification on **99.3%** of days. The regimes are a volatility phenomenon, not an artefact of
 ignoring autocorrelation.
 
+### Robust to fat tails? Student-t emissions
+
+Equity returns have heavier tails than a normal, and this is the failure mode worth taking seriously:
+a Gaussian model can invent a spurious high-variance state just to accommodate a few outliers that a
+fat-tailed distribution would absorb within one regime. statsmodels only offers Gaussian switching
+models, so this variant (`regimes.student_t.fit_regimes_student_t`) is implemented from scratch: a
+Markov-switching model with Student-t emissions, fit by EM using the scale-mixture representation of
+the Student-t so outliers are down-weighted in closed form. Its correctness is checked by a test that
+confirms it reproduces the statsmodels Gaussian fit as the degrees of freedom grow.
+
+With nu = 5 (heavy tails), the fat-tailed regimes correlate at **0.92** with the Gaussian baseline and
+agree on the high-vol classification on **90%** of days. So the regimes are mostly robust to fat
+tails, but not entirely: the Student-t reclassifies about one day in ten. That is the expected
+direction: some days the Gaussian labelled high-vol were isolated outliers, which the Student-t keeps
+in the calm regime rather than treating as a change of state. This is the most informative of the
+three checks, because it actually moves something, and in the way the theory predicts.
+
 ## Reproduce
 
 ```bash
@@ -168,6 +185,6 @@ so reruns are deterministic.
 
 ## Still open
 
-- A Student-t (fat-tailed) emission as a further robustness check. This needs a custom switching
-  model; statsmodels only offers Gaussian emissions.
+- Estimating the Student-t degrees of freedom rather than fixing it, if a stable estimator can be
+  found (the nu likelihood is notoriously flat).
 - A genuinely out-of-sample (walk-forward) version of the cross-asset breadth gauge.
