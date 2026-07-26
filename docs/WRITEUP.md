@@ -214,6 +214,39 @@ Testing it on that narrower task is the fair, unflattering comparison, so that i
 
 ![S&P 500 with multivariate turbulence regimes](figures/turbulence_regimes.png)
 
+## The Absorption Ratio, and the number the papers do not report
+
+The Absorption Ratio (Kritzman, Li, Page & Rigobon 2011) is the fraction of a cross-section's total
+return variance absorbed by its first few principal components. A high AR means risk is concentrated
+in a few factors, i.e. markets are tightly coupled and fragile. The early-warning signal is a
+standardised shift `dAR = (AR_short - AR_long) / sigma(AR_long)`, with a one-standard-deviation spike
+as the trigger; all inputs are trailing, so it is causal (`regimes.absorption`).
+
+The papers report that essentially all major drawdowns were *preceded by* an AR spike. That is a
+**recall** statistic, and on its own it is not an edge: it says nothing about how often a spike fires
+with no drawdown following. So the repo measures the full confusion matrix. On the S&P 500
+(2005-2023), alert = one-SD dAR spike, outcome = a drawdown of at least X% within the next 21 trading
+days:
+
+| Outcome | recall | precision | false-alarm rate | base rate | lift |
+|---|---|---|---|---|---|
+| drawdown >= 5% | 0.32 | 0.24 | **0.76** | 0.18 | **1.37** |
+| drawdown >= 10% | 0.43 | 0.08 | **0.92** | 0.05 | **1.82** |
+
+The honest reading: the AR spike carries a **real but modest** edge (lift of 1.4 to 1.8 times the base
+rate, and it is larger for the more severe drawdowns, which is the right direction), but **76% to 92%
+of alerts are false** and alerts fire on ~23% of all days. "Almost every drawdown was preceded by a
+spike" and "most spikes are false alarms" are both true at once, and only the first half survives into
+the marketing. Reporting the false-alarm rate and the lift is the contribution here.
+
+![Absorption-ratio alerts vs the S&P 500](figures/absorption_alerts.png)
+
+Caveats, stated plainly: this uses the 9 SPDR sectors, so only ~2 principal components (n/5), a much
+coarser cross-section than Kritzman's 51 industries with 10 components; the recall here is therefore
+far below the paper's near-100%, partly from the smaller universe and a different drawdown definition.
+This is not a refutation of the paper. It is the missing half of the picture: even taking the leading-
+indicator claim at face value, the signal is a high-false-alarm one with a genuine but small lift.
+
 ## Reproduce
 
 ```bash
@@ -221,6 +254,7 @@ pip install -e .
 python examples/spx_regimes.py         # headline result + figures
 python examples/extensions.py          # state-count, cross-asset, AR + Student-t robustness
 python examples/turbulence_regimes.py  # multivariate Financial Turbulence regimes
+python examples/absorption_signal.py   # absorption-ratio spike signal, honest confusion matrix
 ```
 
 Every number and figure in this note comes straight from those scripts. The raw data pull is cached,
