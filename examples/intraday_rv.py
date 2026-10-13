@@ -50,14 +50,16 @@ from regimes.data import DATA_DIR, load_index_returns, load_vix
 from regimes.evaluate import walk_forward_oos
 from regimes.forecast import (
     forecast_losses,
+    forward_rv,
     forward_vol,
     har_features,
+    har_rv,
     paired_mean_diff_interval,
     paired_rmse_diff_interval,
     qlike,
     walk_forward_regression,
 )
-from regimes.intraday import daily_realised_vol, load_session_bars, market_data_dir
+from regimes.intraday import cached_daily_rv, market_data_dir
 
 START, END = "2005-01-01", "2023-12-31"
 H = 21
@@ -77,20 +79,8 @@ COMPARISONS = [
 
 def es_daily_rv() -> pd.DataFrame:
     """Daily ES five-minute RV, built once from the R1 download and cached as a derived daily file."""
-    if not RV_CACHE.exists():
-        path = next((market_data_dir() / "R1").glob("*/*.ohlcv-1m.dbn.zst"))
-        daily_realised_vol(load_session_bars(path)).to_csv(RV_CACHE)
-    return pd.read_csv(RV_CACHE, index_col=0, parse_dates=True)
-
-
-def har_rv(rv: pd.Series) -> pd.DataFrame:
-    """HAR-RV inputs from daily RV, tolerating the odd missing day inside the 5- and 22-day windows."""
-    v = rv ** 2
-    return pd.DataFrame({
-        "rv_1d": rv,
-        "rv_5d": np.sqrt(v.rolling(5, min_periods=4).mean()),
-        "rv_22d": np.sqrt(v.rolling(22, min_periods=18).mean()),
-    })
+    path = next((market_data_dir() / "R1").glob("*/*.ohlcv-1m.dbn.zst"), None)
+    return cached_daily_rv(path, RV_CACHE)
 
 
 def _verdict(lo: float, hi: float) -> str:
@@ -122,7 +112,7 @@ def main() -> None:
     print(f"  HMM-RV high state on {on.mean():.1%} of days, {flips:.1f} flips a year; median RV "
           f"{high_rv.median():.2f} in the high state, {low_rv.median():.2f} in the low (daily %)")
 
-    targets = {"rv": np.sqrt((rv ** 2).rolling(H, min_periods=18).mean().shift(-H)),
+    targets = {"rv": forward_rv(rv, H),
                "cc": forward_vol(returns, H)}
     log_har = np.log(har_features(returns).clip(lower=1e-3))
     log_hrv = np.log(har_rv(rv).clip(lower=1e-3))

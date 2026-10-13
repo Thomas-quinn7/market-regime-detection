@@ -44,3 +44,17 @@ def test_minor_instrument_in_a_session_is_dropped():
     other["close"] *= 1.05  # a different contract at a different price level
     out = daily_realised_vol(pd.concat([main, other]).sort_index())
     assert np.isclose(out["rv"].iloc[0], _expected(main))
+
+
+def test_semivariances_add_up_and_quarticity_is_one_for_constant_moves():
+    out = daily_realised_vol(_session("2024-01-10", 5)).iloc[0]
+    assert np.isclose(out["rv_neg"] ** 2 + out["rv_pos"] ** 2, out["rv"] ** 2)
+    # Equal-sized moves: sum(r^4) = n * a^4 and RV^2 = n * a^2, so sqrt(RQ) / RV^2 = 1 / sqrt(3)
+    # exactly. (For Gaussian moves it is about 1, since E[r^4] = 3 sigma^4.)
+    idx = pd.date_range("2024-01-10 09:30", "2024-01-10 15:59", freq="1min", tz="America/New_York")
+    step = np.where(np.arange(len(idx)) // 5 % 2 == 0, 1.0, -1.0) * 0.0002
+    close = 4000.0 * np.exp(np.cumsum(step))
+    flat = pd.DataFrame({"open": np.concatenate([[4000.0], close[:-1]]), "close": close,
+                         "volume": 100.0}, index=idx.tz_convert("UTC"))
+    day = daily_realised_vol(flat).iloc[0]
+    assert np.isclose(np.sqrt(day["rq"]) / day["rv"] ** 2, 1 / np.sqrt(3))

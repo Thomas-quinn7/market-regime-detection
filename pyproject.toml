@@ -18,6 +18,8 @@ dependencies = [
     "matplotlib>=3.7",
     "yfinance>=0.2.40",
     "fredapi>=0.5",
+    "arch>=7.0",
+    "numba>=0.59",
 ]
 
 [project.optional-dependencies]

@@ -106,12 +106,32 @@ def load_session_bars(path: Path, *, chunk: int = 500_000) -> pd.DataFrame:
     return pd.concat(parts).sort_index()
 
 
+RV_COLUMNS = ("rv", "n_returns", "rv_neg", "rv_pos", "rq")
+
+
+def cached_daily_rv(dbn_path: Path, cache_csv: Path) -> pd.DataFrame:
+    """Daily RV statistics from a DBN bar file, cached as a derived daily CSV (rebuilt if stale)."""
+    if cache_csv.exists():
+        out = pd.read_csv(cache_csv, index_col=0, parse_dates=True)
+        if set(RV_COLUMNS) <= set(out.columns):
+            return out
+    out = daily_realised_vol(load_session_bars(dbn_path))
+    out.to_csv(cache_csv)
+    return out
+
+
 def daily_realised_vol(bars: pd.DataFrame, *, every: str = "5min") -> pd.DataFrame:
     """Regular-session realised volatility per day from one-minute bars, in daily percent.
 
     For each New York trading day: keep the 09:30-16:00 bars of the session's main instrument,
     sample the close on an ``every`` grid, prepend the first bar's open, and sum the squared log
-    returns. Returns ``rv`` (sqrt of the realised variance, percent) and ``n_returns``.
+    returns. Returns, per day:
+
+    - ``rv``: sqrt of the realised variance, percent; ``n_returns``: number of intraday returns;
+    - ``rv_neg`` and ``rv_pos``: sqrt of the downside and upside realised semivariances (Barndorff-
+      Nielsen, Kinnebrock and Shephard 2010), the sums of squared negative and positive returns;
+    - ``rq``: realised quarticity, ``(n / 3) * sum(r^4)``, which estimates how imprecisely the day's
+      realised variance is measured (Bollerslev, Patton and Quaedvlieg 2016).
 
     ``bars`` needs a UTC DatetimeIndex (bar open time) and ``open``, ``close`` and ``volume``
     columns; ``instrument_id`` is used when present.
@@ -131,7 +151,13 @@ def daily_realised_vol(bars: pd.DataFrame, *, every: str = "5min") -> pd.DataFra
         closes = g["close"].resample(every, label="right", closed="left").last().dropna()
         prices = np.concatenate([[g["open"].iloc[0]], closes.to_numpy(dtype=float)])
         r = np.diff(np.log(prices)) * 100.0
-        rows[pd.Timestamp(day)] = {"rv": float(np.sqrt((r ** 2).sum())), "n_returns": len(r)}
+        rows[pd.Timestamp(day)] = {
+            "rv": float(np.sqrt((r ** 2).sum())),
+            "n_returns": len(r),
+            "rv_neg": float(np.sqrt((r[r < 0] ** 2).sum())),
+            "rv_pos": float(np.sqrt((r[r > 0] ** 2).sum())),
+            "rq": float(len(r) / 3.0 * (r ** 4).sum()),
+        }
     out = pd.DataFrame.from_dict(rows, orient="index")
     out.index.name = "date"
     return out

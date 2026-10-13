@@ -42,6 +42,25 @@ def har_features(returns: pd.Series) -> pd.DataFrame:
     })
 
 
+def har_rv(rv: pd.Series) -> pd.DataFrame:
+    """HAR-RV inputs from daily realised vol: yesterday's RV and RMS RV over 5 and 22 days (causal).
+
+    Tolerates the odd missing day inside the windows (4 of 5 and 18 of 22 days are enough).
+    """
+    v = rv.astype(float) ** 2
+    return pd.DataFrame({
+        "rv_1d": rv.astype(float),
+        "rv_5d": np.sqrt(v.rolling(5, min_periods=4).mean()),
+        "rv_22d": np.sqrt(v.rolling(22, min_periods=18).mean()),
+    })
+
+
+def forward_rv(rv: pd.Series, horizon: int = 21) -> pd.Series:
+    """Realised vol over the NEXT ``horizon`` days from daily RV, sqrt(mean RV^2) over (t, t + horizon]."""
+    return np.sqrt((rv.astype(float) ** 2).rolling(horizon, min_periods=horizon - 3).mean()
+                   .shift(-horizon))
+
+
 def forward_vol(returns: pd.Series, horizon: int = 21) -> pd.Series:
     """Realised vol over the NEXT ``horizon`` days, (t, t + horizon]: the target."""
     return realised_vol(returns, horizon).shift(-horizon)
