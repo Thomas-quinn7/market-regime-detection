@@ -89,3 +89,25 @@ def load_sector_returns(
     """
     cols = {t: load_index_returns(t, start, end, use_cache=use_cache) for t in tickers}
     return pd.DataFrame(cols).dropna(how="any").sort_index()
+
+
+TREASURY_10Y_CSV = DATA_DIR / "DGS10_fredgraph.csv"
+
+
+def load_treasury_10y_returns(start: str = "1962-01-01", end: str = "2023-12-31") -> pd.Series:
+    """Approximate daily total returns (percent) of a 10-year par Treasury from the FRED DGS10 yield.
+
+    ETF bond histories start in 2002, so the long sample needs a proxy. The day-t return is carry
+    plus the duration effect of the yield change, ``y_{t-1} / 252 - D_{t-1} * (y_t - y_{t-1})``, where
+    ``D`` is the modified duration of a 10-year semi-annual par bond at the previous day's yield.
+    Convexity and roll-down are ignored, which is small at a daily horizon. The yield file is the
+    keyless FRED download (fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10), committed so runs are
+    reproducible.
+    """
+    raw = pd.read_csv(TREASURY_10Y_CSV, index_col=0, parse_dates=True)
+    y = pd.to_numeric(raw.iloc[:, 0], errors="coerce").dropna() / 100.0  # decimal yield
+    y = y.loc[start:end]
+    y_prev = y.shift(1)
+    duration = (1.0 - (1.0 + y_prev / 2.0) ** -20) / y_prev
+    ret = y_prev / 252.0 - duration * (y - y_prev)
+    return (ret * 100.0).dropna().rename("treasury_10y_ret_pct")
