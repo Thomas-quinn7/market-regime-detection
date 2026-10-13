@@ -270,3 +270,58 @@ def walk_forward_corr_regimes(returns: pd.DataFrame, *, n_regimes: int = 2, min_
         n_refits=n_refits,
         n_skipped=n_skipped,
     )
+
+
+def sustained_sign_state(signal: pd.Series, run: int = 21) -> pd.Series:
+    """Causal sign "call": switches to +1 or -1 only once the signal has held that sign ``run`` days.
+
+    The value at t uses the signal up to t only, so a switch is dated on the day it could have been
+    known. Before the first ``run``-day stretch the state is undefined (NaN).
+    """
+    sign = np.sign(signal.dropna())
+    held = sign.rolling(run).apply(lambda w: w[0] if (w == w[0]).all() and w[0] != 0 else 0.0,
+                                   raw=True)
+    state = held.replace(0.0, np.nan).ffill()
+    return state.rename("state")
+
+
+def regime_flips(target: pd.Series, min_len: int = 126) -> list[tuple[pd.Timestamp, int]]:
+    """Sign changes of ``target`` between runs of at least ``min_len`` days: [(start date, new sign)].
+
+    Runs shorter than ``min_len`` are treated as noise and skipped, so a flip is a change from one
+    lasting regime to an opposite-signed lasting regime.
+    """
+    sign = np.sign(target.dropna())
+    sign = sign[sign != 0]
+    run_id = (sign != sign.shift()).cumsum()
+    runs = [(g.index[0], int(g.iloc[0]), len(g)) for _, g in sign.groupby(run_id)]
+    kept = [(d, s) for d, s, n in runs if n >= min_len]
+    return [(d, s) for (d, s), (_, prev) in zip(kept[1:], kept[:-1]) if s != prev]
+
+
+def score_detection(state: pd.Series, flips: list[tuple[pd.Timestamp, int]],
+                    max_lag: int = 252) -> tuple[list[float], int, int]:
+    """Detection lags (trading days) for each flip, misses, and false alarms of a sign ``state``.
+
+    Lag for a flip on day d to sign s: trading days from d to the first day on or after d with
+    ``state == s`` (0 if the state already showed s on d). Missed if that takes more than
+    ``max_lag`` days. A false alarm is a switch of the state that does not fall within ``max_lag``
+    days after a flip to the same sign.
+    """
+    state = state.dropna()
+    pos = {d: i for i, d in enumerate(state.index)}
+    lags, misses = [], 0
+    for d, s in flips:
+        after = state.loc[d:]
+        hit = after[after == s]
+        if len(hit) and pos[hit.index[0]] - pos[after.index[0]] <= max_lag:
+            lags.append(float(pos[hit.index[0]] - pos[after.index[0]]))
+        else:
+            misses += 1
+    switches = state[state != state.shift()].iloc[1:]
+    false_alarms = 0
+    for d, s in switches.items():
+        explained = any(fd <= d and s == fs and pos[d] - pos[state.loc[fd:].index[0]] <= max_lag
+                        for fd, fs in flips if fd <= state.index[-1])
+        false_alarms += 0 if explained else 1
+    return lags, misses, false_alarms

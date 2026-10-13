@@ -78,3 +78,33 @@ def test_tied_variances_share_variances_and_keep_correlations():
     var = np.einsum("kii->ki", params.cov)
     assert np.allclose(var[0], var[1])
     assert params.rho[0] < -0.3 and params.rho[1] > 0.3
+
+
+def test_sustained_sign_state_is_causal_and_needs_a_full_run():
+    from regimes.correlation import sustained_sign_state
+
+    idx = pd.date_range("2010-01-01", periods=60, freq="B")
+    sig = pd.Series([-1.0] * 30 + [1.0] * 30, index=idx)
+    state = sustained_sign_state(sig, run=10)
+    assert np.isnan(state.iloc[8]) and state.iloc[9] == -1.0
+    assert state.iloc[38] == -1.0 and state.iloc[39] == 1.0  # switch dated on the 10th positive day
+    assert np.allclose(sustained_sign_state(sig.iloc[:45], run=10).to_numpy(),
+                       state.iloc[:45].to_numpy(), equal_nan=True)
+
+
+def test_regime_flips_ignore_short_runs_and_scoring():
+    from regimes.correlation import regime_flips, score_detection, sustained_sign_state
+
+    idx = pd.date_range("2000-01-01", periods=600, freq="B")
+    vals = [-0.5] * 200 + [0.4] * 20 + [-0.5] * 80 + [0.5] * 300  # the 20-day blip is noise
+    target = pd.Series(vals, index=idx)
+    flips = regime_flips(target, min_len=126)
+    assert flips == [(idx[300], 1)]
+    # a signal that turns 15 days late, plus one spurious early switch
+    sig = pd.Series(vals, index=idx).shift(15).fillna(-0.5)
+    sig.iloc[100:130] = 0.3
+    lags, misses, false_alarms = score_detection(sustained_sign_state(sig, run=10), flips)
+    assert misses == 0 and lags == [24.0]  # 15 days late + 10-day confirmation - 1
+    # 4 switches that no lasting flip explains: the spurious one up and back (days 100-130), and
+    # following the target's own 20-day blip up and back, which is too short to be a regime.
+    assert false_alarms == 4
