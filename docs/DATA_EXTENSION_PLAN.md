@@ -17,7 +17,7 @@ is held back unread for that confirmation.
 | VXN with Nasdaq-100 | Yahoo / FRED `VXNCLS` | 2001-02 to now | **held back, not downloaded** | holdout |
 | VXD with the Dow | FRED `VXDCLS` (Yahoo from 2005-11) | 1997-10 to now | **held back, not downloaded** | holdout |
 | RVX with Russell 2000 | FRED `RVXCLS` (not on Yahoo) | 2004-01 to now | **held back, not downloaded** | holdout |
-| Intraday futures bars, ES / NQ / YM / RTY / ZN | Databento `GLBX.MDP3` | 2010-06 (RTY 2017-07) | needs an API key and pricing | intraday realised vol |
+| Intraday futures bars, ES / NQ / YM / RTY / ZN | Databento `GLBX.MDP3` | 2010-06 (RTY 2017-07) | bought and downloaded 2026-10-13; ES used, ZN not yet, **NQ / YM / RTY unopened** | intraday realised vol |
 
 Checked and rejected:
 
@@ -47,13 +47,32 @@ All developed on the S&P 500, 2005-2023, with the existing walk-forward forecast
    and the HAR input, which is HAR-RV as Corsi specified it. The same data gives an intraday
    stock-bond correlation (ES against ZN) for the stock-bond regime question, where daily returns
    needed a long window to settle.
+5. **Better volatility models.** HARQ, semivariance HAR, GJR-GARCH, MSM (Calvet and Fisher 2004) and
+   a forecast combination, each against HAR-RV + VIX.
+
+## Status, 2026-10-13
+
+Results are in docs/WRITEUP.md ("Three more attempts to help the regime model, and why it loses")
+unless noted.
+
+| Investigation | Status | Result on the S&P 500 development data |
+|---|---|---|
+| 1. VIX term structure | done (`term_structure_regimes.py`) | the slope, an inverted-curve rule and an HMM on the slope add nothing to HAR + VIX. VVIX and SKEW not tested |
+| 2. Credit | **not started** | |
+| 3. Regimes as conditioning | done (`intraday_rv.py`, the regime-switching HAR) | worse on QLIKE than HAR-RV + VIX |
+| 4. Intraday realised vol | done for ES (`intraday_rv.py`); the ES-ZN correlation not started | intraday data beats daily returns, but adds nothing once the VIX is in; an HMM on intraday vol adds nothing |
+| 5. Better volatility models | developed (`better_vol_models.py`), not written up | nothing beats HAR-RV + VIX; see docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md, "Development results" |
+
+Also done, not in the list above: the HMM scored against NBER recessions and Fed easing
+(`regime_labels.py`), and the diagnosis of why it loses (`why_hmm_loses.py`).
 
 ## Holdout
 
 The confirmation is on other US indices, each with its own implied-vol index: Nasdaq-100 with VXN,
 the Dow with VXD, and the Russell 2000 with RVX, plus their intraday futures (NQ, YM, RTY) for
-investigation 4. None of this has been downloaded. A frozen protocol, in the style of
-docs/VIX_HOLDOUT_PROTOCOL.md, will be committed before any of it is loaded.
+investigation 4. The futures bars (NQ, YM, RTY) were downloaded on 2026-10-13 and have not been opened;
+the index levels and VXN / VXD / RVX have not been downloaded. The protocol is drafted in
+docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md and is pushed before any of it is loaded.
 
 Caveat, stated in advance: these indices move closely with the S&P 500 and share its crises, so this
 tests whether a result generalises across US indices rather than giving an independent history. If
@@ -63,9 +82,9 @@ date and that they were unread.
 
 ## Databento
 
-- Credit: $125, expiring 2026-10-25, shared with other projects' wish lists.
-- Run `python examples/price_databento.py` (metadata only, buys nothing) for an itemised bill of the
-  items above. Nothing is bought until the bill is approved.
+- Credit: $125, expiring 2026-10-25, shared with other projects. $115.15 was spent on 2026-10-13
+  (21 batch jobs, confirmed in the Databento portal), so about $9.85 is left. Nothing more is bought.
+- `python examples/price_databento.py` quotes items through the metadata API and buys nothing.
 - Raw files go to `<workspace>/market-data/databento` (outside this repo, `MARKET_DATA_DIR`
   overrides). Databento data is licensed for internal use, so only derived daily statistics are ever
   used here, and nothing raw is committed.
