@@ -167,6 +167,12 @@ class WalkForwardResult:
         How many times parameters were re-estimated.
     n_skipped : int
         Refit windows whose fit failed and were skipped (leaves a gap; surfaced, never silent).
+    implied_vol : Series
+        The model's own forecast of daily volatility (percent) over the next ``horizon`` days: the
+        filtered state probabilities propagated through the transition matrix, averaged over the
+        horizon, weighted against the state variances, then square-rooted. Same dates and same
+        causality as ``high_vol_prob``. This is the like-for-like comparison with a vol estimate; the
+        raw probability is bounded in [0, 1] and saturates, which handicaps it on a linear measure.
     """
 
     high_vol_prob: pd.Series
@@ -174,6 +180,7 @@ class WalkForwardResult:
     n: int
     n_refits: int
     n_skipped: int
+    implied_vol: pd.Series | None = None
 
 
 def walk_forward_oos(
@@ -218,6 +225,7 @@ def walk_forward_oos(
         raise ValueError(f"min_train={min_train} leaves no out-of-sample data (n={n})")
 
     oos_pieces: list[pd.Series] = []
+    implied_pieces: list[pd.Series] = []
     n_refits = 0
     n_skipped = 0
 
@@ -245,8 +253,14 @@ def walk_forward_oos(
         filt = MarkovRegression(
             ext, k_regimes=n_regimes, trend="c", switching_variance=True
         ).filter(train_res.params)
-        hv = np.asarray(filt.filtered_marginal_probabilities)[i:end, high_idx]
-        oos_pieces.append(pd.Series(hv, index=y.index[i:end]))
+        probs = np.asarray(filt.filtered_marginal_probabilities)[i:end]
+        oos_pieces.append(pd.Series(probs[:, high_idx], index=y.index[i:end]))
+
+        # statsmodels stores regime_transition[i, j] = P(S_t = i | S_{t-1} = j); transpose to the
+        # row-from convention so A @ ... reads "from" on the rows.
+        A = np.asarray(train_res.regime_transition)[:, :, 0].T
+        w = probs @ horizon_weights(A, horizon)
+        implied_pieces.append(pd.Series(np.sqrt(w @ train_var), index=y.index[i:end]))
 
     if not oos_pieces:
         raise RuntimeError("no out-of-sample blocks were produced (all fits skipped?)")
@@ -265,4 +279,19 @@ def walk_forward_oos(
         n=len(joined),
         n_refits=n_refits,
         n_skipped=n_skipped,
+        implied_vol=pd.concat(implied_pieces).sort_index().rename("hmm_implied_vol"),
     )
+
+
+def horizon_weights(A: np.ndarray, horizon: int) -> np.ndarray:
+    """Average of A^1 .. A^horizon for a row-stochastic ``A`` (rows = from-state).
+
+    Maps today's filtered state probabilities to the average state probabilities over the next
+    ``horizon`` days.
+    """
+    acc = np.zeros_like(A, dtype=float)
+    P = np.eye(len(A))
+    for _ in range(horizon):
+        P = P @ A
+        acc += P
+    return acc / horizon

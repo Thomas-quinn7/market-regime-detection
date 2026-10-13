@@ -42,3 +42,13 @@ def test_walk_forward_probs_are_valid_probabilities():
     y = _series()
     res = walk_forward_oos(y, min_train=300, step=100, horizon=21)
     assert res.high_vol_prob.between(0.0, 1.0).all()
+
+
+def test_walk_forward_implied_vol_is_between_the_state_vols():
+    y = _series()
+    res = walk_forward_oos(y, min_train=300, step=100, horizon=21)
+    iv = res.implied_vol
+    assert iv.index.equals(res.high_vol_prob.index)
+    # A mixture of the two state vols: above the calm one, below the storm one.
+    assert iv.min() > 0.3 and iv.max() < 3.5
+    assert iv[iv.index >= y.index[500]].mean() > iv[iv.index < y.index[500]].mean() + 1.0

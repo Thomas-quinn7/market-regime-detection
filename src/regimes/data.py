@@ -111,3 +111,14 @@ def load_treasury_10y_returns(start: str = "1962-01-01", end: str = "2023-12-31"
     duration = (1.0 - (1.0 + y_prev / 2.0) ** -20) / y_prev
     ret = y_prev / 252.0 - duration * (y - y_prev)
     return (ret * 100.0).dropna().rename("treasury_10y_ret_pct")
+
+
+def load_vix(start: str = "2005-01-01", end: str = "2023-12-31", *, use_cache: bool = True) -> pd.Series:
+    """Daily CBOE VIX close (annualised percent), cached like the index prices.
+
+    VIX is the market's 30-calendar-day implied volatility for the S&P 500, so it carries forward-
+    looking information that no function of past returns has. It closes at 4:15pm ET, after the
+    4:00pm equity close, and both are known by the end of day t, so using VIX_t to forecast volatility
+    over t+1 onward is causal.
+    """
+    return load_index_prices("^VIX", start, end, use_cache=use_cache).rename("vix")
