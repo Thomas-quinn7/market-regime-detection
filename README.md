@@ -14,7 +14,7 @@ out to be a hard baseline to beat.
 Every result is reproducible, and the honest framing includes the extensions that do **not** beat their
 benchmarks.
 
-**Start with the full write-up: [docs/WRITEUP.md](docs/WRITEUP.md)** — methodology, figures, and
+**Start with the full write-up: [docs/WRITEUP.md](docs/WRITEUP.md)**, with the methodology, figures and
 caveats for every result below.
 
 ## Results at a glance
@@ -25,15 +25,17 @@ caveats for every result below.
 | Against trailing vol | plain trailing vol forecasts next-month vol **better** (0.66 for 21-day realised vol, 0.68 for EWMA); on ranks the three are level, and the HMM adds little on top (R^2 0.44 to 0.46) |
 | Robustness | AIC/BIC pick 2 states; regimes survive an AR(1) mean (99% agreement) and from-scratch Student-t emissions (90%) |
 | Cross-asset concordance | stress is systemic: the nine per-sector regimes agree at 0.67 mean pairwise correlation, out-of-sample |
-| Multivariate turbulence | a genuinely different signal from single-asset vol (74% label agreement); correlates 0.39 with next-month realised vol vs the single-asset model's 0.55 on its home turf — expected, its value is correlation-break detection |
-| Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4–1.8x) — but **76–92% of alerts are false**, measured here alongside the recall the literature emphasises |
+| Multivariate turbulence | a genuinely different signal from single-asset vol (74% label agreement); correlates 0.39 with next-month realised vol vs the single-asset model's 0.55 on its home turf, which is expected since its value is correlation-break detection |
+| Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4 to 1.8x), but **76 to 92% of alerts are false**, measured here alongside the recall the literature emphasises |
 | Regime allocation | max drawdown -15% vs -52% for equities and -31% for 60/40, but Sharpe 0.66 vs 0.64 for 60/40, and a plain trailing-vol switch or vol targeting does about as well (Sharpe 0.55 to 0.74), and a block bootstrap cannot tell any of the Sharpe ratios apart: loss avoidance, not alpha (out-of-sample, after costs) |
-| Macro quadrants | does **not** beat a static 60/40 — an honest null result, kept for the point-in-time data discipline it demonstrates |
+| Macro quadrants | does **not** beat a static 60/40. An honest null result, kept for the point-in-time data discipline it demonstrates |
 | Stock-bond correlation regimes | an HMM aimed at a state that is genuinely hidden, tested on a 1962-2004 holdout whose rules were committed first: **worse** than trailing correlation at forecasting it and no better at spotting flips; plain EWMA correlation won on both periods |
+| Adding the VIX | every signal scored as a forecast against HAR-RV, with two holdouts committed first (1996-2004, 2024-2026): adding the VIX cuts forecast error on both (about 9% on 1996-2004); a regime probability adds nothing once the VIX is in; the HMM's own forecast loses to HAR on 1996-2004 and draws on 2024-2026 |
+| Three more attempts, and why it loses | VIX term structure, recession and Fed-easing labels, and intraday realised vol from S&P futures (development data): the HMM never beats a simple measure built from the same information. Its probability is a squashed EWMA vol, pinned near 0 or 1, with a forecast stuck between two levels; on simulated data it wins only when volatility truly has two states |
 
 ## The idea
 
-Financial return series switch between persistent states — calm, low-volatility stretches and
+Financial return series switch between persistent states: calm, low-volatility stretches and
 turbulent, high-volatility ones. A 2-state **Markov-switching model** (regimes differ in variance)
 infers those states from daily S&P 500 log returns.
 
@@ -41,9 +43,9 @@ infers those states from daily S&P 500 log returns.
 
 After you fit the model you can label each day two ways:
 
-- **Smoothed** — P(regime | the *entire* series). Uses future data. Fine for *describing* history,
+- **Smoothed**: P(regime | the *entire* series). Uses future data. Fine for *describing* history,
   **invalid** for any forward-looking or tradeable claim.
-- **Filtered** — P(regime | data *up to that day*). Causal, available in real time. This is the one
+- **Filtered**: P(regime | data *up to that day*). Causal, available in real time. This is the one
   any out-of-sample evaluation must use.
 
 Smoothed labels make a much cleaner chart, so it is easy for a regime demo to show them and imply
@@ -52,9 +54,9 @@ claims on the **filtered** ones.
 
 ## What "correct" means here
 
-Regime detection is **unsupervised** — there is no ground-truth regime label. So the deliverable is
+Regime detection is **unsupervised**, so there is no ground-truth regime label. So the deliverable is
 *not* "we recovered the true regimes." It is: *the inferred high-volatility state has measurable,
-out-of-sample predictive content for next-period realised volatility, evaluated causally* — and here
+out-of-sample predictive content for next-period realised volatility, evaluated causally*, and here
 is how much. Framed honestly, including where it fails.
 
 ## Results
@@ -82,6 +84,13 @@ python examples/regime_allocation.py   # regime-conditional cash/bonds/equity al
 python examples/macro_quadrants.py     # macro growth/inflation quadrants (runs offline from the committed cache)
 python examples/stock_bond_regimes.py  # stock-bond correlation HMM vs trailing correlation
 python examples/stock_bond_holdout.py --period holdout  # frozen 1962-2004 holdout (docs/HOLDOUT_PROTOCOL.md)
+python examples/vol_forecast_vix.py --period dev      # VIX, HAR-RV and regime forecasts, 2005-2023
+python examples/vol_forecast_vix.py --period early    # frozen 1990-2004 VIX holdout (docs/VIX_HOLDOUT_PROTOCOL.md)
+python examples/vol_forecast_vix.py --period recent   # frozen 2024-2026 VIX holdout (same protocol)
+python examples/term_structure_regimes.py  # HMM on the VIX term structure, 2006-2023
+python examples/regime_labels.py      # HMM vs NBER recessions and Fed easing, 1928-2023 (over an hour, resumable)
+python examples/why_hmm_loses.py      # why the HMM loses to EWMA vol, plus a simulation (about 40 minutes)
+python examples/intraday_rv.py        # intraday realised vol; needs licensed Databento ES bars, not included
 ```
 
 Everything runs with no API keys. `macro_quadrants.py` uses FRED/ALFRED data whose small first-release
@@ -104,7 +113,7 @@ src/regimes/
   cross_asset.py # per-sector regimes; systemic-stress concordance and breadth (+ OOS)
   plots.py       # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
 tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (55 tests)
-notebooks/       # exploration only — not the headline
+notebooks/       # exploration only, not the headline
 ```
 
 ## Limits (stated up front)
@@ -117,4 +126,4 @@ notebooks/       # exploration only — not the headline
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

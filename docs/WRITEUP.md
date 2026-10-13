@@ -124,6 +124,8 @@ HMM probability to a regression of next-month vol on trailing 21-day vol lifts t
 The honest reading is that the regime model is **not a better volatility forecaster** than trailing
 vol. What it adds is a discrete, persistent state with a probability attached, which is what the
 allocation test further down puts to use, and that test includes the trailing-vol baseline too.
+A later section ([Adding the VIX](#adding-the-vix-and-scoring-every-signal-as-a-forecast)) scores
+every signal as an actual forecast against HAR-RV and the VIX, with two holdouts committed first.
 
 ## What this shows, and what it does not
 
@@ -170,7 +172,7 @@ Fitting the same two-state model independently to each of the nine SPDR sector E
 regimes move together: the mean pairwise correlation of the sectors' high-vol probabilities is
 **0.66**. Volatility stress is largely a systemic, market-wide state rather than a sector story.
 
-"Breadth" — the share of the nine sectors in their high-vol regime — makes this visible. It sits near
+"Breadth", the share of the nine sectors in their high-vol regime, makes this visible. It sits near
 zero in calm periods and saturates to all nine sectors during 2008-09, 2011, the 2020 COVID crash and
 2022.
 
@@ -211,7 +213,7 @@ in the calm regime rather than treating as a change of state. This is the most i
 robustness checks, because it actually moves something, and in the way the theory predicts.
 
 The degrees of freedom can also be estimated rather than fixed (`estimate_nu=True`), via an EM update
-that solves the digamma equation for nu each iteration. On the S&P 500 the estimate is **nu = 4.75** —
+that solves the digamma equation for nu each iteration. On the S&P 500 the estimate is **nu = 4.75**,
 genuinely heavy tails, and close enough to the nu = 5 used above that the fixed choice was a fair one.
 It is offered as an option rather than the default because the nu likelihood is famously flat, so a
 fixed, documented value is the more honest robustness setting.
@@ -508,6 +510,228 @@ emission, which could absorb shocks without spending a state on them, is the obv
 step, and three flips is still a small number of events. Two variants were tried in total, and both
 are reported.
 
+## Adding the VIX, and scoring every signal as a forecast
+
+Everything above scores the regime model with a correlation, which says whether it ranks future
+volatility well but not whether it forecasts it accurately. This section turns every signal into an
+actual forecast of next-month realised volatility and scores them all on the same days, with RMSE and
+with QLIKE, the standard loss for volatility forecasts, which punishes under-forecasting harder than
+over-forecasting. It also brings in two things the earlier sections lacked. One is HAR-RV (Corsi
+2009), the usual baseline for volatility forecasting, built here from daily returns. The other is the
+VIX. Every other input in this repo is some function of past returns, which is why trailing vol keeps
+matching the regime model, whereas the VIX is priced from S&P 500 options and is the market's own view
+of the next 30 days, so it is genuinely new information.
+
+**Design.** Three signals come from regime models: the return-only HMM's high-vol probability, its
+own implied volatility over the next 21 days (filtered state probabilities pushed through the
+transition matrix and weighted by the state variances), and the implied volatility of a second HMM
+that observes both the return and the log VIX each day (`regimes.vix_regimes`). Every signal set is
+turned into a forecast by the same walk-forward regression (`regimes.forecast`), refit quarterly and
+fitted in logs, with the training rows embargoed so that no 21-day target is used before it was fully
+known. A test rewrites every target that was still unknown at a refit date and checks that the
+forecast does not move.
+
+One change was made after seeing a result, and it applies to every signal alike. The calibration was
+first fitted in levels on one year of history and blew up, because the joint HMM's probability sat at
+exactly 1 through 2008-09 and became collinear with the intercept, so it now uses log scale and three
+years of history. Because of that change, and because the seven comparisons were chosen while looking
+at 2005-2023, the rules for two holdouts were committed and pushed before their data was downloaded
+([VIX_HOLDOUT_PROTOCOL.md](VIX_HOLDOUT_PROTOCOL.md), commit `3fea6a7`), and each was run once: 1990-2004,
+fitted and scored with no later data, and January 2024 to September 2026, scored on those days only.
+The warm-ups (three years for the HMM, three more for the calibration) mean the development scores
+start in 2011, so the HMM numbers here are not comparable with the 0.57 earlier in this note.
+
+RMSE of each forecast of next-month realised vol, daily percent, all forecasts on the same days within
+each period:
+
+| Forecast | 2011-2023, development (3,226 days) | 1996-2004, holdout (2,228 days) | 2024-2026, holdout (676 days) |
+|---|---|---|---|
+| HAR (past returns only) | 0.508 | 0.387 | 0.429 |
+| VIX | 0.480 | 0.356 | 0.408 |
+| HAR + VIX | **0.479** | **0.353** | 0.406 |
+| HAR + VIX + HMM probability | 0.484 | 0.352 | **0.399** |
+| HAR + VIX + joint-HMM probability | 0.483 | 0.354 | 0.408 |
+| HMM implied vol | 0.574 | 0.442 | 0.403 |
+| Joint return/VIX HMM implied vol | 0.621 | 0.436 | 0.422 |
+
+The three claims taken to the holdouts, judged on RMSE with a paired block-bootstrap 95% interval for
+the difference:
+
+| Claim | 1996-2004 | 2024-2026 |
+|---|---|---|
+| A. Adding the VIX to HAR improves accuracy | **holds**, -0.054 to -0.012 | **holds**, -0.053 to -0.001 |
+| B. A regime probability adds nothing once the VIX is in | **holds**, both intervals span zero | **holds**, both intervals span zero |
+| C. The regime models' own forecasts lose to HAR | **holds**, +0.016 to +0.094 and +0.003 to +0.094 | not shown, both intervals span zero |
+
+The extra data that helps is the VIX. On the main holdout it cuts the forecast error against a
+returns-only HAR by about 9% (0.353 against 0.387), it is better on QLIKE as well, and once it is in,
+past returns add very little beyond it. A regime probability added nothing on top of it in any of the
+three periods. Putting the VIX inside the HMM did not help either. Two states squeeze the VIX's
+continuous level into a calm or stressed switch and throw most of its information away, which is why
+the joint model was the worst forecaster on the development period.
+
+One result goes the other way. On 2024-2026 the return-only HMM's implied vol beats HAR on QLIKE
+(interval -0.100 to -0.013), adding its probability to HAR improves QLIKE too, and trailing and EWMA
+vol had their weakest period (Pearson 0.25 to 0.29). That stretch was dominated by one sharp spike,
+April 2025 at about 49% annualised realised vol, which was back under 10% by June, and a plausible
+reason, not tested here, is that a trailing window carries a spike forward for a month while a
+two-state forecast is capped at the stressed state's vol. It is the secondary metric on the smallest
+sample and it does not show up on RMSE, so I do not read it as the HMM forecasting better. It is still
+the only place in this repo where the regime model's own forecast beats the standard baseline, and it
+is the thing to recheck as more data comes in.
+
+What this does and does not show. On two periods it was not built on, adding the VIX makes a better
+volatility forecast, and the regime model in either form adds nothing measurable once the VIX is
+there. The 2024-2026 holdout is too short for a "no difference" there to mean much. Intraday realised
+volatility and the VIX term structure are covered in the next section; credit spreads are still
+untested.
+
+## Three more attempts to help the regime model, and why it loses
+
+After the VIX result I tried three more things, each with a fair chance of helping the regime model,
+all on the 2005-2023 development data and none of them a holdout. The first aims the HMM at the VIX
+term structure, a state that looks much closer to genuinely two-state than the level of volatility
+does. The second scores the HMM's state against outside labels, recessions and Fed easing, to see if
+it means something economically even where it does not forecast well. The third gives it a much
+cleaner reading of volatility, intraday realised vol from S&P 500 futures. None of the three helped,
+and the last part of this section works out why.
+
+### The VIX term structure
+
+The slope is 100 times log(VIX / VIX3M), July 2006 to 2023 (`examples/term_structure_regimes.py`).
+It is negative when the curve slopes upward, which is normal, and positive when it inverts, which
+happens in stress and did on 11.5% of days. BIC falls sharply from one state to two and falls again
+at three, although the three-state fit did not converge. However the two states the model finds are
+not normal and inverted. They split the upward-sloping curve into steep (mean slope -16.3) and
+flatter (-3.0), each lasting about 37 trading days on average. Run walk-forward, the HMM's high state
+was on for 29.8% of days against 7.6% for the plain rule "the curve is inverted today", and it
+switched 9.9 times a year against 12.2 for the rule, so it is not much steadier either.
+
+I then added five things to HAR + VIX in turn: the slope itself, the inverted rule, the HMM
+probability, and the rule and the probability each multiplied by the VIX. All seven comparisons,
+including the HMM against the plain rule, came back with no difference on RMSE or QLIKE (2,841 scored
+days, 2012-2023). The HMM probability had the worst point estimate of the lot, RMSE 0.486 against
+0.479 for HAR + VIX on its own.
+
+### Outside labels: recessions and Fed easing
+
+Here the return HMM is run walk-forward on daily S&P 500 returns from 1928 to 2023
+(`examples/regime_labels.py`), its high-vol probability is averaged per month, and it is scored as a
+classifier of NBER recession months (1931-2023, 15 recessions) and of Fed easing months (the fed funds
+rate at least 0.5 points below its level six months earlier, from 1955). AUC is the chance that a
+labelled month scores above an unlabelled one, so 0.5 means no information.
+
+| Signal | Recession, same month | Recession, 6 months ahead | Fed easing, best lead |
+|---|---|---|---|
+| HMM high-vol probability | **0.728** | **0.649** | 0.639 (4 months ahead) |
+| Trailing 21-day vol | 0.717 | 0.631 | 0.649 (3 months ahead) |
+| EWMA vol (0.94) | 0.723 | 0.627 | **0.658** (3 months ahead) |
+
+With each signal switched on for the same 14% of months, and a recession counted as caught if the
+signal came on between six months before and a year after it started, the HMM caught 9 of the 14
+recessions that started inside the sample, trailing vol 8 and EWMA 7, with 25, 31 and 23 false alarms.
+All three missed the recessions of 1953, 1957 and 1960, which came with quiet markets. So the HMM's
+state lines up with recessions about as well as trailing vol does, a hundredth of AUC and one
+recession better, which I would not call a difference. It gives no earlier warning, and for Fed
+easing it was slightly worse. These are descriptive checks. NBER dates are announced months after the
+fact, and the repo has looked at much of this history already.
+
+### Intraday realised volatility
+
+Every volatility number above is built from one close-to-close return per day, which is a very noisy
+reading of how volatile a day was. Summing squared five-minute returns over the session is far more
+precise, and it is what HAR-RV was designed around. The S&P 500 day is measured here from ES futures
+one-minute bars, 09:30 to 16:00 New York time, June 2010 to 2023 (`regimes.intraday`,
+`examples/intraday_rv.py`). The bars come from Databento and are licensed for internal use, so neither
+they nor the daily series built from them are in this repo, and the script needs that data to run.
+Before using it I checked it against the index. Session moves account for 55% of close-to-close
+variance and the overnight move for 38%, the two together have a correlation of 0.996 with the S&P
+500 daily return, and the five S&P trading days in 2014 with no bars (Databento flags them as degraded)
+are left missing.
+
+A second HMM is fitted walk-forward on log daily realised vol, so it sees the clean measure directly.
+Its high state is persistent and sensible, on for 36% of days with median daily vol 0.92% against
+0.43% in the low state, however it still switches 9.7 times a year. Every forecast is calibrated on
+the same rows and scored on the same 1,850 days, July 2016 to November 2023 (the HMM and calibration
+warm-ups use up the first six years), against two targets, next-month session vol, the cleaner one,
+and next-month close-to-close vol as everywhere else in this note. RMSE, daily percent:
+
+| Forecast | Next-month session vol | Next-month close-to-close vol |
+|---|---|---|
+| HAR from daily returns | 0.408 | 0.628 |
+| HAR from intraday realised vol | 0.387 | 0.590 |
+| HAR from daily returns + VIX | 0.378 | 0.573 |
+| HAR from intraday realised vol + VIX | **0.375** | **0.567** |
+| Return HMM probability | 0.426 | 0.644 |
+| Intraday HMM probability | 0.438 | 0.660 |
+| Intraday HAR + VIX + intraday HMM probability | 0.376 | 0.569 |
+
+Intraday data clearly improves HAR on its own (paired interval -0.037 to -0.003 on session vol, -0.067
+to -0.009 on close-to-close), however once the VIX is in it adds nothing measurable. The HMM gains
+nothing from the cleaner data. On both targets it is no better than the return HMM or than plain
+trailing 22-day realised vol, it is worse than intraday HAR, and adding its probability to intraday HAR
++ VIX made the forecast slightly worse on session vol (RMSE interval +0.000 to +0.003, QLIKE +0.001 to
++0.011). Letting the regime change the HAR coefficients (each HAR term multiplied by the probability)
+was worse on QLIKE on both targets.
+
+### Why it loses
+
+The intraday result rules out noisy data as the reason the regime model keeps losing.
+`examples/why_hmm_loses.py` takes the walk-forward return HMM on the S&P 500 (2008-2023 out of sample,
+4,003 days with a known next-month vol) and looks at where its forecast loses information against EWMA
+vol, which is built from exactly the same returns.
+
+![Why the two-state HMM loses to simpler volatility measures](figures/why_hmm_loses.png)
+
+1. **The probability is nearly always pinned.** It is below 0.05 on 57% of days and above 0.95 on 13%,
+   so most of the time the model is giving a yes or no answer to a question whose answer is a number.
+2. **It is a squashed version of EWMA vol.** The rank correlation between the two is 0.84. Sorted into
+   EWMA deciles, the average probability goes 0.01, 0.01, 0.01, 0.03, 0.06, 0.14, 0.33, 0.63, 0.75,
+   0.92. The HMM sees the same returns as EWMA and pushes them through an S-curve, and squashing a
+   measure can only lose information, most of it at the two ends where the curve goes flat.
+3. **Information inside a state is thrown away.** On the 514 days the HMM was sure of stress (above
+   0.95), next-month vol still ranged from 1.04 to 4.41 daily percent between its 10th and 90th
+   percentiles. On those days EWMA vol still ranked next-month vol with a rank correlation of 0.65,
+   while the HMM probability managed 0.36. The model gives one answer for the whole state, and
+   everything EWMA knows about where in that range the next month will land is lost.
+4. **A floor and a ceiling.** The HMM's forecast is a blend of two state volatilities, so it can never
+   go above the stressed one or below the calm one. Its highest forecast in 16 years was 2.37 daily
+   percent, against a realised high of 6.15 in March 2020, and at the start of that worst month it
+   forecast 1.66 where EWMA said 2.24. At the other end its median forecast was 1.02 against a median
+   realised 0.86, because the calm state also has to absorb ordinary medium-vol days. Calm 2019 sat at
+   about 0.9 in the forecast against 0.4 in reality (panel 4).
+5. **Whipsaw.** There were 107 high-state episodes, 13.3 switches a year, and 59% of the episodes
+   lasted five days or less. A single big return moves the probability far more than it moves a
+   volatility estimate.
+
+The last question is whether this is a weakness in this particular fit, or in using a two-state model
+for this kind of data at all. To check, the same walk-forward HMM and the same baselines are run on
+simulated returns where the answer is known, in two made-up markets with similar average volatility,
+five seeds each. In the first, log volatility drifts continuously (a persistent AR(1), no regimes). In
+the second, volatility really does switch between a calm and a stressed level. Mean RMSE across seeds:
+
+| Simulated market | EWMA vol | HAR | HMM implied vol | HMM probability | HMM beat both baselines |
+|---|---|---|---|---|---|
+| Volatility drifts continuously | 0.362 | **0.359** | 0.401 | 0.400 | 0 of 5 seeds |
+| Volatility switches between two levels | 0.408 | 0.396 | 0.374 | **0.371** | 5 of 5 seeds |
+
+The same model, fitted and scored the same way, lost on every seed when volatility drifts and won on
+every seed when it really switches. So the estimation is fine. The HMM is a good model of a market with
+two volatility levels, and on this evidence the S&P 500 is much closer to the first market, where
+volatility drifts. This also explains why the correlations earlier in this note made the HMM look
+roughly level with trailing vol. An S-curve keeps days in the same order, so a rank-based score
+cannot see what the squashing costs, and over all days the HMM probability and EWMA vol rank
+next-month vol equally well, 0.62 each. RMSE and QLIKE score the level of the forecast, which is
+where the cost shows up.
+
+What this does and does not show. Across the VIX, its term structure, recessions, Fed easing and
+intraday data, the two-state HMM never added anything to a simple measure built from the same
+information, and each of the reasons above follows from the model having only two states. All three attempts in this
+section are on development data, the NQ, YM and Russell 2000 data that would confirm the intraday
+result is downloaded but unopened, and I have not tried a model where volatility moves continuously
+inside each regime, Markov-switching GARCH being the obvious one, which is the direction the simulation
+points to.
+
 ## Reproduce
 
 ```bash
@@ -520,11 +744,19 @@ python examples/regime_allocation.py   # regime-conditional cash/bonds/equity al
 python examples/macro_quadrants.py     # macro growth/inflation quadrants (runs offline from the committed cache)
 python examples/stock_bond_regimes.py  # stock-bond correlation HMM vs trailing correlation, 2005-2023
 python examples/stock_bond_holdout.py --period holdout  # the frozen 1962-2004 holdout (about an hour)
+python examples/vol_forecast_vix.py --period dev     # VIX, HAR and regime forecasts, 2005-2023
+python examples/vol_forecast_vix.py --period early   # the frozen 1990-2004 VIX holdout
+python examples/vol_forecast_vix.py --period recent  # the frozen 2024-2026 VIX holdout
+python examples/term_structure_regimes.py  # HMM on the VIX term structure, 2006-2023
+python examples/regime_labels.py       # HMM vs NBER recessions and Fed easing (over an hour, resumable)
+python examples/why_hmm_loses.py       # why the HMM loses to EWMA vol, plus the simulation
+python examples/intraday_rv.py         # intraday realised vol (needs Databento ES bars, see below)
 ```
 
 `macro_quadrants.py` uses FRED/ALFRED data whose small first-release cache is committed, so it runs
 with no key; a free `FRED_API_KEY` (`fred.stlouisfed.org` -> My Account -> API Keys) is needed only to
-refresh or extend it. Everything else needs no keys.
+refresh or extend it. Everything else needs no keys. The exception is `intraday_rv.py`, which needs ES futures bars from
+Databento. They are licensed for internal use, so they are not in the repo.
 
 Every number and figure in this note comes straight from those scripts. The raw data pull is cached,
 so reruns are deterministic.
@@ -536,9 +768,13 @@ four robustness and cross-asset angles, a multivariate turbulence input, the abs
 matrix, a regime-conditional allocation backtest, and point-in-time macro quadrants. Natural directions
 from here, none of them started:
 
-- Intraday or higher-frequency data, where regime switches are faster and the filtered-vs-smoothed
-  distinction bites harder.
 - Asset classes beyond equity/bonds/cash (FX, commodities) and a richer cross-asset risk-on / risk-off
   state.
 - Tier 2 point-in-time macro: full ALFRED vintage reconstruction and survey-based expectations (the
   sample-size limitation would remain).
+- Credit spreads as a forward-looking input to the volatility forecast. It would need a fresh holdout,
+  since both VIX holdouts are now used.
+- A model where volatility moves continuously inside each regime, Markov-switching GARCH being the
+  obvious one, which is what the simulation in "Why it loses" points to.
+- The NQ, YM and Russell 2000 holdout for the intraday result, under a protocol committed before the
+  data is opened.
