@@ -22,6 +22,8 @@ venv/
 data/*.csv
 data/*.parquet
 !data/sample_*.csv
+# Resumable walk-forward checkpoints (examples/regime_labels.py): local only.
+data/checkpoints/
 # The macro first-release caches ARE committed: small, static public FRED data, and committing them
 # lets the macro example run with no FRED API key.
 !data/macro_*firstrelease.csv

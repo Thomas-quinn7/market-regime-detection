@@ -52,3 +52,27 @@ def test_walk_forward_implied_vol_is_between_the_state_vols():
     # A mixture of the two state vols: above the calm one, below the storm one.
     assert iv.min() > 0.3 and iv.max() < 3.5
     assert iv[iv.index >= y.index[500]].mean() > iv[iv.index < y.index[500]].mean() + 1.0
+
+
+def test_checkpointed_run_resumes_and_matches(tmp_path):
+    y = _series()
+    plain = walk_forward_oos(y, min_train=300, step=100, horizon=21)
+    first = walk_forward_oos(y, min_train=300, step=100, horizon=21, checkpoint_dir=tmp_path)
+    pd.testing.assert_series_equal(plain.high_vol_prob, first.high_vol_prob)
+    blocks = sorted(tmp_path.glob("block_*.csv"))
+    assert len(blocks) == first.n_refits
+    # Simulate a run stopped part-way: drop the last two blocks, rerun, and get the same answer.
+    for b in blocks[-2:]:
+        b.unlink()
+    resumed = walk_forward_oos(y, min_train=300, step=100, horizon=21, checkpoint_dir=tmp_path)
+    pd.testing.assert_series_equal(plain.high_vol_prob, resumed.high_vol_prob, check_freq=False)
+    np.testing.assert_allclose(plain.implied_vol.to_numpy(), resumed.implied_vol.to_numpy())
+
+
+def test_checkpoint_refuses_different_settings(tmp_path):
+    import pytest
+
+    y = _series()
+    walk_forward_oos(y, min_train=300, step=100, horizon=21, checkpoint_dir=tmp_path)
+    with pytest.raises(ValueError, match="different settings"):
+        walk_forward_oos(y, min_train=300, step=50, horizon=21, checkpoint_dir=tmp_path)

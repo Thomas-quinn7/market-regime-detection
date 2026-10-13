@@ -11,8 +11,10 @@ Two levels of rigour live here:
 """
 from __future__ import annotations
 
+import json
 import warnings
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -190,6 +192,8 @@ def walk_forward_oos(
     min_train: int = 750,
     step: int = 21,
     horizon: int = 21,
+    order_by: str = "variance",
+    checkpoint_dir: str | Path | None = None,
 ) -> WalkForwardResult:
     """Expanding-window walk-forward with frozen-parameter forward filtering.
 
@@ -216,7 +220,18 @@ def walk_forward_oos(
         Refit cadence and OOS block length, in trading days.
     horizon : int
         Forward window (days) for the realised-vol target.
+    order_by : {"variance", "mean"}
+        Which state counts as "high": the higher-variance one (default, for returns) or the
+        higher-mean one, for a level series such as a VIX term-structure slope. ``implied_vol`` only
+        means anything for return series.
+    checkpoint_dir : path, optional
+        Save each refit block to this folder as soon as it is computed, and on a rerun load the
+        saved blocks instead of refitting them, so a long run that is stopped resumes where it left
+        off. The folder records the settings and data span it was made with, and a rerun with
+        different ones is refused rather than silently mixed.
     """
+    if order_by not in ("variance", "mean"):
+        raise ValueError("order_by must be 'variance' or 'mean'")
     from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
     y = returns.astype(float)
@@ -229,8 +244,29 @@ def walk_forward_oos(
     n_refits = 0
     n_skipped = 0
 
+    ckpt = Path(checkpoint_dir) if checkpoint_dir is not None else None
+    if ckpt is not None:
+        ckpt.mkdir(parents=True, exist_ok=True)
+        settings = {"n": n, "first": str(y.index[0]), "last": str(y.index[-1]),
+                    "min_train": min_train, "step": step, "horizon": horizon,
+                    "n_regimes": n_regimes, "order_by": order_by}
+        sfile = ckpt / "settings.json"
+        if sfile.exists() and json.loads(sfile.read_text(encoding="utf-8")) != settings:
+            raise ValueError(f"checkpoint {ckpt} was made with different settings or data")
+        sfile.write_text(json.dumps(settings, indent=1), encoding="utf-8")
+
     for i in range(min_train, n, step):
         end = min(i + step, n)
+        block_file = ckpt / f"block_{i:06d}.csv" if ckpt is not None else None
+        if block_file is not None and block_file.exists():
+            saved = pd.read_csv(block_file, index_col=0, parse_dates=True)
+            if saved.empty:  # this refit failed on the earlier run
+                n_skipped += 1
+            else:
+                n_refits += 1
+                oos_pieces.append(saved["hv"].set_axis(y.index[i:end]))
+                implied_pieces.append(saved["iv"].set_axis(y.index[i:end]))
+            continue
         train = y.iloc[:i].reset_index(drop=True)
         try:
             train_res = MarkovRegression(
@@ -239,6 +275,8 @@ def walk_forward_oos(
         except Exception as exc:  # a single bad window must not sink the whole run
             warnings.warn(f"walk-forward fit failed at i={i}: {exc}", RuntimeWarning, stacklevel=2)
             n_skipped += 1
+            if block_file is not None:
+                pd.DataFrame(columns=["hv", "iv"]).to_csv(block_file)
             continue
         n_refits += 1
 
@@ -246,7 +284,9 @@ def walk_forward_oos(
         train_var = np.asarray(
             train_res.params[[f"sigma2[{k}]" for k in range(n_regimes)]], dtype=float
         )
-        high_idx = int(np.argsort(train_var)[-1])
+        key = train_var if order_by == "variance" else np.asarray(
+            train_res.params[[f"const[{k}]" for k in range(n_regimes)]], dtype=float)
+        high_idx = int(np.argsort(key)[-1])
 
         # Freeze train params, filter forward over train+block, read only the held-out block.
         ext = y.iloc[:end].reset_index(drop=True)
@@ -261,6 +301,8 @@ def walk_forward_oos(
         A = np.asarray(train_res.regime_transition)[:, :, 0].T
         w = probs @ horizon_weights(A, horizon)
         implied_pieces.append(pd.Series(np.sqrt(w @ train_var), index=y.index[i:end]))
+        if block_file is not None:
+            pd.DataFrame({"hv": oos_pieces[-1], "iv": implied_pieces[-1]}).to_csv(block_file)
 
     if not oos_pieces:
         raise RuntimeError("no out-of-sample blocks were produced (all fits skipped?)")
