@@ -59,3 +59,13 @@ def test_qlike_is_zero_for_a_perfect_forecast_and_positive_otherwise():
     assert (qlike(y * 1.3, y) > 0).all() and (qlike(y * 0.7, y) > 0).all()
     # QLIKE punishes under-forecasting more than the same-sized over-forecast.
     assert qlike(np.array([0.5]), np.array([1.0]))[0] > qlike(np.array([2.0]), np.array([1.0]))[0]
+
+
+def test_fred_loader_reads_cache_without_network(tmp_path, monkeypatch):
+    import regimes.data as data
+
+    monkeypatch.setattr(data, "DATA_DIR", tmp_path)
+    (tmp_path / "fred_BAA10Y.csv").write_text("observation_date,BAA10Y\n2020-01-02,2.1\n2020-01-03,.\n"
+                                             "2020-01-06,2.2\n")
+    s = data.load_fred_series("BAA10Y")
+    assert list(s) == [2.1, 2.2] and s.name == "BAA10Y"

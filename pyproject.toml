@@ -25,6 +25,10 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.5",
 ]
+# Intraday realised vol from Databento futures bars (paid data, see docs/DATA_EXTENSION_PLAN.md).
+intraday = [
+    "databento>=0.40",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

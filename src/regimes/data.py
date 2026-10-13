@@ -122,3 +122,46 @@ def load_vix(start: str = "2005-01-01", end: str = "2023-12-31", *, use_cache: b
     over t+1 onward is causal.
     """
     return load_index_prices("^VIX", start, end, use_cache=use_cache).rename("vix")
+
+
+# CBOE volatility indices on Yahoo, with the first date each one has there (checked 2026-10-13).
+VOL_INDICES = {
+    "VIX9D": "^VIX9D",   # 9-day S&P 500 implied vol, from 2011-01
+    "VIX": "^VIX",       # 30-day, from 1990
+    "VIX3M": "^VIX3M",   # 3-month, from 2006-07
+    "VIX6M": "^VIX6M",   # 6-month, from 2008-01
+    "VVIX": "^VVIX",     # implied vol of the VIX itself, from 2007-01
+    "SKEW": "^SKEW",     # CBOE SKEW (tail-risk pricing), from 1990
+}
+
+
+def load_vol_indices(names=("VIX", "VIX3M"), start: str = "2005-01-01", end: str = "2023-12-31",
+                     *, use_cache: bool = True) -> pd.DataFrame:
+    """Daily closes of several CBOE vol indices, one column each, outer-joined on dates.
+
+    Each index starts on its own date, so columns are left with leading NaNs rather than trimmed to
+    the shortest. Like the VIX, every one of them closes at or after the equity close, so the day-t
+    value is known by the end of day t.
+    """
+    cols = {n: load_index_prices(VOL_INDICES[n], start, end, use_cache=use_cache) for n in names}
+    return pd.DataFrame(cols).sort_index()
+
+
+def load_fred_series(series_id: str, *, use_cache: bool = True) -> pd.Series:
+    """A FRED series from the keyless CSV endpoint, cached to ``data/fred_<id>.csv``.
+
+    This is the *current vintage*. That is only safe for market-price series that are never revised
+    (yields, spreads quoted from prices, implied vols). Revised macro or composite indices (NFCI,
+    STLFSI and the like) need point-in-time vintages from ALFRED instead; see ``regimes.macro``.
+    The returned series is indexed by the observation date, not the publication date, so callers must
+    lag it by the source's publication delay (for example one business day for H.15 yields).
+    """
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    path = DATA_DIR / f"fred_{series_id}.csv"
+    if not (use_cache and path.exists()):
+        import urllib.request
+
+        url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
+        path.write_bytes(urllib.request.urlopen(url, timeout=60).read())
+    raw = pd.read_csv(path, index_col=0, parse_dates=True)
+    return pd.to_numeric(raw.iloc[:, 0], errors="coerce").dropna().rename(series_id)
