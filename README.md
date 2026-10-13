@@ -2,12 +2,15 @@
 
 [![CI](https://github.com/Thomas-quinn7/market-regime-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/Thomas-quinn7/market-regime-detection/actions/workflows/ci.yml)
 
-Detecting **volatility regimes** in equity index returns with a Markov-switching model — and doing
-it **without look-ahead bias**, which is the part most implementations get wrong.
+Detecting **volatility regimes** in equity index returns with a Markov-switching model, and doing
+it **without look-ahead bias**, which is easy to get wrong because the standard smoothed and Viterbi
+labels are both computed from the whole series, future included.
 
-The look-ahead-free baseline then extends toward how systematic funds actually do regime analysis: a
-multivariate Financial Turbulence input, the Kritzman Absorption Ratio (with the false-alarm rate the
-papers omit), a regime-conditional cross-asset allocation backtest, and point-in-time macro quadrants.
+The look-ahead-free baseline then extends toward the regime methods in the academic and practitioner
+literature: a multivariate Financial Turbulence input, the Kritzman Absorption Ratio (with its
+false-alarm rate measured alongside its recall), a regime-conditional cross-asset allocation backtest,
+and point-in-time macro quadrants. It is also tested against plain trailing volatility, which turns
+out to be a hard baseline to beat.
 Every result is reproducible, and the honest framing includes the extensions that do **not** beat their
 benchmarks.
 
@@ -23,7 +26,7 @@ caveats for every result below.
 | Robustness | AIC/BIC pick 2 states; regimes survive an AR(1) mean (99% agreement) and from-scratch Student-t emissions (90%) |
 | Cross-asset concordance | stress is systemic: the nine per-sector regimes agree at 0.67 mean pairwise correlation, out-of-sample |
 | Multivariate turbulence | a genuinely different signal from single-asset vol (74% label agreement); correlates 0.39 with next-month realised vol vs the single-asset model's 0.55 on its home turf — expected, its value is correlation-break detection |
-| Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4–1.8x) — but **76–92% of alerts are false**, the number the papers omit |
+| Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4–1.8x) — but **76–92% of alerts are false**, measured here alongside the recall the literature emphasises |
 | Regime allocation | max drawdown -15% vs -52% for equities and -31% for 60/40, but Sharpe 0.66 vs 0.64 for 60/40, and a plain trailing-vol switch does about as well (Sharpe 0.55 to 0.74 across thresholds): loss avoidance, not alpha (out-of-sample, after costs) |
 | Macro quadrants | does **not** beat a static 60/40 — an honest null result, kept for the point-in-time data discipline it demonstrates |
 
@@ -42,8 +45,9 @@ After you fit the model you can label each day two ways:
 - **Filtered** — P(regime | data *up to that day*). Causal, available in real time. This is the one
   any out-of-sample evaluation must use.
 
-Most "regime detection" demos quietly report smoothed labels and imply they were tradeable. They are
-not. This repo shows the two side by side and only ever makes forward claims on the **filtered** ones.
+Smoothed labels make a much cleaner chart, so it is easy for a regime demo to show them and imply
+they were tradeable. They were not. This repo shows the two side by side and only ever makes forward
+claims on the **filtered** ones.
 
 ## What "correct" means here
 

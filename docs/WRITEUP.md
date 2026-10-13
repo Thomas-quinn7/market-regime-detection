@@ -249,7 +249,7 @@ Testing it on that narrower task is the fair, unflattering comparison, so that i
 
 ![S&P 500 with multivariate turbulence regimes](figures/turbulence_regimes.png)
 
-## The Absorption Ratio, and the number the papers do not report
+## The Absorption Ratio, and its false-alarm rate
 
 The Absorption Ratio (Kritzman, Li, Page & Rigobon 2011) is the fraction of a cross-section's total
 return variance absorbed by its first few principal components. A high AR means risk is concentrated
