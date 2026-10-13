@@ -29,6 +29,7 @@ caveats for every result below.
 | Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4–1.8x) — but **76–92% of alerts are false**, measured here alongside the recall the literature emphasises |
 | Regime allocation | max drawdown -15% vs -52% for equities and -31% for 60/40, but Sharpe 0.66 vs 0.64 for 60/40, and a plain trailing-vol switch or vol targeting does about as well (Sharpe 0.55 to 0.74), and a block bootstrap cannot tell any of the Sharpe ratios apart: loss avoidance, not alpha (out-of-sample, after costs) |
 | Macro quadrants | does **not** beat a static 60/40 — an honest null result, kept for the point-in-time data discipline it demonstrates |
+| Stock-bond correlation regimes | an HMM aimed at a state that is genuinely hidden, tested on a 1962-2004 holdout whose rules were committed first: **worse** than trailing correlation at forecasting it and no better at spotting flips; plain EWMA correlation won on both periods |
 
 ## The idea
 
@@ -79,6 +80,8 @@ python examples/turbulence_regimes.py  # multivariate Financial Turbulence regim
 python examples/absorption_signal.py   # absorption-ratio spike signal, honest confusion matrix
 python examples/regime_allocation.py   # regime-conditional cash/bonds/equity allocation, after costs
 python examples/macro_quadrants.py     # macro growth/inflation quadrants (runs offline from the committed cache)
+python examples/stock_bond_regimes.py  # stock-bond correlation HMM vs trailing correlation
+python examples/stock_bond_holdout.py --period holdout  # frozen 1962-2004 holdout (docs/HOLDOUT_PROTOCOL.md)
 ```
 
 Everything runs with no API keys. `macro_quadrants.py` uses FRED/ALFRED data whose small first-release
@@ -100,7 +103,7 @@ src/regimes/
   selection.py   # state-count selection by AIC/BIC
   cross_asset.py # per-sector regimes; systemic-stress concordance and breadth (+ OOS)
   plots.py       # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
-tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (46 tests)
+tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (55 tests)
 notebooks/       # exploration only — not the headline
 ```
 

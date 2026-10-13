@@ -418,6 +418,96 @@ than another flattering backtest.
 - is documented in `regimes/macro.py` as the rigorous upgrade, but it would not change the sample-size
 limitation that drives this result.)
 
+## Stock-bond correlation regimes: aiming the HMM at a state that is actually hidden
+
+The volatility results above have a simple explanation. Volatility is close to observable, since a
+few large daily moves reveal it within days, so a hidden-state model mostly rebuilds what trailing
+volatility already shows, more coarsely. The sign of the stock-bond correlation is a better
+candidate for a hidden state: it was positive through the 1970s to 1990s, negative for most of
+2000-2021, and positive again from 2022, and daily cross-products are noisy enough that a trailing
+correlation needs a long window to settle. So the last experiment points an HMM at it
+(`regimes.correlation`).
+
+**Design.** Equity and Treasury returns are each divided by their own EWMA volatility from the
+previous day, so that what is left to separate the states is mostly correlation. A two-state HMM
+with a full-covariance Gaussian per state is fit by EM, walk-forward with quarterly refits and
+frozen parameters filtered forward, exactly as for the volatility model. Its forecast is the
+implied correlation over the next quarter. The baselines are trailing 63-day and 252-day
+correlation and an EWMA correlation, the target is the realised correlation over the next 63 days,
+and everything is scored on the same days.
+
+### Development period, 2005-2023 (SPY and IEF)
+
+The pre-registered model **failed outright**. Maximum likelihood preferred to spend both states on
+short volatility shocks that survive the devolatilisation (one state with about 2.5 times the
+variance, lasting about two days on average), and the two states ended up with almost the same
+correlation (-0.35 and -0.27). A clean correlation split (-0.61 and +0.13) does exist, and plain EM
+from a neutral start finds it, but it has a lower likelihood by about 100 log-likelihood units, so
+the walk-forward correctly moved past it. Restarting each refit from a fresh start did not change
+this. The implied correlation came out *negatively* related to the outcome (-0.31).
+
+A second variant was then added, with the variances tied across states so that they can differ only
+in correlation. Its states separate as intended (-0.59 and +0.14), but as a forecast of the
+correlation level it still loses to trailing correlation (RMSE 0.286 against 0.272, interval
+spanning zero), for the same reason as the volatility model: two discrete levels cannot track a
+continuous quantity. Its probability of the positive state did turn positive on 25 Jan 2021, a month
+before the trailing 63-day correlation, but that is one flip, and once false alarms were counted it
+switched sign 19 times against 10 for the trailing correlation.
+
+![Stock-bond correlation, tied HMM vs trailing correlation](figures/stock_bond_regimes.png)
+
+### Holdout, 1962-2004, run once
+
+Two variants had been chosen after looking at 2005-2023, so a win there would be partly fitted to
+it. The rules for a holdout on 1962-2004, which neither model had seen, were therefore written and
+committed first ([HOLDOUT_PROTOCOL.md](HOLDOUT_PROTOCOL.md), commit `53b50c6`), and the holdout was
+run once. ETF bond data starts in 2002, so the bond leg is a 10-year Treasury return proxy built
+from the FRED DGS10 yield (carry plus duration times yield change). On 2005-2023 its quarterly
+stock-bond correlation matches the IEF version at 0.990.
+
+Level forecast, 9,878 days (1965-2004):
+
+| Signal | corr with outcome | RMSE | RMSE minus trailing 63-day, 95% interval |
+|---|---|---|---|
+| HMM, unconstrained | 0.05 | 0.321 | +0.034 to +0.109, **worse** |
+| HMM, tied variances | 0.08 | 0.329 | +0.045 to +0.111, **worse** |
+| Trailing 63-day correlation | 0.65 | 0.251 | |
+| Trailing 252-day correlation | 0.65 | 0.237 | -0.034 to +0.006, no difference |
+| EWMA correlation (0.97) | **0.68** | 0.239 | -0.019 to -0.005, **better** |
+
+Regime detection. The frozen definition (runs of one sign lasting at least 126 days) finds only
+three lasting flips in 40 years, all between 1998 and 2000; the 1970s-1990s positive regime is one
+long run. Each signal's sign call switches only after 21 days of the new sign and is dated on the
+day it could have been known:
+
+| Signal | lags in trading days (3 flips) | median | misses | false alarms |
+|---|---|---|---|---|
+| HMM tied, P(positive state) | 143, 49, 0 | 49 | 0 | 6 |
+| Trailing 63-day correlation | 0, 83, 0 | 0 | 0 | 18 |
+| Trailing 252-day correlation | 98, 188, 38 | 98 | 0 | 5 |
+| EWMA correlation (0.97) | 0, 98, 0 | 0 | 0 | 17 |
+| HMM implied correlation (either variant) | 0 | 0 | 2 | 1 to 5 |
+
+A lag of 0 means the signal already showed the new sign on the flip date, which can come from an
+earlier switch during a shorter run of the same sign.
+
+**Verdict under the frozen rule: the HMM adds nothing.** Both variants are significantly worse than
+trailing correlation at forecasting the level, and the tied classifier is slower than the trailing
+63-day correlation (median 49 days against 0) while having fewer false alarms (6 against 18), which
+fails the rule that required it to be no worse on all three counts. Outside the rule, and on only
+three events, it sits on the speed versus false-alarm trade-off about where a trailing window
+between 63 and 252 days would, so even that is not something a simpler signal cannot do.
+
+The one result that held on both periods is a plain one: the EWMA correlation beat the trailing
+63-day correlation on level in 2005-2023 and again in the holdout.
+
+What this does and does not show. It shows that this HMM, as specified, has no edge over simple
+correlation estimates on this question, on 60 years of data, with the decisive test run once on
+unseen data. It does not show that no regime model can help here. A Student-t multivariate
+emission, which could absorb shocks without spending a state on them, is the obvious untried next
+step, and three flips is still a small number of events. Two variants were tried in total, and both
+are reported.
+
 ## Reproduce
 
 ```bash
@@ -428,6 +518,8 @@ python examples/turbulence_regimes.py  # multivariate Financial Turbulence regim
 python examples/absorption_signal.py   # absorption-ratio spike signal, honest confusion matrix
 python examples/regime_allocation.py   # regime-conditional cash/bonds/equity allocation, after costs
 python examples/macro_quadrants.py     # macro growth/inflation quadrants (runs offline from the committed cache)
+python examples/stock_bond_regimes.py  # stock-bond correlation HMM vs trailing correlation, 2005-2023
+python examples/stock_bond_holdout.py --period holdout  # the frozen 1962-2004 holdout (about an hour)
 ```
 
 `macro_quadrants.py` uses FRED/ALFRED data whose small first-release cache is committed, so it runs
