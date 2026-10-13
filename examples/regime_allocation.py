@@ -24,6 +24,7 @@ import pandas as pd  # noqa: E402
 
 from regimes.allocation import (  # noqa: E402
     backtest,
+    block_bootstrap_sharpe,
     performance_stats,
     regime_switch_weights,
     static_weights,
@@ -57,6 +58,11 @@ def main() -> None:
     ewma = ewma_vol(spy) * np.sqrt(252)
 
     rf = assets["cash"]
+    # Volatility targeting (Moreira & Muir 2017 style), no leverage: equity weight = 10% / EWMA vol,
+    # capped at 1, the rest in cash. The standard continuous alternative to a binary switch.
+    eq_w = (10.0 / ewma).clip(upper=1.0).dropna()
+    vol_target_weights = pd.DataFrame({"equity": eq_w, "cash": 1.0 - eq_w})
+
     strategies = {
         "Regime switch equity/cash": backtest(
             assets, regime_switch_weights(prob, risk_on="equity", risk_off="cash"), cost_bps=5.0),
@@ -66,6 +72,7 @@ def main() -> None:
             assets, regime_switch_weights(vol_threshold_signal(rv21, 20.0)), cost_bps=5.0),
         "EWMA vol > 20% equity/cash": backtest(
             assets, regime_switch_weights(vol_threshold_signal(ewma, 20.0)), cost_bps=5.0),
+        "EWMA vol target 10%": backtest(assets, vol_target_weights, cost_bps=5.0),
         "Static 100% equity": backtest(
             assets, static_weights(assets.index, {"equity": 1.0}), cost_bps=5.0),
         "Static 60/40 equity/bonds": backtest(
@@ -101,6 +108,19 @@ def main() -> None:
                          f"{sig.reindex(common).mean():.0%}")
         print(f"  {vol_name:<9}" + "   ".join(cells))
     print(f"  {'HMM':<9}0.5 prob: share of days in cash {(prob.reindex(common) >= 0.5).mean():.0%}")
+
+    # Can one 16-year path tell these apart? Paired circular block bootstrap (quarter-long blocks).
+    excess = pd.DataFrame({k: v - rf.reindex(v.index) for k, v in strategies.items()})
+    draws = block_bootstrap_sharpe(excess, block=63, n_boot=2000, seed=0)
+    base = "Regime switch equity/cash"
+    print(f"\nSharpe 95% interval, and the interval for (strategy - {base}), block bootstrap")
+    for name in draws.columns:
+        lo, hi = np.percentile(draws[name], [2.5, 97.5])
+        line = f"  {name:<30}[{lo:5.2f}, {hi:5.2f}]"
+        if name != base:
+            dlo, dhi = np.percentile(draws[name] - draws[base], [2.5, 97.5])
+            line += f"   diff [{dlo:+.2f}, {dhi:+.2f}]"
+        print(line)
 
     import matplotlib.pyplot as plt
 

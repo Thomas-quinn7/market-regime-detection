@@ -300,7 +300,9 @@ probability is below 0.5 the strategy holds equity (SPY); at or above it, the st
 (BIL) or to 7-10y Treasuries (IEF). Benchmarks are static 100% equity, a static 60/40, and the
 baseline from earlier: the same equity/cash switch driven by plain trailing vol instead of the regime
 model, moving to cash when annualised vol is at or above 20%. The 20% is a round number fixed in
-advance, not tuned. Window: 2008-2023 (where the OOS signal exists).
+advance, not tuned. A volatility-targeting rule is included as the standard continuous alternative
+(Moreira & Muir 2017 style, no leverage): equity weight = 10% / EWMA vol, capped at 1, the rest in
+cash. Window: 2008-2023 (where the OOS signal exists).
 
 | Strategy | ann return | ann vol | Sharpe | max drawdown | Calmar |
 |---|---|---|---|---|---|
@@ -308,6 +310,7 @@ advance, not tuned. Window: 2008-2023 (where the OOS signal exists).
 | Regime switch equity / bonds | 8.5% | 12.0% | 0.67 | -17% | 0.51 |
 | 21-day vol > 20%, equity / cash | 9.1% | 11.6% | **0.74** | -18% | **0.51** |
 | EWMA vol > 20%, equity / cash | 6.7% | 11.6% | 0.55 | -20% | 0.33 |
+| EWMA vol target 10%, equity / cash | 7.0% | 10.0% | 0.65 | -19% | 0.37 |
 | Static 100% equity | **10.0%** | 20.4% | 0.53 | -52% | 0.19 |
 | Static 60/40 equity / bonds | 7.8% | 11.6% | 0.64 | -31% | 0.25 |
 
@@ -337,6 +340,27 @@ shows the trailing-vol rules spread across roughly the same range as the regime 
 (The regime switch spends 28% of days in cash.) Six variants on one path is a small grid, and picking
 its best cell would be the same mistake as reporting a smoothed label, so the reading is about the
 range: on this sample the regime model does about as well as a plain trailing-vol rule, not better.
+
+**None of these Sharpe ratios can be told apart on this sample.** A paired circular block bootstrap
+(`regimes.allocation.block_bootstrap_sharpe`: quarter-long blocks to keep volatility clustering, the
+same blocks for every strategy so differences are paired, 2,000 draws) gives:
+
+| Strategy | Sharpe 95% interval | Sharpe minus regime switch (equity/cash), 95% interval |
+|---|---|---|
+| Regime switch equity / cash | 0.24 to 1.11 | |
+| Regime switch equity / bonds | 0.26 to 1.09 | -0.17 to +0.19 |
+| 21-day vol > 20% | 0.31 to 1.18 | -0.19 to +0.31 |
+| EWMA vol > 20% | 0.09 to 1.03 | -0.40 to +0.17 |
+| EWMA vol target 10% | 0.23 to 1.09 | -0.32 to +0.28 |
+| Static 100% equity | 0.13 to 1.03 | -0.58 to +0.29 |
+| Static 60/40 | 0.22 to 1.15 | -0.51 to +0.42 |
+
+Every difference interval contains zero, including the one against plain buy-and-hold. Sixteen years
+of daily data pins a single Sharpe ratio down only to about plus or minus 0.4, while the gaps in the
+table are under 0.2, so the Sharpe column above should be read as a description of one path rather
+than a ranking. The drawdown reduction is the more robust part of the result, since every switching
+and vol-targeting rule cuts the maximum drawdown sharply (-12% to -25%, against -52% for equity),
+though as a single-path statistic it has no interval here either.
 
 Caveats, because this is the result most easily oversold. It is a single out-of-sample path on one
 market over one 16-year window, and that window is bracketed by two large crashes that flatter a

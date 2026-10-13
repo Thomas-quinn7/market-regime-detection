@@ -27,7 +27,7 @@ caveats for every result below.
 | Cross-asset concordance | stress is systemic: the nine per-sector regimes agree at 0.67 mean pairwise correlation, out-of-sample |
 | Multivariate turbulence | a genuinely different signal from single-asset vol (74% label agreement); correlates 0.39 with next-month realised vol vs the single-asset model's 0.55 on its home turf — expected, its value is correlation-break detection |
 | Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4–1.8x) — but **76–92% of alerts are false**, measured here alongside the recall the literature emphasises |
-| Regime allocation | max drawdown -15% vs -52% for equities and -31% for 60/40, but Sharpe 0.66 vs 0.64 for 60/40, and a plain trailing-vol switch does about as well (Sharpe 0.55 to 0.74 across thresholds): loss avoidance, not alpha (out-of-sample, after costs) |
+| Regime allocation | max drawdown -15% vs -52% for equities and -31% for 60/40, but Sharpe 0.66 vs 0.64 for 60/40, and a plain trailing-vol switch or vol targeting does about as well (Sharpe 0.55 to 0.74), and a block bootstrap cannot tell any of the Sharpe ratios apart: loss avoidance, not alpha (out-of-sample, after costs) |
 | Macro quadrants | does **not** beat a static 60/40 — an honest null result, kept for the point-in-time data discipline it demonstrates |
 
 ## The idea
@@ -100,7 +100,7 @@ src/regimes/
   selection.py   # state-count selection by AIC/BIC
   cross_asset.py # per-sector regimes; systemic-stress concordance and breadth (+ OOS)
   plots.py       # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
-tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (45 tests)
+tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (46 tests)
 notebooks/       # exploration only — not the headline
 ```
 

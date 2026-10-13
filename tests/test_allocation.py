@@ -66,3 +66,18 @@ def test_regime_strategy_avoids_a_flagged_crash():
     # The regime strategy sidesteps the crash, so its drawdown is far shallower.
     assert max_drawdown(strat) > max_drawdown(static_eq) + 0.3
     assert performance_stats(strat).ann_return > performance_stats(static_eq).ann_return
+
+
+def test_block_bootstrap_sharpe_is_paired_and_centred():
+    from regimes.allocation import block_bootstrap_sharpe
+
+    n = 2520
+    rng = np.random.default_rng(1)
+    a = rng.normal(0.0004, 0.01, n)
+    ex = pd.DataFrame({"a": a, "a_copy": a, "b": rng.normal(0.0, 0.01, n)}, index=_idx(n))
+    draws = block_bootstrap_sharpe(ex, block=63, n_boot=300, seed=0)
+    assert draws.shape == (300, 3)
+    # identical columns get identical draws: the resample is shared, so differences are paired.
+    assert np.allclose(draws["a"], draws["a_copy"])
+    full = ex["a"].mean() / ex["a"].std() * np.sqrt(252)
+    assert abs(draws["a"].median() - full) < 0.25

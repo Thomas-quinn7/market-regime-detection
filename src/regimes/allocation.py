@@ -111,6 +111,31 @@ def backtest(asset_returns: pd.DataFrame, weights: pd.DataFrame, *, cost_bps: fl
     return net[valid].rename("portfolio")
 
 
+def block_bootstrap_sharpe(excess: pd.DataFrame, *, block: int = 63, n_boot: int = 2000,
+                           seed: int = 0, periods_per_year: int = 252) -> pd.DataFrame:
+    """Bootstrap distribution of annualised Sharpe ratios, one column per strategy.
+
+    Circular block bootstrap on daily *excess* returns: blocks of ``block`` consecutive days keep
+    the volatility clustering a plain i.i.d. resample would destroy. The same blocks are drawn for
+    every column, so the draws are paired and ``draws[a] - draws[b]`` is a valid distribution for
+    the Sharpe difference between two strategies run over the same days.
+    """
+    x = excess.dropna().to_numpy()
+    n = len(x)
+    if n < 2 * block:
+        raise ValueError(f"need at least {2 * block} rows for block={block}, got {n}")
+    rng = np.random.default_rng(seed)
+    n_blocks = -(-n // block)  # ceil
+    offsets = np.arange(block)
+    draws = np.empty((n_boot, x.shape[1]))
+    for b in range(n_boot):
+        starts = rng.integers(0, n, size=n_blocks)
+        idx = ((starts[:, None] + offsets[None, :]) % n).ravel()[:n]
+        s = x[idx]
+        draws[b] = s.mean(axis=0) / s.std(axis=0, ddof=1) * np.sqrt(periods_per_year)
+    return pd.DataFrame(draws, columns=excess.columns)
+
+
 def static_weights(index: pd.Index, allocation: dict) -> pd.DataFrame:
     """Constant-weight schedule, e.g. ``{'equity': 0.6, 'bonds': 0.4}`` for a 60/40 benchmark."""
     return pd.DataFrame({k: float(v) for k, v in allocation.items()}, index=index)
