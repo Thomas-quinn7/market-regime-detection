@@ -90,6 +90,22 @@ def load_bars(path: Path) -> pd.DataFrame:
     return db.DBNStore.from_file(str(path)).to_df()
 
 
+def load_session_bars(path: Path, *, chunk: int = 500_000) -> pd.DataFrame:
+    """Regular-session one-minute bars from a DBN file, read in chunks to keep memory low.
+
+    Sixteen years of ES one-minute bars is about six million rows; only the 09:30-16:00 New York
+    bars (about a quarter) and the columns ``daily_realised_vol`` needs are kept.
+    """
+    import databento as db
+
+    keep = ["open", "close", "volume", "instrument_id"]
+    parts = []
+    for df in db.DBNStore.from_file(str(path)).to_df(count=chunk, map_symbols=False):
+        df = df.tz_convert(NY).between_time(RTH_OPEN, RTH_CLOSE, inclusive="left")
+        parts.append(df[[c for c in keep if c in df]])
+    return pd.concat(parts).sort_index()
+
+
 def daily_realised_vol(bars: pd.DataFrame, *, every: str = "5min") -> pd.DataFrame:
     """Regular-session realised volatility per day from one-minute bars, in daily percent.
 
