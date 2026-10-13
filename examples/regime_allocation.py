@@ -19,6 +19,7 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
+import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from regimes.allocation import (  # noqa: E402
@@ -26,8 +27,10 @@ from regimes.allocation import (  # noqa: E402
     performance_stats,
     regime_switch_weights,
     static_weights,
+    vol_threshold_signal,
 )
 from regimes.data import load_index_prices, load_index_returns  # noqa: E402
+from regimes.evaluate import ewma_vol, realised_vol  # noqa: E402
 from regimes.evaluate import walk_forward_oos  # noqa: E402
 
 START, END = "2005-01-01", "2023-12-31"
@@ -45,7 +48,13 @@ def main() -> None:
     assets = pd.DataFrame({"equity": eq, "bonds": bond, "cash": cash}).dropna()
 
     # Causal, walk-forward OOS regime probability on the S&P 500.
-    prob = walk_forward_oos(load_index_returns("SPY", START, END), min_train=756, step=63).high_vol_prob
+    spy = load_index_returns("SPY", START, END)  # log returns in percent
+    prob = walk_forward_oos(spy, min_train=756, step=63).high_vol_prob
+
+    # The baseline the regime model has to beat: switch on plain trailing vol (annualised, percent).
+    # The 20% threshold is a round number fixed in advance, not tuned; the grid below shows the spread.
+    rv21 = realised_vol(spy, 21) * np.sqrt(252)
+    ewma = ewma_vol(spy) * np.sqrt(252)
 
     rf = assets["cash"]
     strategies = {
@@ -53,6 +62,10 @@ def main() -> None:
             assets, regime_switch_weights(prob, risk_on="equity", risk_off="cash"), cost_bps=5.0),
         "Regime switch equity/bonds": backtest(
             assets, regime_switch_weights(prob, risk_on="equity", risk_off="bonds"), cost_bps=5.0),
+        "21d vol > 20% equity/cash": backtest(
+            assets, regime_switch_weights(vol_threshold_signal(rv21, 20.0)), cost_bps=5.0),
+        "EWMA vol > 20% equity/cash": backtest(
+            assets, regime_switch_weights(vol_threshold_signal(ewma, 20.0)), cost_bps=5.0),
         "Static 100% equity": backtest(
             assets, static_weights(assets.index, {"equity": 1.0}), cost_bps=5.0),
         "Static 60/40 equity/bonds": backtest(
@@ -76,10 +89,26 @@ def main() -> None:
               f"{st.max_drawdown:>8.1%}{st.calmar:>8.2f}")
         curves[name] = (1.0 + r).cumprod()
 
+    # Threshold sensitivity for the trailing-vol rules: one window, so read the spread, not the best.
+    print("\ntrailing-vol switch (equity/cash), Sharpe / max drawdown / share of days in cash")
+    for vol_name, vol in (("21d vol", rv21), ("EWMA vol", ewma)):
+        cells = []
+        for thr in (15.0, 20.0, 25.0):
+            sig = vol_threshold_signal(vol, thr)
+            r = backtest(assets, regime_switch_weights(sig), cost_bps=5.0).reindex(common).dropna()
+            st = performance_stats(r, rf=rf.reindex(r.index))
+            cells.append(f"{thr:.0f}%: {st.sharpe:.2f} / {st.max_drawdown:.0%} / "
+                         f"{sig.reindex(common).mean():.0%}")
+        print(f"  {vol_name:<9}" + "   ".join(cells))
+    print(f"  {'HMM':<9}0.5 prob: share of days in cash {(prob.reindex(common) >= 0.5).mean():.0%}")
+
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(12, 5.5))
-    for name, c in curves.items():
+    plotted = ["Regime switch equity/cash", "21d vol > 20% equity/cash",
+               "Static 100% equity", "Static 60/40 equity/bonds"]  # four lines stay readable
+    for name in plotted:
+        c = curves[name]
         ax.plot(c.index, c.values, lw=1.3, label=name)
     ax.set_yscale("log")
     ax.set_ylabel("growth of $1 (log scale)")

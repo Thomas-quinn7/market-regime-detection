@@ -80,6 +80,18 @@ def regime_switch_weights(regime_prob: pd.Series, *, threshold: float = 0.5,
     return pd.DataFrame({risk_on: on, risk_off: 1.0 - on}, index=regime_prob.index)
 
 
+def vol_threshold_signal(vol: pd.Series, threshold: float) -> pd.Series:
+    """Stress flag from a trailing volatility series: 1.0 at or above ``threshold``, else 0.0.
+
+    The simple baseline a regime model has to beat for allocation. It is shaped like a regime
+    probability so it drops straight into ``regime_switch_weights``. ``vol`` must be causal (for
+    example ``evaluate.realised_vol`` or ``evaluate.ewma_vol``, annualised to match ``threshold``);
+    dates where it is undefined are dropped rather than treated as calm.
+    """
+    vol = vol.dropna()
+    return (vol >= threshold).astype(float).rename("vol_stress")
+
+
 def backtest(asset_returns: pd.DataFrame, weights: pd.DataFrame, *, cost_bps: float = 0.0) -> pd.Series:
     """Net portfolio returns for a weight schedule, causal and after transaction costs.
 

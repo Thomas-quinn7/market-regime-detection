@@ -25,6 +25,14 @@ def realised_vol(returns: pd.Series, window: int = 21) -> pd.Series:
     return returns.rolling(window).std()
 
 
+def ewma_vol(returns: pd.Series, alpha: float = 0.06) -> pd.Series:
+    """Exponentially weighted volatility, zero-mean (RiskMetrics: ``alpha = 1 - lambda = 0.06``).
+
+    Causal: the value at t uses returns up to and including t only.
+    """
+    return np.sqrt((returns.astype(float) ** 2).ewm(alpha=alpha, adjust=False).mean())
+
+
 @dataclass
 class Agreement:
     """How closely two high-vol probability series agree, on their shared dates."""
@@ -60,7 +68,8 @@ class OOSResult:
     n: int
 
 
-def oos_realised_vol_check(returns: pd.Series, fit: RegimeFit, horizon: int = 21) -> OOSResult:
+def oos_realised_vol_check(returns: pd.Series, fit: RegimeFit, horizon: int = 21,
+                           index: pd.Index | None = None) -> OOSResult:
     """Correlate today's high-vol regime probability with *future* realised vol.
 
     The key comparison is ``corr_filtered`` (causal, honest) vs ``corr_smoothed`` (uses future data).
@@ -70,6 +79,10 @@ def oos_realised_vol_check(returns: pd.Series, fit: RegimeFit, horizon: int = 21
     NOTE: ``fit`` here is estimated on the full sample, so ``corr_filtered`` still enjoys full-sample
     *parameter* estimation. Use ``walk_forward_oos`` (below) for the version that removes that leak by
     re-estimating parameters on past data only.
+
+    Pass ``index`` (e.g. a walk-forward run's out-of-sample dates) to score on those dates only. The
+    walk-forward span starts after its training window, so comparing it against a full-sample score
+    would mix two different periods.
     """
     fut_vol = realised_vol(returns, horizon).shift(-horizon)  # realised vol over the NEXT horizon
     hv_filt = fit.high_vol_filtered()
@@ -78,6 +91,8 @@ def oos_realised_vol_check(returns: pd.Series, fit: RegimeFit, horizon: int = 21
     joined = pd.concat(
         {"fut_vol": fut_vol, "filt": hv_filt, "smooth": hv_smooth}, axis=1
     ).dropna()
+    if index is not None:
+        joined = joined.loc[joined.index.intersection(index)]
 
     return OOSResult(
         corr_filtered=float(joined["filt"].corr(joined["fut_vol"])),
@@ -85,6 +100,46 @@ def oos_realised_vol_check(returns: pd.Series, fit: RegimeFit, horizon: int = 21
         horizon=horizon,
         n=len(joined),
     )
+
+
+def compare_vol_predictors(predictors: dict[str, pd.Series], returns: pd.Series, *,
+                           horizon: int = 21) -> pd.DataFrame:
+    """Score several causal predictors of next-``horizon``-day realised vol on their common dates.
+
+    This is the baseline test a regime model has to pass: a high-vol probability is only worth
+    having if it tells you more about future vol than trailing vol already does. Every predictor is
+    scored on the same dates, with Pearson and Spearman correlation (a probability is bounded and
+    realised vol is skewed, so the rank measure is the fairer one for the regime model).
+    """
+    fut_vol = realised_vol(returns, horizon).shift(-horizon)
+    joined = pd.concat({"fut_vol": fut_vol, **predictors}, axis=1, sort=True).dropna()
+    rows = {
+        name: {
+            "pearson": float(joined[name].corr(joined["fut_vol"])),
+            "spearman": float(joined[name].corr(joined["fut_vol"], method="spearman")),
+        }
+        for name in predictors
+    }
+    out = pd.DataFrame(rows).T
+    out["n"] = len(joined)
+    return out
+
+
+def incremental_r2(target: pd.Series, base: pd.Series, extra: pd.Series) -> tuple[float, float]:
+    """In-sample R^2 of ``target ~ base`` and of ``target ~ base + extra`` on their common dates.
+
+    A descriptive measure of how much ``extra`` adds once ``base`` is known, not a forecast test.
+    """
+    joined = pd.concat({"y": target, "b": base, "x": extra}, axis=1, sort=True).dropna()
+    y = joined["y"].to_numpy()
+    tss = float(((y - y.mean()) ** 2).sum())
+
+    def _r2(cols: list[str]) -> float:
+        X = np.column_stack([np.ones(len(joined))] + [joined[c].to_numpy() for c in cols])
+        beta = np.linalg.lstsq(X, y, rcond=None)[0]
+        return 1.0 - float(((y - X @ beta) ** 2).sum()) / tss
+
+    return _r2(["b"]), _r2(["b", "x"])
 
 
 def train_test_split_series(returns: pd.Series, train_frac: float = 0.7) -> tuple[pd.Series, pd.Series]:

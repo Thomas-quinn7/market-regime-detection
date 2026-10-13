@@ -5,11 +5,14 @@ This note fits a two-state Markov-switching model to daily S&P 500 returns to in
 then does the part most write-ups skip: it measures whether the inferred states carry real,
 out-of-sample information, evaluated causally, with no future data leaking into the answer.
 
-The headline is deliberately modest. The regime signal has a correlation of about **0.57** with
-next-month realised volatility, and that number **survives a strict walk-forward** in which
-parameters are re-estimated on past data only and applied forward. A naive evaluation that lets
-future data in reports about **0.62**. The gap between those two numbers is the look-ahead premium,
-and reporting the honest one is the whole point.
+The headline is deliberately modest, and it has two parts. The regime signal has a correlation of
+about **0.57** with next-month realised volatility, and that number **survives a strict walk-forward**
+in which parameters are re-estimated on past data only and applied forward. A naive evaluation that
+lets future data in reports about **0.61** on the same days. The gap between those two numbers is the
+look-ahead premium. The second part is less flattering: plain trailing volatility does better at the
+same test (**0.66** for 21-day realised vol, **0.68** for an EWMA), so the regime probability is not
+the better volatility forecaster, and in the allocation test a simple trailing-vol switch does about
+as well as the regime switch. Reporting both halves is the point.
 
 ## The model
 
@@ -76,30 +79,58 @@ selloffs, the 2020 COVID crash, and the 2022 bear market. The calm bull runs of 
 
 ![The look-ahead premium](figures/result_ladder.png)
 
+All three rungs are scored on the same 4,003 out-of-sample days (2008-2023). The walk-forward span
+starts after its three-year training window, so the leaky rungs are restricted to those days too.
+(An earlier version of this note scored the leaky rungs on the full 2005-2023 sample, 0.622 and
+0.554, which mixed two different periods.)
+
 | Evaluation | corr with next-month realised vol | What leaks |
 |---|---|---|
-| Smoothed (full sample) | **0.622** | future *data* |
-| Filtered (full-sample params) | 0.554 | future-estimated *parameters* |
+| Smoothed (full sample) | **0.612** | future *data* |
+| Filtered (full-sample params) | 0.545 | future-estimated *parameters* |
 | Walk-forward (frozen params, fully OOS) | **0.568** | nothing |
 
 Two things stand out.
 
 First, the honest walk-forward number (0.568) is essentially equal to the filtered full-sample-params
-number (0.554), and slightly higher. So in this case the parameter leak was not doing the work. If
+number (0.545), and slightly higher. So in this case the parameter leak was not doing the work. If
 anything, re-estimating each quarter tracks the slowly changing volatility structure a little better
 than one static full-sample fit. Almost the entire look-ahead premium lives in the smoothed-versus-
 causal gap, not in parameter estimation.
 
-Second, the premium is real but small here: about **0.05** of correlation, roughly a tenth of the
+Second, the premium is real but small here: about **0.04** of correlation, under a tenth of the
 honest signal, would have been banked as edge by a naive write-up. On a noisier target or a shorter
 sample it can be much larger. The discipline matters regardless of how big it turns out to be.
+
+## The baseline that matters: trailing volatility
+
+A regime probability that correlates with future volatility is only worth having if it says more
+than trailing volatility already does, because volatility clusters and yesterday's vol is the first
+forecast anyone would try. So the same test is run on two plain baselines, on the same days and
+against the same target (`regimes.evaluate.compare_vol_predictors`): trailing 21-day realised vol and
+an exponentially weighted vol with the RiskMetrics decay of 0.94. Both are causal.
+
+| Predictor of next-month realised vol | Pearson | Spearman |
+|---|---|---|
+| Walk-forward HMM high-vol probability | 0.568 | 0.618 |
+| Trailing 21-day realised vol | **0.663** | 0.594 |
+| EWMA vol (RiskMetrics 0.94) | **0.680** | **0.623** |
+
+On the linear measure both baselines beat the regime model clearly. On ranks, which is the fairer
+measure for a bounded probability against a skewed target, the three are roughly level. Adding the
+HMM probability to a regression of next-month vol on trailing 21-day vol lifts the in-sample R^2 from
+0.440 to 0.463, so it carries a little information that trailing vol does not, but not much.
+
+The honest reading is that the regime model is **not a better volatility forecaster** than trailing
+vol. What it adds is a discrete, persistent state with a probability attached, which is what the
+allocation test further down puts to use, and that test includes the trailing-vol baseline too.
 
 ## What this shows, and what it does not
 
 This is unsupervised. There is no ground-truth regime label, so the claim is **not** "we recovered the
 true regimes." The claim is narrower and testable: the inferred high-volatility state has measurable,
 out-of-sample predictive content for future realised volatility, and here is how much, measured
-without look-ahead.
+without look-ahead. That content is real but smaller than what trailing volatility alone provides.
 
 What it does not show:
 
@@ -266,13 +297,17 @@ The rules are deliberately strict on look-ahead: the regime probability is the *
 out-of-sample** one (parameters estimated only on past data), the position for each day is decided from
 the prior day's information, and turnover is charged 5 basis points. When the filtered high-vol
 probability is below 0.5 the strategy holds equity (SPY); at or above it, the strategy switches to cash
-(BIL) or to 7-10y Treasuries (IEF). Benchmarks are static 100% equity and a static 60/40. Window:
-2008-2023 (where the OOS signal exists).
+(BIL) or to 7-10y Treasuries (IEF). Benchmarks are static 100% equity, a static 60/40, and the
+baseline from earlier: the same equity/cash switch driven by plain trailing vol instead of the regime
+model, moving to cash when annualised vol is at or above 20%. The 20% is a round number fixed in
+advance, not tuned. Window: 2008-2023 (where the OOS signal exists).
 
 | Strategy | ann return | ann vol | Sharpe | max drawdown | Calmar |
 |---|---|---|---|---|---|
-| Regime switch equity / cash | 7.7% | 10.9% | **0.66** | **-15%** | **0.51** |
+| Regime switch equity / cash | 7.7% | 10.9% | 0.66 | **-15%** | **0.51** |
 | Regime switch equity / bonds | 8.5% | 12.0% | 0.67 | -17% | 0.51 |
+| 21-day vol > 20%, equity / cash | 9.1% | 11.6% | **0.74** | -18% | **0.51** |
+| EWMA vol > 20%, equity / cash | 6.7% | 11.6% | 0.55 | -20% | 0.33 |
 | Static 100% equity | **10.0%** | 20.4% | 0.53 | -52% | 0.19 |
 | Static 60/40 equity / bonds | 7.8% | 11.6% | 0.64 | -31% | 0.25 |
 
@@ -287,13 +322,30 @@ from: the regime strategies sidestep almost all of 2008 and most of 2020, and gi
 slowly during the long bull run. This is loss avoidance, not alpha, and it is the value Ang & Bekaert
 attribute to regimes.
 
+Two comparisons take most of the shine off that. Against a static 60/40, which is the fairer
+benchmark for a strategy that spends a quarter of its time in cash, the Sharpe gain is 0.02 (0.66 vs
+0.64), and what remains is the smaller drawdown (-15% vs -31%). And against the trailing-vol switch,
+the regime model is not clearly better: the 21-day rule has a higher Sharpe (0.74) and a slightly
+deeper drawdown (-18%), the EWMA rule a lower Sharpe (0.55). The threshold grid printed by the script
+shows the trailing-vol rules spread across roughly the same range as the regime switch:
+
+| Trailing-vol rule, equity / cash | 15% | 20% | 25% |
+|---|---|---|---|
+| 21-day vol: Sharpe / max drawdown / days in cash | 0.63 / -12% / 44% | 0.74 / -18% / 24% | 0.72 / -25% / 14% |
+| EWMA vol: Sharpe / max drawdown / days in cash | 0.61 / -15% / 44% | 0.55 / -20% / 24% | 0.67 / -21% / 13% |
+
+(The regime switch spends 28% of days in cash.) Six variants on one path is a small grid, and picking
+its best cell would be the same mistake as reporting a smoothed label, so the reading is about the
+range: on this sample the regime model does about as well as a plain trailing-vol rule, not better.
+
 Caveats, because this is the result most easily oversold. It is a single out-of-sample path on one
 market over one 16-year window, and that window is bracketed by two large crashes that flatter a
 loss-avoidance strategy; a different sample could look very different (Ang & Bekaert flag the same
 sample-specificity about their own numbers). The binary switch is crude, the ~2.3% of annual return
 given up is a real cost of the insurance, and none of this is a live trading system. The claim is
 narrow: used the way the literature says to use it, the regime signal produces a genuine,
-out-of-sample, cost-aware improvement in risk-adjusted return, concentrated in drawdown reduction.
+out-of-sample, cost-aware reduction in drawdown, and on this sample a plain trailing-vol switch
+achieves about the same.
 
 ## Macro growth/inflation quadrants, and the cost of doing it honestly
 
