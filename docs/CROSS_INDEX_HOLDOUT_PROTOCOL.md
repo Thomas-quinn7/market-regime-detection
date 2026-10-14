@@ -1,10 +1,10 @@
 # Holdout protocol: better volatility models, on the Nasdaq-100, the Dow and the Russell 2000
 
-**Status, 2026-10-13: draft, not frozen.** One decision is open before the freeze. The
-development results below suggest P1 to P4 will come back "no difference" at the 21-day horizon,
-while HARQ and SHAR are expected to help most at a 1-day horizon, which is not tested here. Either
-(A) run the claims as written and record that 1-day horizons were not tested, or (B) add 1-day
-versions of P1 and P2 before the freeze, recorded here as added after seeing development results.
+**Status, 2026-10-14: frozen, not yet run.** The claims run as written, all at the 21-day horizon.
+The open question at the draft stage was whether to add 1-day versions of P1 and P2, since HARQ and
+SHAR are built to help most at short horizons. A development check on the S&P 500 (below) found no
+difference at 1 or 5 days either, so no 1-day claim was added. **1-day horizons are not tested by this
+holdout.**
 
 Written and committed **before** any holdout data was loaded. On 2026-10-13 the futures bars below
 were downloaded from Databento and their file listings and job metadata were read; no price in them
@@ -160,6 +160,22 @@ Notes from development:
   best for k = 1 to 8 (k = 4 to 8 all lie within 1.3 points). A single-start Nelder-Mead fit stalled
   (gamma_k stuck at its start, k = 4 short by 28 points), so fits use twelve starts with L-BFGS-B.
 - MSM loses to GJR-GARCH here (0.365 against 0.343).
+- Short horizons, checked 2026-10-14 (`examples/harq_short_horizon.py`, HAR family only, same
+  walk-forward and bootstrap). At 1 day (2,626 days), HARQ + IV has RMSE 0.2618 against 0.2631 for
+  HAR-RV + IV, interval -0.0031 to +0.0007; SHAR + IV -0.0005 to +0.0010. At 5 days both intervals
+  sit within 0.001 of zero. HARQ's point estimate is about 0.5% better at 1 day, but the interval
+  spans zero, so adding 1-day claims would have spent two more comparisons on expected nulls.
+
+## Running it
+
+`examples/cross_index_holdout.py` runs each index through `evaluate_index` from
+`examples/better_vol_models.py`, unchanged, then applies the claim rules above. Index returns are
+loaded to 2026-10-12, the last day of the futures downloads. `--dry-run` sends the S&P 500
+development data (ES bars, `^GSPC`, FRED `VIXCLS`, to 2023) through the same loaders and verdict code,
+to test the script without opening a holdout file; it is not a result. Two points the claim rules
+leave implicit, fixed here at the freeze: a "not better" claim that is better on any counted index
+**fails**, and if an index falls below 750 scored days, "at least two" still means two counted
+indices.
 
 ## Power
 
