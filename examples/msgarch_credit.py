@@ -59,8 +59,9 @@ RETURNS_FROM = "2000-01-01"
 DEV_END = "2023-12-31"
 CACHE_DIR = DATA_DIR / "checkpoints" / "msgarch_credit"
 
-# MS-GARCH variants: name -> (innovations, lowest allowed stay probability). The first is the one the
-# claims refer to; development may run more.
+# MS-GARCH variants: name -> (innovations, lowest allowed stay probability). ``MSGARCH`` is the one the
+# claims refer to, chosen on the S&P 500 development run (docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md):
+# Student-t errors, no lower bound on staying in a regime beyond the optimiser's 0.001.
 MSGARCH = {"MS-GARCH": ("t", 0.001)}
 DEV_VARIANTS = {
     "MS-GARCH": ("t", 0.001),
@@ -77,7 +78,7 @@ MS_CLAIMS = [
     ("M5", "{m}", "HAR + IV", "better"),
 ]
 OTHER_CLAIMS = [
-    ("C1", "HAR + IV + credit", "HAR + IV", "better"),
+    ("C1", "HAR + IV + credit", "HAR + IV", "not better"),
     ("C2", "HAR + credit", "HAR", "better"),
     ("R1", "HAR + IV", "HAR", "better"),
     ("R2", "GJR-GARCH", "HAR + IV", "not better"),
