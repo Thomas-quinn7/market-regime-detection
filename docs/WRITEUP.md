@@ -726,11 +726,109 @@ where the cost shows up.
 
 What this does and does not show. Across the VIX, its term structure, recessions, Fed easing and
 intraday data, the two-state HMM never added anything to a simple measure built from the same
-information, and each of the reasons above follows from the model having only two states. All three attempts in this
-section are on development data, the NQ, YM and Russell 2000 data that would confirm the intraday
-result is downloaded but unopened, and I have not tried a model where volatility moves continuously
-inside each regime, Markov-switching GARCH being the obvious one, which is the direction the simulation
-points to.
+information, and each of the reasons above follows from the model having only two states. All three
+attempts in this section are on development data. The next section tests the intraday result on the
+Nasdaq-100, the Dow and the Russell 2000, and tries a regime model with more than two volatility
+levels, which is the direction the simulation points to.
+
+## Better volatility models, and a holdout on three more indices
+
+"Why it loses" points to an obvious next step. If the two-state model fails because its forecast is
+stuck between two volatility levels, then a model with more levels, or one where volatility moves
+continuously, should do better. So I tried four models that the volatility literature says should
+improve on plain HAR, plus one regime model built for exactly that failure, and then tested all of
+them on three indices this repo had never loaded.
+
+The candidates, each run walk-forward and calibrated by the same regression as before
+(`examples/better_vol_models.py`):
+
+- HARQ (Bollerslev, Patton and Quaedvlieg 2016), which trusts yesterday's realised vol less on days
+  when it was measured imprecisely.
+- SHAR (Patton and Sheppard 2015), which splits yesterday's realised vol into its downside and upside
+  parts.
+- GJR-GARCH(1,1) on daily returns, where volatility moves continuously and reacts more to falls than
+  to rises.
+- MSM, the Markov-switching multifractal of Calvet and Fisher (2004). It is still a regime model,
+  however it multiplies four two-state components that switch at very different speeds, from about
+  once a month to once every several years, so volatility can sit on five levels instead of two. The number of components was chosen
+  on 2000-2009 S&P 500 returns, before any scored day.
+- An equal-weight average of HAR-RV + IV, GJR-GARCH and MSM.
+
+Each one is compared against HAR-RV + IV, HAR built from intraday session vol plus the index's own
+implied vol, which was the best forecast found on the S&P 500 in the last section. The target is
+next-month session vol.
+
+**Development, S&P 500 only.** On 2,589 days from August 2013 to November 2023, nothing beat HAR-RV +
+VIX. HARQ and SHAR changed the forecast by about 0.3% on average. At a one-month horizon yesterday's
+realised vol only gets a weight of about 0.12 in the regression against about 0.54 for the VIX, so
+there is very little for them to adjust. GJR-GARCH and MSM were both worse, and they dragged the
+combination down with them. MSM had a lower error than the two-state HMM (0.365 against 0.378),
+however the interval included zero. HARQ was designed mainly for one-day forecasts, so before
+freezing anything I also checked one-day and five-day horizons (`examples/harq_short_horizon.py`). It
+made no measurable difference there either, with a one-day RMSE interval of -0.0031 to +0.0007.
+
+**The holdout.** The rules are in
+[CROSS_INDEX_HOLDOUT_PROTOCOL.md](CROSS_INDEX_HOLDOUT_PROTOCOL.md). It names every model, nine
+comparisons and the scoring, and a "better" claim only counts as confirmed if it is better on at least
+two of the three indices and worse on none. It was committed and pushed (commit `963cb5e`) before any
+Nasdaq-100, Dow or Russell 2000 data was opened. Each index has its own futures for intraday vol (NQ,
+YM and RTY, from Databento) and its own implied vol index (VXN, VXD and RVX), and each was run once
+(`examples/cross_index_holdout.py`). RMSE of next-month session vol, daily percent:
+
+| Forecast | S&P 500 (development) | Nasdaq-100 | Dow | Russell 2000 |
+|---|---|---|---|---|
+| HAR from daily returns | 0.358 | 0.370 | 0.337 | 0.316 |
+| HAR-RV | 0.341 | 0.352 | 0.322 | 0.308 |
+| HAR-RV + IV | 0.334 | 0.342 | 0.316 | 0.299 |
+| HARQ + IV | 0.334 | 0.342 | 0.315 | 0.299 |
+| SHAR + IV | 0.334 | 0.342 | 0.316 | 0.299 |
+| GJR-GARCH | 0.343 | 0.360 | 0.323 | 0.318 |
+| MSM | 0.365 | 0.370 | 0.345 | 0.312 |
+| Two-state HMM implied vol | 0.378 | 0.377 | 0.361 | 0.370 |
+| HAR-RV + IV + MSM | 0.335 | 0.342 | 0.317 | 0.299 |
+| HAR-RV + IV + HMM probability | 0.334 | 0.338 | 0.317 | 0.301 |
+| Combination | 0.341 | 0.352 | 0.322 | 0.295 |
+| Scored days | 2,589 | 3,286 | 3,297 | 1,513 |
+
+The holdout runs from August 2013 to September 2026 for the Nasdaq-100 and the Dow, and from
+September 2020 for the Russell 2000, whose futures only moved to CME in 2017. The nine comparisons, by
+the rule committed in advance:
+
+| Comparison | Nasdaq-100 | Dow | Russell 2000 | Outcome |
+|---|---|---|---|---|
+| HARQ + IV better than HAR-RV + IV | no difference | no difference | no difference | rejected |
+| SHAR + IV better than HAR-RV + IV | no difference | no difference | no difference | rejected |
+| Adding MSM to HAR-RV + IV helps | no difference | no difference | no difference | rejected |
+| Combination better than HAR-RV + IV | worse | worse | no difference | rejected |
+| MSM better than the two-state HMM | no difference | no difference | better | mixed |
+| Implied vol adds to HAR-RV | better | no difference | no difference | mixed |
+| HAR-RV better than HAR from daily returns | better | better | no difference | confirmed |
+| HMM probability adds nothing to HAR-RV + IV | no difference | no difference | no difference | holds |
+| GJR-GARCH no better than HAR-RV + IV | worse | worse | no difference | holds |
+
+None of the four new models beat HAR-RV + IV on any index. HARQ and SHAR moved the error by 0.001
+at most, and the combination was worse on the Nasdaq-100 and the Dow, again because of GARCH and MSM.
+
+The regime result is the interesting one. MSM clearly beat the two-state HMM on the Russell 2000
+(0.312 against 0.370, interval -0.106 to -0.016) and had a lower error on the other two indices,
+but there the intervals included zero, so by the rule I set myself it is mixed and I cannot call it
+confirmed. That fits the diagnosis in "Why it loses", since giving the regime model more levels
+helps it. However even MSM had a higher error than HAR-RV + IV on every index (not one of the
+committed comparisons, so read it as descriptive), and adding it to HAR-RV + IV changed nothing.
+
+Of the S&P 500 results being replicated, intraday data beating daily returns held up on the
+Nasdaq-100 and the Dow. Implied vol adding to intraday data only cleared on the Nasdaq-100. It had a
+lower error on all three indices, however the Dow's interval reached +0.001 and the Russell 2000's
+was wide, so that result is weaker than the S&P 500 made it look. The HMM probability added nothing
+again. On the Nasdaq-100 it gave the lowest error of any forecast, 0.338 against 0.342, with
+an interval of -0.009 to +0.003, which I am noting here and not counting as a result.
+
+What this does and does not show. The Nasdaq-100, the Dow and the Russell 2000 move closely with the
+S&P 500 and went through the same crises, so this checks whether the results carry over to other US
+equity indices, which is a narrower test than a separate market would be. The Russell 2000 has under half the days of the other two and
+its intervals are about twice as wide. Only the one-month horizon was tested on the holdout. And
+Markov-switching GARCH, where volatility moves continuously inside each regime, is still untried, and
+would need fresh data now that this holdout is spent.
 
 ## Reproduce
 
@@ -751,12 +849,17 @@ python examples/term_structure_regimes.py  # HMM on the VIX term structure, 2006
 python examples/regime_labels.py       # HMM vs NBER recessions and Fed easing (over an hour, resumable)
 python examples/why_hmm_loses.py       # why the HMM loses to EWMA vol, plus the simulation
 python examples/intraday_rv.py         # intraday realised vol (needs Databento ES bars, see below)
+python examples/better_vol_models.py   # HARQ, SHAR, GJR-GARCH, MSM vs HAR-RV + VIX, S&P 500 development
+python examples/harq_short_horizon.py  # HARQ and SHAR at 1-day and 5-day horizons, development
+python examples/cross_index_holdout.py # the frozen Nasdaq-100, Dow and Russell 2000 holdout (about 1.5 hours)
 ```
 
 `macro_quadrants.py` uses FRED/ALFRED data whose small first-release cache is committed, so it runs
 with no key; a free `FRED_API_KEY` (`fred.stlouisfed.org` -> My Account -> API Keys) is needed only to
-refresh or extend it. Everything else needs no keys. The exception is `intraday_rv.py`, which needs ES futures bars from
-Databento. They are licensed for internal use, so they are not in the repo.
+refresh or extend it. Everything else needs no keys. The exceptions are `intraday_rv.py`,
+`better_vol_models.py` and `harq_short_horizon.py`, which need ES futures bars from Databento, and
+`cross_index_holdout.py`, which also needs NQ, YM and RTY bars. They are licensed for internal use, so
+they are not in the repo.
 
 Every number and figure in this note comes straight from those scripts. The raw data pull is cached,
 so reruns are deterministic.
@@ -773,8 +876,7 @@ from here, none of them started:
 - Tier 2 point-in-time macro: full ALFRED vintage reconstruction and survey-based expectations (the
   sample-size limitation would remain).
 - Credit spreads as a forward-looking input to the volatility forecast. It would need a fresh holdout,
-  since both VIX holdouts are now used.
+  since both VIX holdouts and the cross-index holdout are now used.
 - A model where volatility moves continuously inside each regime, Markov-switching GARCH being the
-  obvious one, which is what the simulation in "Why it loses" points to.
-- The NQ, YM and Russell 2000 holdout for the intraday result, under a protocol committed before the
-  data is opened.
+  obvious one. MSM, which adds levels but keeps them fixed, beat the two-state HMM on one index of
+  three and still lost to HAR-RV + IV.
