@@ -61,7 +61,7 @@ unless noted.
 | 2. Credit | **not started** | |
 | 3. Regimes as conditioning | done (`intraday_rv.py`, the regime-switching HAR) | worse on QLIKE than HAR-RV + VIX |
 | 4. Intraday realised vol | done for ES (`intraday_rv.py`); the ES-ZN correlation not started | intraday data beats daily returns, but adds nothing once the VIX is in; an HMM on intraday vol adds nothing |
-| 5. Better volatility models | developed (`better_vol_models.py`), holdout run 2026-10-14 (`cross_index_holdout.py`), not written up | nothing beats HAR-RV + VIX, on the S&P 500 or on the Nasdaq-100, Dow and Russell 2000 holdout; MSM beats the two-state HMM on the Russell 2000 only. See docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md |
+| 5. Better volatility models | developed (`better_vol_models.py`), holdout run 2026-10-14 (`cross_index_holdout.py`), written up in docs/WRITEUP.md ("Better volatility models, and a holdout on three more indices") | nothing beats HAR-RV + VIX, on the S&P 500 or on the Nasdaq-100, Dow and Russell 2000 holdout; MSM beats the two-state HMM on the Russell 2000 only. See docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md |
 
 Also done, not in the list above: the HMM scored against NBER recessions and Fed easing
 (`regime_labels.py`), and the diagnosis of why it loses (`why_hmm_loses.py`).
