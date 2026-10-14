@@ -1,6 +1,6 @@
 # Holdout protocol: better volatility models, on the Nasdaq-100, the Dow and the Russell 2000
 
-**Status, 2026-10-14: frozen, not yet run.** The claims run as written, all at the 21-day horizon.
+**Status, 2026-10-14: frozen and run once; results at the end.** The claims run as written, all at the 21-day horizon.
 The open question at the draft stage was whether to add 1-day versions of P1 and P2, since HARQ and
 SHAR are built to help most at short horizons. A development check on the S&P 500 (below) found no
 difference at 1 or 5 days either, so no 1-day claim was added. **1-day horizons are not tested by this
@@ -185,3 +185,53 @@ indices.
 NQ and YM should give about 3,300 scored days each (mid-2013 to September 2026, after the 22-day HAR
 window and three years of calibration). RTY starts in July 2017, so it gives about 1,500 (mid-2020
 to September 2026), and its intervals will be wider.
+
+## Holdout results (run once, 2026-10-14, at the freeze commit)
+
+`python -u examples/cross_index_holdout.py`, exit 0, no rerun. Full output, including the QLIKE
+intervals, is in [results/cross_index_holdout_2026-10-14.txt](results/cross_index_holdout_2026-10-14.txt).
+Scored days: Nasdaq-100 3,286 and Dow 3,297 (2013-08-01 to 2026-09-11), Russell 2000 1,513
+(2020-09-02 to 2026-09-11). All three are above 750, so all count.
+
+RMSE of next-21-day session RV:
+
+| Forecast | Nasdaq-100 | Dow | Russell 2000 |
+|---|---|---|---|
+| HAR | 0.370 | 0.337 | 0.316 |
+| HAR-RV | 0.352 | 0.322 | 0.308 |
+| HAR-RV + IV | 0.342 | 0.316 | 0.299 |
+| HARQ + IV | 0.342 | 0.315 | 0.299 |
+| SHAR + IV | 0.342 | 0.316 | 0.299 |
+| GJR-GARCH | 0.360 | 0.323 | 0.318 |
+| MSM | 0.370 | 0.345 | 0.312 |
+| Two-state HMM implied vol | 0.377 | 0.361 | 0.370 |
+| HAR-RV + IV + MSM | 0.342 | 0.317 | 0.299 |
+| HAR-RV + IV + HMM prob | 0.338 | 0.317 | 0.301 |
+| Combination | 0.352 | 0.322 | 0.295 |
+
+| Claim | Nasdaq-100 | Dow | Russell 2000 | Outcome |
+|---|---|---|---|---|
+| P1 HARQ + IV better than HAR-RV + IV | no difference | no difference | no difference | **rejected** |
+| P2 SHAR + IV better than HAR-RV + IV | no difference | no difference | no difference | **rejected** |
+| P3 HAR-RV + IV + MSM better than HAR-RV + IV | no difference | no difference | no difference | **rejected** |
+| P4 Combination better than HAR-RV + IV | worse | worse | no difference | **rejected** |
+| P5 MSM better than the two-state HMM | no difference | no difference | better | **mixed** |
+| R1 HAR-RV + IV better than HAR-RV | better | no difference | no difference | **mixed** |
+| R2 HAR-RV better than HAR | better | better | no difference | **confirmed** |
+| R3 HMM probability adds nothing to HAR-RV + IV | no difference | no difference | no difference | **holds** |
+| R4 GJR-GARCH not better than HAR-RV + IV | worse | worse | no difference | **holds** |
+
+What it says, read strictly by the rules above:
+
+- None of the new models beats HAR-RV + IV on any index. HARQ and SHAR move RMSE by at most 0.001.
+  The combination is worse on two indices, because GJR-GARCH and MSM drag it down.
+- MSM beats the two-state HMM only on the Russell 2000 (RMSE interval -0.106 to -0.016, and on QLIKE
+  too). Its point estimate is lower on the other two (0.370 against 0.377, 0.345 against 0.361), but
+  both intervals span zero, so the regime-structure claim is not confirmed.
+- Of the S&P 500 replications, only "intraday data beats daily returns" (R2) is confirmed. "Implied
+  vol adds to intraday data" (R1) is better on the Nasdaq-100 only. The point estimate favours it on
+  all three indices, but the Dow's interval reaches +0.001 and the Russell 2000's is wide.
+- The HMM probability again adds nothing (R3). On the Nasdaq-100 its point estimate is the best of
+  any forecast (0.338 against 0.342), but the interval is -0.009 to +0.003. That is noted, not claimed.
+- The Russell 2000 has under half the scored days of the other two, and its intervals are about
+  twice as wide, as stated under Power.

@@ -50,7 +50,7 @@ All developed on the S&P 500, 2005-2023, with the existing walk-forward forecast
 5. **Better volatility models.** HARQ, semivariance HAR, GJR-GARCH, MSM (Calvet and Fisher 2004) and
    a forecast combination, each against HAR-RV + VIX.
 
-## Status, 2026-10-13
+## Status, 2026-10-14
 
 Results are in docs/WRITEUP.md ("Three more attempts to help the regime model, and why it loses")
 unless noted.
@@ -61,7 +61,7 @@ unless noted.
 | 2. Credit | **not started** | |
 | 3. Regimes as conditioning | done (`intraday_rv.py`, the regime-switching HAR) | worse on QLIKE than HAR-RV + VIX |
 | 4. Intraday realised vol | done for ES (`intraday_rv.py`); the ES-ZN correlation not started | intraday data beats daily returns, but adds nothing once the VIX is in; an HMM on intraday vol adds nothing |
-| 5. Better volatility models | developed (`better_vol_models.py`), not written up | nothing beats HAR-RV + VIX; see docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md, "Development results" |
+| 5. Better volatility models | developed (`better_vol_models.py`), holdout run 2026-10-14 (`cross_index_holdout.py`), not written up | nothing beats HAR-RV + VIX, on the S&P 500 or on the Nasdaq-100, Dow and Russell 2000 holdout; MSM beats the two-state HMM on the Russell 2000 only. See docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md |
 
 Also done, not in the list above: the HMM scored against NBER recessions and Fed easing
 (`regime_labels.py`), and the diagnosis of why it loses (`why_hmm_loses.py`).
@@ -70,9 +70,9 @@ Also done, not in the list above: the HMM scored against NBER recessions and Fed
 
 The confirmation is on other US indices, each with its own implied-vol index: Nasdaq-100 with VXN,
 the Dow with VXD, and the Russell 2000 with RVX, plus their intraday futures (NQ, YM, RTY) for
-investigation 4. The futures bars (NQ, YM, RTY) were downloaded on 2026-10-13 and have not been opened;
-the index levels and VXN / VXD / RVX have not been downloaded. The protocol is drafted in
-docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md and is pushed before any of it is loaded.
+investigation 4. The futures bars (NQ, YM, RTY) were downloaded on 2026-10-13 and left unopened until the
+protocol in docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md was frozen and pushed (commit `963cb5e`). The holdout
+was run once on 2026-10-14; the results are at the end of that file. It is now spent.
 
 Caveat, stated in advance: these indices move closely with the S&P 500 and share its crises, so this
 tests whether a result generalises across US indices rather than giving an independent history. If

@@ -1,0 +1,104 @@
+
+##### Nasdaq-100: returns 2000-01-04 -> 2026-10-12; session RV 4107 days from 2010-06-07, 6 missing
+walk-forward: two-state HMM, GJR-GARCH, MSM ...
+  refits: HMM 95, GARCH 95, MSM 95
+  last MSM fit: m0 1.504, sigma 1.786, b 3.798, gamma_k 0.054
+scored days: 3286, 2013-08-01 -> 2026-09-11
+                            rmse  qlike  pearson
+HAR                        0.370  0.270    0.581
+HAR-RV                     0.352  0.251    0.631
+HAR-RV + IV                0.342  0.229    0.652
+HARQ + IV                  0.342  0.229    0.652
+SHAR + IV                  0.342  0.229    0.652
+GJR-GARCH                  0.360  0.282    0.609
+MSM                        0.370  0.277    0.568
+Two-state HMM implied vol  0.377  0.312    0.556
+HAR-RV + IV + MSM          0.342  0.230    0.650
+HAR-RV + IV + HMM prob     0.338  0.224    0.659
+Combination                0.352  0.249    0.631
+paired block bootstrap (63-day blocks, 2,000 draws, seed 0):
+claim               forecast                 reference   expected        dRMSE 95%          RMSE       dQLIKE 95%         QLIKE
+   P1              HARQ + IV               HAR-RV + IV     better -0.000 to +0.000 no difference -0.000 to +0.001 no difference
+   P2              SHAR + IV               HAR-RV + IV     better -0.000 to +0.000 no difference -0.001 to +0.000 no difference
+   P3      HAR-RV + IV + MSM               HAR-RV + IV     better -0.001 to +0.002 no difference -0.001 to +0.004 no difference
+   P4            Combination               HAR-RV + IV     better +0.000 to +0.018         worse -0.000 to +0.046 no difference
+   P5                    MSM Two-state HMM implied vol     better -0.026 to +0.014 no difference -0.080 to +0.004 no difference
+   R1            HAR-RV + IV                    HAR-RV     better -0.018 to -0.000        better -0.053 to +0.001 no difference
+   R2                 HAR-RV                       HAR     better -0.028 to -0.008        better -0.037 to -0.002        better
+   R3 HAR-RV + IV + HMM prob               HAR-RV + IV not better -0.009 to +0.003 no difference -0.012 to +0.001 no difference
+   R4              GJR-GARCH               HAR-RV + IV not better +0.002 to +0.032         worse +0.011 to +0.107         worse
+
+##### Dow Jones Industrial Average: returns 2000-01-04 -> 2026-10-12; session RV 4112 days from 2010-06-07, 1 missing
+walk-forward: two-state HMM, GJR-GARCH, MSM ...
+  refits: HMM 95, GARCH 95, MSM 95
+  last MSM fit: m0 1.511, sigma 1.929, b 4.558, gamma_k 0.077
+scored days: 3297, 2013-08-01 -> 2026-09-11
+                            rmse  qlike  pearson
+HAR                        0.337  0.355    0.551
+HAR-RV                     0.322  0.331    0.592
+HAR-RV + IV                0.316  0.316    0.614
+HARQ + IV                  0.315  0.316    0.615
+SHAR + IV                  0.316  0.316    0.614
+GJR-GARCH                  0.323  0.345    0.594
+MSM                        0.345  0.373    0.504
+Two-state HMM implied vol  0.361  0.435    0.435
+HAR-RV + IV + MSM          0.317  0.320    0.608
+HAR-RV + IV + HMM prob     0.317  0.320    0.612
+Combination                0.322  0.327    0.601
+paired block bootstrap (63-day blocks, 2,000 draws, seed 0):
+claim               forecast                 reference   expected        dRMSE 95%          RMSE       dQLIKE 95%         QLIKE
+   P1              HARQ + IV               HAR-RV + IV     better -0.000 to +0.000 no difference -0.001 to +0.001 no difference
+   P2              SHAR + IV               HAR-RV + IV     better -0.000 to +0.000 no difference -0.001 to +0.001 no difference
+   P3      HAR-RV + IV + MSM               HAR-RV + IV     better -0.000 to +0.003 no difference -0.000 to +0.010 no difference
+   P4            Combination               HAR-RV + IV     better +0.000 to +0.011         worse -0.002 to +0.024 no difference
+   P5                    MSM Two-state HMM implied vol     better -0.035 to +0.008 no difference -0.171 to +0.007 no difference
+   R1            HAR-RV + IV                    HAR-RV     better -0.014 to +0.001 no difference -0.042 to +0.003 no difference
+   R2                 HAR-RV                       HAR     better -0.024 to -0.006        better -0.052 to +0.011 no difference
+   R3 HAR-RV + IV + HMM prob               HAR-RV + IV not better -0.000 to +0.003 no difference -0.001 to +0.009 no difference
+   R4              GJR-GARCH               HAR-RV + IV not better +0.002 to +0.020         worse -0.008 to +0.065 no difference
+
+##### Russell 2000: returns 2000-01-04 -> 2026-10-12; session RV 2328 days from 2017-07-10, 0 missing
+walk-forward: two-state HMM, GJR-GARCH, MSM ...
+  refits: HMM 95, GARCH 95, MSM 95
+  last MSM fit: m0 1.424, sigma 2.233, b 3.046, gamma_k 0.032
+scored days: 1513, 2020-09-02 -> 2026-09-11
+                            rmse  qlike  pearson
+HAR                        0.316  0.130    0.386
+HAR-RV                     0.308  0.115    0.474
+HAR-RV + IV                0.299  0.113    0.503
+HARQ + IV                  0.299  0.114    0.502
+SHAR + IV                  0.299  0.113    0.502
+GJR-GARCH                  0.318  0.141    0.386
+MSM                        0.312  0.125    0.406
+Two-state HMM implied vol  0.370  0.182    0.307
+HAR-RV + IV + MSM          0.299  0.114    0.500
+HAR-RV + IV + HMM prob     0.301  0.115    0.491
+Combination                0.295  0.113    0.483
+paired block bootstrap (63-day blocks, 2,000 draws, seed 0):
+claim               forecast                 reference   expected        dRMSE 95%          RMSE       dQLIKE 95%         QLIKE
+   P1              HARQ + IV               HAR-RV + IV     better -0.000 to +0.000 no difference -0.000 to +0.001 no difference
+   P2              SHAR + IV               HAR-RV + IV     better -0.001 to +0.000 no difference -0.000 to +0.000 no difference
+   P3      HAR-RV + IV + MSM               HAR-RV + IV     better -0.002 to +0.002 no difference -0.001 to +0.003 no difference
+   P4            Combination               HAR-RV + IV     better -0.022 to +0.009 no difference -0.010 to +0.009 no difference
+   P5                    MSM Two-state HMM implied vol     better -0.106 to -0.016        better -0.105 to -0.016        better
+   R1            HAR-RV + IV                    HAR-RV     better -0.025 to +0.010 no difference -0.013 to +0.010 no difference
+   R2                 HAR-RV                       HAR     better -0.023 to +0.004 no difference -0.025 to -0.004        better
+   R3 HAR-RV + IV + HMM prob               HAR-RV + IV not better -0.003 to +0.007 no difference -0.000 to +0.005 no difference
+   R4              GJR-GARCH               HAR-RV + IV not better -0.007 to +0.052 no difference -0.001 to +0.071 no difference
+
+##### Scored days per index
+  Nasdaq-100: 3286
+  Dow Jones Industrial Average: 3297
+  Russell 2000: 1513
+
+##### Claims across indices (RMSE verdict per index)
+claim               forecast                 reference   expected    Nasdaq-100 Dow Jones Industrial Average  Russell 2000   outcome
+   P1              HARQ + IV               HAR-RV + IV     better no difference                no difference no difference  rejected
+   P2              SHAR + IV               HAR-RV + IV     better no difference                no difference no difference  rejected
+   P3      HAR-RV + IV + MSM               HAR-RV + IV     better no difference                no difference no difference  rejected
+   P4            Combination               HAR-RV + IV     better         worse                        worse no difference  rejected
+   P5                    MSM Two-state HMM implied vol     better no difference                no difference        better     mixed
+   R1            HAR-RV + IV                    HAR-RV     better        better                no difference no difference     mixed
+   R2                 HAR-RV                       HAR     better        better                       better no difference confirmed
+   R3 HAR-RV + IV + HMM prob               HAR-RV + IV not better no difference                no difference no difference     holds
+   R4              GJR-GARCH               HAR-RV + IV not better         worse                        worse no difference     holds
