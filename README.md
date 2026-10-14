@@ -67,10 +67,10 @@ claims on the **filtered** ones.
 
 ## What "correct" means here
 
-Regime detection is **unsupervised**, so there is no ground-truth regime label. So the deliverable is
-*not* "we recovered the true regimes." It is: *the inferred high-volatility state has measurable,
-out-of-sample predictive content for next-period realised volatility, evaluated causally*, and here
-is how much. Framed honestly, including where it fails.
+Regime detection is **unsupervised**, so there is no ground-truth regime label to check the model
+against. The test used here is whether the inferred high-volatility state has measurable,
+out-of-sample predictive content for next-period realised volatility, evaluated causally, and how much
+it has, including where it fails.
 
 ## Results
 
