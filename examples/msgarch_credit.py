@@ -74,6 +74,7 @@ MS_CLAIMS = [
     ("M2", "HAR + IV + {m}", "HAR + IV", "better"),
     ("M3", "{m}", "Two-state HMM implied vol", "better"),
     ("M4", "HAR + IV + {m} prob", "HAR + IV", "better"),
+    ("M5", "{m}", "HAR + IV", "better"),
 ]
 OTHER_CLAIMS = [
     ("C1", "HAR + IV + credit", "HAR + IV", "better"),
