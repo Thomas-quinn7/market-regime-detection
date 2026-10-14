@@ -5,6 +5,9 @@
 The MS-GARCH variant and the claims were chosen from them and approved on 2026-10-14. No holdout data
 has been loaded.
 
+**Freeze commit: `da0cf0f`** (2026-10-14). The holdout runs `examples/msgarch_credit_holdout.py` and
+the model code as of that commit.
+
 Written and committed **before** any holdout data was loaded. On 2026-10-14 the first and last dates
 of each FRED implied-vol series below were checked to confirm they are still published; no value in
 them has been read. No USO, GLD, EEM or EWZ price and none of OVX, GVZ, VXEEM or VXEWZ has ever been
