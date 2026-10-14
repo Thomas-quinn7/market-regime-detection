@@ -827,8 +827,104 @@ What this does and does not show. The Nasdaq-100, the Dow and the Russell 2000 m
 S&P 500 and went through the same crises, so this checks whether the results carry over to other US
 equity indices, which is a narrower test than a separate market would be. The Russell 2000 has under half the days of the other two and
 its intervals are about twice as wide. Only the one-month horizon was tested on the holdout. And
-Markov-switching GARCH, where volatility moves continuously inside each regime, is still untried, and
-would need fresh data now that this holdout is spent.
+Markov-switching GARCH, where volatility moves continuously inside each regime, was still untried. It
+needed fresh data now that this holdout is spent, and the next section gives it some.
+
+## Markov-switching GARCH and credit spreads, on oil, gold and emerging markets
+
+Two ideas were left over. The first is the model the diagnosis keeps pointing at, a regime model where
+volatility moves continuously inside each regime. Markov-switching GARCH does that. Each of two
+regimes runs its own GJR-GARCH(1,1), a Markov chain decides which one is in charge each day, and the
+forecast is a probability-weighted path through both. The second is credit spreads as a
+forward-looking input next to implied vol, using the Moody's Baa minus 10-year Treasury spread
+(`BAA10Y`, lagged one business day). Every free holdout on US equity indices had already been used,
+so both ideas went into one protocol and were tested together on assets this repo had never
+loaded.
+
+**The model.** `src/regimes/msgarch.py` is written from scratch in the Haas, Mittnik and Paolella
+(2004) form with Student-t errors, and its 21-day forecast is an exact recursion with no simulation.
+Before trusting it I checked it against the R package MSGARCH on a simulated series. The likelihoods
+first differed by about 7 points, which came down to R using the first return only to start the
+variances. With that copied they match to within 1e-6, and the check is one of the repo's tests.
+
+**Development, S&P 500 only.** The holdout assets have no intraday data, so the target here is
+next-month realised vol from daily returns, which is much noisier than the session vol in the last
+section. On 4,482 days from February 2006 to November 2023 (`examples/msgarch_credit.py`), MS-GARCH
+had the lowest RMSE of any model, 0.518 against 0.528 for HAR plus the VIX. However the interval for
+that difference ran from -0.057 to +0.044, so the two could not be told apart. It clearly beat the
+two-state HMM (0.518 against 0.661). Adding credit to HAR plus the VIX made the forecast slightly worse
+on both metrics, so before the holdout I committed that claim the other way round, as "credit does not
+help".
+
+The fitted model was not what the name suggests. Across 84 refits the probability of staying in a
+regime moved over the whole allowed range from 0.001 to 0.999, the Student-t degrees of freedom went
+from 2.05 to effectively normal, and in some refits the two regimes swapped roles. A fit where one
+regime lasts a single day is really a fat-tailed mixture of two variances. Forcing the stay
+probability above 0.5 did not fix that and forecast worse, so the holdout tests the unconstrained
+version as a forecaster, and its regime probability is only a weak test of the regime idea.
+
+**The holdout.** Four ETFs that each have their own CBOE implied-vol index on FRED: crude oil (USO
+with OVX), gold (GLD with GVZ), emerging markets (EEM with VXEEM) and Brazil (EWZ with VXEWZ). The
+models, nine comparisons and the same verdict rule as last time are in
+[MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md](MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md), committed and pushed (commit
+`da0cf0f`) before any of those prices or vol indices were loaded. Each asset was run once
+(`examples/msgarch_credit_holdout.py`). These are not US equity indices, so unlike the last holdout
+they do not share every S&P 500 crisis by construction, although oil, emerging markets and Brazil fell
+together in 2008, 2015 and 2020, and EEM holds Brazil. RMSE of next-month realised vol, daily percent:
+
+| Forecast | S&P 500 (development) | Oil | Gold | EM | Brazil |
+|---|---|---|---|---|---|
+| HAR | 0.548 | 0.932 | 0.380 | 0.498 | 0.892 |
+| HAR + IV | 0.528 | 0.859 | 0.344 | 0.471 | 0.868 |
+| HAR + credit | 0.555 | 0.934 | 0.381 | 0.504 | 0.895 |
+| HAR + IV + credit | 0.533 | 0.872 | 0.342 | 0.475 | 0.872 |
+| GJR-GARCH | 0.531 | 0.971 | 0.368 | 0.504 | 0.917 |
+| Two-state HMM implied vol | 0.661 | 1.081 | 0.392 | 0.532 | 0.953 |
+| MS-GARCH | 0.518 | 0.988 | 0.370 | 0.494 | 0.931 |
+| HAR + IV + MS-GARCH | 0.530 | 0.868 | 0.345 | 0.472 | 0.870 |
+| HAR + IV + MS-GARCH probability | 0.523 | 0.860 | 0.349 | 0.473 | 0.860 |
+| Scored days | 4,482 | 3,604 | 3,821 | 3,119 | 3,119 |
+
+The holdout runs to September 2026, from May 2012 for oil, July 2011 for gold and April 2014 for the
+other two. The nine comparisons, by the rule committed in advance:
+
+| Comparison | Oil | Gold | EM | Brazil | Outcome |
+|---|---|---|---|---|---|
+| MS-GARCH better than GJR-GARCH | no difference | no difference | no difference | no difference | rejected |
+| Adding MS-GARCH to HAR + IV helps | worse | no difference | no difference | worse | rejected |
+| MS-GARCH better than the two-state HMM | no difference | better | better | no difference | confirmed |
+| Adding the MS-GARCH probability to HAR + IV helps | no difference | no difference | no difference | no difference | rejected |
+| MS-GARCH better than HAR + IV | worse | worse | worse | worse | rejected |
+| Credit adds nothing to HAR + IV | no difference | no difference | no difference | no difference | holds |
+| Credit adds to HAR | no difference | no difference | no difference | no difference | rejected |
+| Implied vol adds to HAR | better | better | better | no difference | confirmed |
+| GJR-GARCH no better than HAR + IV | worse | worse | worse | no difference | holds |
+
+MS-GARCH lost to HAR plus implied vol on all four assets, with every RMSE interval wholly above zero,
+from +0.005 to +0.048 on emerging markets up to +0.038 to +0.240 on oil. Its lowest RMSE on the S&P
+500 did not carry over. Added to HAR plus implied vol it made oil and Brazil worse and changed nothing
+elsewhere, its regime probability added nothing, and it was no better than a single-regime GJR-GARCH
+on any asset.
+
+It did beat the two-state HMM. On RMSE it was better on gold and emerging markets and worse nowhere,
+so that comparison is confirmed, and on QLIKE it was better on the other two, oil and Brazil. This is
+the result MSM only half delivered on the Russell 2000, and it fits "Why it loses": letting volatility
+move inside each regime fixes part of what was wrong with the HMM. It still leaves a model that is
+worse than HAR plus implied vol and no better than a GARCH with one regime.
+
+Credit added nothing. It made no difference added to HAR plus implied vol or to plain HAR, and on
+QLIKE it made plain HAR worse on oil and Brazil. There is little reason for a US corporate spread to
+drive gold or oil volatility, so those two say less, however it did not help emerging markets or
+Brazil either. Implied vol helped again, on three of the four assets.
+
+What this does and does not show. With realised vol from daily returns as the target the intervals
+are wide, so for the GJR-GARCH and regime-probability comparisons "no difference" mostly means the
+test could not tell a small effect from none. The MS-GARCH losses against HAR plus implied vol were
+large enough to show anyway. The four assets are not independent of each other. On each holdout asset
+the last MS-GARCH fit had two persistent regimes (stay probabilities from 0.988 to 0.998), unlike the
+S&P 500. Only the last fit per asset was printed, and it did not make the forecasts any better, so I
+am noting it and not reading anything into it. The other free CBOE vol indices on FRED stopped
+publishing in 2022 or 2025, so another holdout would mean shorter histories or paid data.
 
 ## Reproduce
 
@@ -852,6 +948,8 @@ python examples/intraday_rv.py         # intraday realised vol (needs Databento 
 python examples/better_vol_models.py   # HARQ, SHAR, GJR-GARCH, MSM vs HAR-RV + VIX, S&P 500 development
 python examples/harq_short_horizon.py  # HARQ and SHAR at 1-day and 5-day horizons, development
 python examples/cross_index_holdout.py # the frozen Nasdaq-100, Dow and Russell 2000 holdout (about 1.5 hours)
+python examples/msgarch_credit.py      # MS-GARCH and credit vs HAR + VIX, S&P 500 development
+python examples/msgarch_credit_holdout.py  # the frozen oil, gold, EM and Brazil holdout
 ```
 
 `macro_quadrants.py` uses FRED/ALFRED data whose small first-release cache is committed, so it runs
@@ -875,8 +973,6 @@ from here, none of them started:
   state.
 - Tier 2 point-in-time macro: full ALFRED vintage reconstruction and survey-based expectations (the
   sample-size limitation would remain).
-- Credit spreads as a forward-looking input to the volatility forecast. It would need a fresh holdout,
-  since both VIX holdouts and the cross-index holdout are now used.
-- A model where volatility moves continuously inside each regime, Markov-switching GARCH being the
-  obvious one. MSM, which adds levels but keeps them fixed, beat the two-state HMM on one index of
-  three and still lost to HAR-RV + IV.
+- VVIX and SKEW as inputs next to the VIX, which the term-structure work left untested.
+- An intraday stock-bond correlation from ES and ZN futures, for the stock-bond regime question, where
+  daily returns needed a long window to settle.

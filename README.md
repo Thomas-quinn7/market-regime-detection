@@ -33,6 +33,7 @@ caveats for every result below.
 | Adding the VIX | every signal scored as a forecast against HAR-RV, with two holdouts committed first (1996-2004, 2024-2026): adding the VIX cuts forecast error on both (about 9% on 1996-2004); a regime probability adds nothing once the VIX is in; the HMM's own forecast loses to HAR on 1996-2004 and draws on 2024-2026 |
 | Three more attempts, and why it loses | VIX term structure, recession and Fed-easing labels, and intraday realised vol from S&P futures (development data): the HMM never beats a simple measure built from the same information. Its probability is a squashed EWMA vol, pinned near 0 or 1, with a forecast stuck between two levels; on simulated data it wins only when volatility truly has two states |
 | Better vol models, and three more indices | HARQ, SHAR, GJR-GARCH, a multifractal regime model (MSM) and a combination, tested on a Nasdaq-100, Dow and Russell 2000 holdout committed first: none beats HAR-RV + implied vol on any index; MSM beats the two-state HMM on the Russell 2000 only, so the regime claim is mixed |
+| Markov-switching GARCH and credit | a regime model where volatility moves inside each regime, plus the Baa credit spread, tested on an oil, gold, emerging-market and Brazil ETF holdout committed first: MS-GARCH loses to HAR + implied vol on all four and is no better than one GJR-GARCH, though it does beat the two-state HMM (confirmed); credit adds nothing |
 
 ## The idea
 
@@ -94,6 +95,8 @@ python examples/why_hmm_loses.py      # why the HMM loses to EWMA vol, plus a si
 python examples/intraday_rv.py        # intraday realised vol; needs licensed Databento ES bars, not included
 python examples/better_vol_models.py  # HARQ, SHAR, GJR-GARCH, MSM vs HAR-RV + VIX (Databento ES bars)
 python examples/cross_index_holdout.py  # frozen Nasdaq-100, Dow, Russell 2000 holdout (docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md)
+python examples/msgarch_credit.py     # MS-GARCH and credit vs HAR + VIX, S&P 500 development
+python examples/msgarch_credit_holdout.py  # frozen oil, gold, EM, Brazil holdout (docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md)
 ```
 
 Everything runs with no API keys. `macro_quadrants.py` uses FRED/ALFRED data whose small first-release
