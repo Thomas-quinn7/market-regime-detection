@@ -2,17 +2,28 @@
 
 [![CI](https://github.com/Thomas-quinn7/market-regime-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/Thomas-quinn7/market-regime-detection/actions/workflows/ci.yml)
 
-Detecting **volatility regimes** in equity index returns with a Markov-switching model, and doing
-it **without look-ahead bias**, which is easy to get wrong because the standard smoothed and Viterbi
-labels are both computed from the whole series, future included.
+Can a regime model forecast volatility better than the simple measures it competes with? This repo
+started as a Markov-switching model of S&P 500 volatility regimes, built **without look-ahead bias**,
+and grew into a long attempt to answer that question honestly. The main forecasting claims were tested
+on data held back for the purpose, under a protocol that was committed and pushed before that data was
+opened, and each holdout was run once.
 
-The look-ahead-free baseline then extends toward the regime methods in the academic and practitioner
-literature: a multivariate Financial Turbulence input, the Kritzman Absorption Ratio (with its
-false-alarm rate measured alongside its recall), a regime-conditional cross-asset allocation backtest,
-and point-in-time macro quadrants. It is also tested against plain trailing volatility, which turns
-out to be a hard baseline to beat.
-Every result is reproducible, and the honest framing includes the extensions that do **not** beat their
-benchmarks.
+The answer is no. On four holdouts (the S&P 500 in 1996-2004 and 2024-2026, the Nasdaq-100, Dow and
+Russell 2000, and oil, gold, emerging-market and Brazil ETFs), adding a regime probability to a simple
+HAR forecast with the market's own implied vol never made a measurable difference. That was the
+two-state model's probability on the first three and Markov-switching GARCH's on the ETFs. The regime model's own forecast had a higher error than HAR plus implied vol on every
+holdout but one, the short 2024-2026 sample, where the two were level. Richer regime models did beat
+the two-state one, a multifractal model on the Russell 2000 and Markov-switching GARCH on gold and
+emerging markets, however both still had a higher error than HAR plus implied vol on every holdout. The write-up also shows why. The
+two-state probability is a squashed version of EWMA volatility, pinned near 0 or 1, so its forecast is
+stuck between two levels, and on simulated data it only wins when volatility really does switch
+between two levels.
+
+The earlier work is all still here, starting with the look-ahead trap itself (smoothed and Viterbi
+labels are computed from the whole series, future included), then a multivariate Financial Turbulence
+input, the Kritzman Absorption Ratio with its false-alarm rate measured alongside its recall, a
+regime-conditional allocation backtest, point-in-time macro quadrants and stock-bond correlation
+regimes. Most of these do not beat their simple benchmarks either, and they are reported that way.
 
 **Start with the full write-up: [docs/WRITEUP.md](docs/WRITEUP.md)**, with the methodology, figures and
 caveats for every result below.
@@ -70,7 +81,8 @@ of about **0.57** with next-month realised volatility, and that number survives 
 where parameters are estimated on past data only. A naive evaluation that lets future data in reports
 about 0.61 on the same days. The gap is the look-ahead premium, and the honest number is the one
 reported. Plain trailing volatility does better at the same test (0.66 to 0.68), so the regime model
-is not the better vol forecaster; the write-up shows where it does and does not add anything.
+is not the better vol forecaster. The later sections of the write-up turn every signal into a
+forecast and test it on held-back data, with the outcome in the table above.
 
 ![S&P 500 with out-of-sample high-volatility regimes](docs/figures/spx_regimes.png)
 
