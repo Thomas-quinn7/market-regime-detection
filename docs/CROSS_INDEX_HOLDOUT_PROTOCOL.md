@@ -6,6 +6,9 @@ SHAR are built to help most at short horizons. A development check on the S&P 50
 difference at 1 or 5 days either, so no 1-day claim was added. **1-day horizons are not tested by this
 holdout.**
 
+**Freeze commit: `963cb5e`** (2026-10-14). The holdout runs `examples/cross_index_holdout.py` and the
+model code as of that commit.
+
 Written and committed **before** any holdout data was loaded. On 2026-10-13 the futures bars below
 were downloaded from Databento and their file listings and job metadata were read; no price in them
 has been read. No Nasdaq-100, Dow or Russell 2000 index level and none of their implied-vol indices
