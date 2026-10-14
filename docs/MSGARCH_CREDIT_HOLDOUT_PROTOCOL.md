@@ -1,6 +1,6 @@
 # Holdout protocol: Markov-switching GARCH and credit spreads, on oil, gold and emerging markets
 
-**Status, 2026-10-14: frozen, not yet run.** The development results are below, with the full log in
+**Status, 2026-10-14: frozen and run once; results at the end.** The development results are below, with the full log in
 [results/msgarch_credit_development_2026-10-14.txt](results/msgarch_credit_development_2026-10-14.txt).
 The MS-GARCH variant and the claims were chosen from them and approved on 2026-10-14. No holdout data
 has been loaded.
@@ -192,3 +192,63 @@ same 4,482 scored days and the same RMSE, QLIKE and intervals as the development
 printed precision. The last MS-GARCH fit differed in the third or fourth decimal (stay probability
 0.3090 against 0.3096), most likely because the dry run reads a separately downloaded copy of the
 S&P 500 prices, whose adjusted closes differ very slightly.
+
+## Holdout results (run once, 2026-10-14, at the freeze commit)
+
+Run on the server at `324dfe3`, which differs from the freeze commit only by the line recording its
+hash. Full log: [results/msgarch_credit_holdout_2026-10-14.txt](results/msgarch_credit_holdout_2026-10-14.txt).
+No error, nothing rerun.
+
+Scored days: oil 3,604 (2012-05-11 to 2026-09-11), gold 3,821 (2011-07-01 to 2026-09-11), emerging
+markets and Brazil 3,119 each (2014-04-17 to 2026-09-11). All four are counted.
+
+| Model, RMSE | Oil | Gold | EM | Brazil |
+|---|---|---|---|---|
+| HAR | 0.932 | 0.380 | 0.498 | 0.892 |
+| HAR + IV | 0.859 | 0.344 | 0.471 | 0.868 |
+| HAR + credit | 0.934 | 0.381 | 0.504 | 0.895 |
+| HAR + IV + credit | 0.872 | 0.342 | 0.475 | 0.872 |
+| GJR-GARCH | 0.971 | 0.368 | 0.504 | 0.917 |
+| Two-state HMM implied vol | 1.081 | 0.392 | 0.532 | 0.953 |
+| MS-GARCH | 0.988 | 0.370 | 0.494 | 0.931 |
+| HAR + IV + MS-GARCH | 0.868 | 0.345 | 0.472 | 0.870 |
+| HAR + IV + MS-GARCH prob | 0.860 | 0.349 | 0.473 | 0.860 |
+
+| Claim | Expected | Oil | Gold | EM | Brazil | Outcome |
+|---|---|---|---|---|---|---|
+| M1 MS-GARCH vs GJR-GARCH | better | no difference | no difference | no difference | no difference | **rejected** |
+| M2 HAR + IV + MS-GARCH vs HAR + IV | better | worse | no difference | no difference | worse | **rejected** |
+| M3 MS-GARCH vs two-state HMM | better | no difference | better | better | no difference | **confirmed** |
+| M4 HAR + IV + MS-GARCH prob vs HAR + IV | better | no difference | no difference | no difference | no difference | **rejected** |
+| M5 MS-GARCH vs HAR + IV | better | worse | worse | worse | worse | **rejected** |
+| C1 HAR + IV + credit vs HAR + IV | not better | no difference | no difference | no difference | no difference | **holds** |
+| C2 HAR + credit vs HAR | better | no difference | no difference | no difference | no difference | **rejected** |
+| R1 HAR + IV vs HAR | better | better | better | better | no difference | **confirmed** |
+| R2 GJR-GARCH vs HAR + IV | not better | worse | worse | worse | no difference | **holds** |
+
+What this says:
+
+- **MS-GARCH does not beat HAR plus implied vol, and on these assets it is clearly worse.** M5 is
+  worse on all four, with RMSE intervals wholly above zero (oil +0.038 to +0.240, gold +0.013 to
+  +0.038, EM +0.005 to +0.048, Brazil +0.026 to +0.122). On the S&P 500 it had the lowest RMSE of any
+  model, with an interval that spanned zero. That point estimate did not carry over.
+- **It does not add to HAR plus implied vol either** (M2: worse on oil and Brazil, no difference
+  elsewhere), and its regime probability adds nothing (M4).
+- **It does not beat a single-regime GJR-GARCH** (M1, no difference anywhere).
+- **It does beat the two-state HMM** (M3, better on gold and EM, worse nowhere), the same direction
+  as MSM on the Russell 2000 in the last holdout. Letting volatility move inside each regime fixes
+  part of what is wrong with the HMM, but the result is still a worse forecaster than HAR plus implied
+  vol.
+- **Credit adds nothing.** C1 holds (no difference on any asset) and C2 is rejected; on QLIKE, adding
+  credit to HAR made oil and Brazil worse.
+- **Implied vol helps on these assets too** (R1 confirmed on three of four), and GJR-GARCH loses to
+  HAR plus implied vol on three (R2 holds).
+
+One difference from development, noted and not claimed: on each holdout asset the last MS-GARCH fit
+has two persistent regimes (stay probabilities between 0.988 and 0.998), unlike the unstable S&P 500
+fits. Only the last fit per asset is printed, so this says nothing about the other refits, and
+persistent regimes did not make it forecast better.
+
+The power worry in the development section turned out not to matter for M5, where the losses were
+large enough to show. For M1, M2 and M4 "no difference" still mostly means the test could not tell a
+small effect from none. The holdout is now spent.

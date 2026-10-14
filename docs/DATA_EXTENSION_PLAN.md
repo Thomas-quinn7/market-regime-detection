@@ -58,12 +58,14 @@ unless noted.
 | Investigation | Status | Result on the S&P 500 development data |
 |---|---|---|
 | 1. VIX term structure | done (`term_structure_regimes.py`) | the slope, an inverted-curve rule and an HMM on the slope add nothing to HAR + VIX. VVIX and SKEW not tested |
-| 2. Credit | **not started** | |
+| 2. Credit | done (`msgarch_credit.py`), holdout run 2026-10-14 (`msgarch_credit_holdout.py`) | `BAA10Y` made HAR + VIX slightly worse on the S&P 500, and added nothing on the oil, gold, emerging-market and Brazil ETF holdout. See docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md |
 | 3. Regimes as conditioning | done (`intraday_rv.py`, the regime-switching HAR) | worse on QLIKE than HAR-RV + VIX |
 | 4. Intraday realised vol | done for ES (`intraday_rv.py`); the ES-ZN correlation not started | intraday data beats daily returns, but adds nothing once the VIX is in; an HMM on intraday vol adds nothing |
 | 5. Better volatility models | developed (`better_vol_models.py`), holdout run 2026-10-14 (`cross_index_holdout.py`), written up in docs/WRITEUP.md ("Better volatility models, and a holdout on three more indices") | nothing beats HAR-RV + VIX, on the S&P 500 or on the Nasdaq-100, Dow and Russell 2000 holdout; MSM beats the two-state HMM on the Russell 2000 only. See docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md |
 
-Also done, not in the list above: the HMM scored against NBER recessions and Fed easing
+Also done, not in the list above: Markov-switching GARCH, run with credit in the same protocol and
+holdout. It beats the two-state HMM on two of the four holdout assets but loses to HAR plus implied vol on all four (see
+docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md). And the HMM scored against NBER recessions and Fed easing
 (`regime_labels.py`), and the diagnosis of why it loses (`why_hmm_loses.py`).
 
 ## Holdout
