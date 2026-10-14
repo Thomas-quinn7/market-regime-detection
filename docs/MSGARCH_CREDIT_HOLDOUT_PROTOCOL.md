@@ -1,8 +1,9 @@
 # Holdout protocol: Markov-switching GARCH and credit spreads, on oil, gold and emerging markets
 
-**Status, 2026-10-14: development done, claims final, not yet frozen.** The development results are
-below. The MS-GARCH variant and the claims were chosen from them and approved on 2026-10-14. What is
-left is the dry run, the freeze commit and the push, then the run. No holdout data has been loaded.
+**Status, 2026-10-14: frozen, not yet run.** The development results are below, with the full log in
+[results/msgarch_credit_development_2026-10-14.txt](results/msgarch_credit_development_2026-10-14.txt).
+The MS-GARCH variant and the claims were chosen from them and approved on 2026-10-14. No holdout data
+has been loaded.
 
 Written and committed **before** any holdout data was loaded. On 2026-10-14 the first and last dates
 of each FRED implied-vol series below were checked to confirm they are still published; no value in

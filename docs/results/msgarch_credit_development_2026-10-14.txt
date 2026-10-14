@@ -1,0 +1,90 @@
+# python -u examples/msgarch_credit.py --all-variants, 2026-10-14, S&P 500 development data. Scored before C1's
+# expected direction was changed to "not better"; the numbers are unaffected. See docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md.
+
+##### S&P 500 (development): returns 2000-01-04 -> 2023-12-29 (6036 days); IV from 2000-01-04, credit from 2000-01-05
+walk-forward: two-state HMM, GJR-GARCH, MS-GARCH ...
+  hmm: loaded from s_p_500_development__hmm__2023-12-31__6036.csv
+  garch: loaded from s_p_500_development__garch__2023-12-31__6036.csv
+  MS-GARCH: loaded from s_p_500_development__ms_garch__2023-12-31__6036.csv
+  MS-GARCH normal: loaded from s_p_500_development__ms_garch_normal__2023-12-31__6036.csv
+  MS-GARCH t, stay >= 0.5: loaded from s_p_500_development__ms_garch_t_stay_0_5__2023-12-31__6036.csv
+scored days: 4482, 2006-02-09 -> 2023-11-29
+                                          rmse  qlike  pearson
+HAR                                      0.548  0.455    0.666
+HAR + IV                                 0.528  0.417    0.695
+HAR + credit                             0.555  0.473    0.655
+HAR + IV + credit                        0.533  0.424    0.688
+GJR-GARCH                                0.531  0.449    0.697
+Two-state HMM implied vol                0.661  0.632    0.450
+MS-GARCH                                 0.518  0.417    0.716
+HAR + IV + MS-GARCH                      0.530  0.412    0.696
+HAR + IV + MS-GARCH prob                 0.523  0.401    0.700
+MS-GARCH normal                          0.534  0.431    0.698
+HAR + IV + MS-GARCH normal               0.538  0.423    0.686
+HAR + IV + MS-GARCH normal prob          0.530  0.418    0.691
+MS-GARCH t, stay >= 0.5                  0.524  0.425    0.701
+HAR + IV + MS-GARCH t, stay >= 0.5       0.533  0.421    0.687
+HAR + IV + MS-GARCH t, stay >= 0.5 prob  0.530  0.424    0.692
+paired block bootstrap (63-day blocks, 2,000 draws, seed 0):
+claim                                forecast                 reference   expected        dRMSE 95%          RMSE       dQLIKE 95%         QLIKE
+   M1                                MS-GARCH                 GJR-GARCH     better -0.028 to +0.006 no difference -0.059 to -0.005        better
+   M2                     HAR + IV + MS-GARCH                  HAR + IV     better -0.021 to +0.044 no difference -0.028 to +0.018 no difference
+   M3                                MS-GARCH Two-state HMM implied vol     better -0.253 to -0.041        better -0.481 to -0.023        better
+   M4                HAR + IV + MS-GARCH prob                  HAR + IV     better -0.009 to +0.002 no difference -0.041 to +0.002 no difference
+   M5                                MS-GARCH                  HAR + IV     better -0.057 to +0.044 no difference -0.067 to +0.055 no difference
+   M1                         MS-GARCH normal                 GJR-GARCH     better -0.014 to +0.023 no difference -0.045 to +0.005 no difference
+   M2              HAR + IV + MS-GARCH normal                  HAR + IV     better -0.008 to +0.044 no difference -0.008 to +0.023 no difference
+   M3                         MS-GARCH normal Two-state HMM implied vol     better -0.233 to -0.033        better -0.452 to -0.025        better
+   M4         HAR + IV + MS-GARCH normal prob                  HAR + IV     better -0.005 to +0.011 no difference -0.004 to +0.008 no difference
+   M5                         MS-GARCH normal                  HAR + IV     better -0.042 to +0.058 no difference -0.038 to +0.059 no difference
+   M1                 MS-GARCH t, stay >= 0.5                 GJR-GARCH     better -0.018 to +0.005 no difference -0.047 to -0.003        better
+   M2      HAR + IV + MS-GARCH t, stay >= 0.5                  HAR + IV     better -0.002 to +0.018 no difference -0.004 to +0.013 no difference
+   M3                 MS-GARCH t, stay >= 0.5 Two-state HMM implied vol     better -0.234 to -0.043        better -0.460 to -0.026        better
+   M4 HAR + IV + MS-GARCH t, stay >= 0.5 prob                  HAR + IV     better +0.000 to +0.005         worse +0.001 to +0.014         worse
+   M5                 MS-GARCH t, stay >= 0.5                  HAR + IV     better -0.032 to +0.034 no difference -0.047 to +0.056 no difference
+   C1                       HAR + IV + credit                  HAR + IV     better +0.001 to +0.011         worse +0.001 to +0.015         worse
+   C2                            HAR + credit                       HAR     better -0.007 to +0.021 no difference -0.022 to +0.070 no difference
+   R1                                HAR + IV                       HAR     better -0.037 to -0.005        better -0.078 to +0.004 no difference
+   R2                               GJR-GARCH                  HAR + IV not better -0.031 to +0.042 no difference -0.020 to +0.079 no difference
+
+MS-GARCH: fitted parameters, every 8th refit
+            omega0  alpha0  gamma0   beta0     p00        nu0  omega1  alpha1  gamma1   beta1     p11         nu1     loglik
+2003-01-09  0.0000  0.0001  0.0666  0.9526  0.0779   275.6044  0.1174  0.0007  0.3664  0.8046  0.1116  54746.9774 -1300.2388
+2005-01-10  0.0000  0.0281  1.4398  0.0613  0.0015   250.2298  0.0122  0.0000  0.1310  0.9294  0.9288   1408.4873 -1924.5361
+2007-01-11  0.0000  0.0000  0.0406  0.9718  0.0015    17.4954  0.0296  0.0000  0.2594  0.8666  0.2038   3213.2862 -2391.2247
+2009-01-12  0.0064  0.0003  0.1522  0.8823  0.0010     3.9435  0.0121  0.0000  0.1330  0.9310  0.5804   4066.5674 -3261.5250
+2011-01-11  0.0104  0.0000  0.1428  0.9251  0.8899    49.1907  0.0081  0.0000  0.0146  0.9926  0.0010      2.0500 -4072.7092
+2013-01-14  0.0061  0.0000  0.0296  0.9777  0.0010    12.7310  0.0040  0.0000  0.2541  0.8723  0.3025     29.5556 -4767.3571
+2015-01-14  0.0038  0.0000  0.0388  0.9767  0.0010  1839.6439  0.0130  0.0000  0.3247  0.8356  0.3915      7.9400 -5283.5606
+2017-01-13  0.0045  0.0000  0.0269  0.9807  0.0033    11.2034  0.0090  0.0000  0.3142  0.8416  0.4073     19.6325 -5871.8661
+2019-01-16  0.0074  0.0000  0.0546  0.9659  0.4130    11.5151  0.0040  0.0000  0.4335  0.7828  0.3151     16.8851 -6346.8302
+2021-01-15  0.0102  0.0000  0.0633  0.9589  0.4003    10.7925  0.0048  0.0000  0.4391  0.7799  0.3400     15.9355 -7054.9023
+2023-01-18  0.0081  0.0000  0.0505  0.9674  0.3231    11.0528  0.0069  0.0000  0.4149  0.7917  0.4059     17.5373 -7812.7729
+
+MS-GARCH normal: fitted parameters, every 8th refit
+            omega0  alpha0  gamma0   beta0     p00  nu0  omega1  alpha1  gamma1   beta1     p11  nu1     loglik
+2003-01-09  0.0000  0.0000  0.0639  0.9539  0.0460  inf  0.1146     0.0  0.3591  0.8085  0.1451  inf -1300.1773
+2005-01-10  0.0000  0.0278  1.8362  0.0540  0.0010  inf  0.0120     0.0  0.1305  0.9296  0.9336  inf -1924.6111
+2007-01-11  0.0000  0.0000  0.0533  0.9663  0.2017  inf  0.0426     0.0  0.3223  0.8351  0.0051  inf -2391.7408
+2009-01-12  0.0002  0.0000  0.0636  0.9582  0.2698  inf  0.0567     0.0  0.2966  0.8472  0.0010  inf -3268.2676
+2011-01-11  0.0000  0.0000  0.0645  0.9571  0.2989  inf  0.0630     0.0  0.3022  0.8443  0.0011  inf -4076.3641
+2013-01-14  0.0007  0.0000  0.0906  0.9366  0.3886  inf  0.0794     0.0  0.2873  0.8515  0.0058  inf -4772.3885
+2015-01-14  0.0044  0.0000  0.1170  0.8412  0.0046  inf  0.0285     0.0  0.1813  0.9060  0.5407  inf -5287.6440
+2017-01-13  0.0073  0.0000  0.2855  0.8191  0.4635  inf  0.0092     0.0  0.0524  0.9717  0.1828  inf -5880.0714
+2019-01-16  0.0077  0.0000  0.2770  0.8265  0.5667  inf  0.0084     0.0  0.0447  0.9759  0.1548  inf -6362.3842
+2021-01-15  0.0111  0.0000  0.2511  0.8436  0.7336  inf  0.0094     0.0  0.0375  0.9797  0.0917  inf -7073.4808
+2023-01-18  0.0109  0.0000  0.2653  0.8366  0.6990  inf  0.0090     0.0  0.0387  0.9791  0.1090  inf -7829.7747
+
+MS-GARCH t, stay >= 0.5: fitted parameters, every 8th refit
+            omega0  alpha0  gamma0   beta0     p00        nu0  omega1  alpha1  gamma1   beta1     p11        nu1     loglik
+2003-01-09  0.0001  0.0000  0.0808  0.9456  0.5001  7384.8409  0.1116  0.0000  0.3383  0.8179  0.5001  2580.9199 -1302.0348
+2005-01-10  0.0029  0.0000  0.0333  0.9771  0.9990  5834.9855  0.0340  0.0000  0.1878  0.8919  0.9990    24.5292 -1926.8892
+2007-01-11  0.0000  0.0001  0.0466  0.9708  0.5001   618.6539  0.0309  0.0000  0.2839  0.8546  0.5000  1793.8987 -2395.0663
+2009-01-12  0.0052  0.0001  0.0854  0.9515  0.9982  2942.5287  0.0111  0.0001  0.1690  0.9116  0.9990     7.7882 -3266.8233
+2011-01-11  0.0110  0.0000  0.2423  0.8588  0.5000     6.7270  0.0058  0.0000  0.0750  0.9610  0.5001  2540.5438 -4072.9444
+2013-01-14  0.0089  0.0000  0.0474  0.9682  0.5000    18.9454  0.0007  0.0000  0.2845  0.8577  0.5000    18.1524 -4773.0576
+2015-01-14  0.0066  0.0000  0.0562  0.9666  0.5000   690.6719  0.0101  0.0000  0.3764  0.8106  0.5001     7.0752 -5288.0368
+2017-01-13  0.0488  0.0000  0.3575  0.7764  0.9976     5.7356  0.0125  0.0000  0.1456  0.9207  0.9985    17.0049 -5875.3008
+2019-01-16  0.0391  0.0000  0.3737  0.7810  0.9979     5.0859  0.0147  0.0000  0.1535  0.9151  0.9987    15.1341 -6348.9519
+2021-01-15  0.0162  0.0000  0.1484  0.9159  0.9990    10.2921  0.0368  0.0000  0.3924  0.7824  0.9985     5.7834 -7056.8878
+2023-01-18  0.0091  0.0000  0.0577  0.9632  0.5000    10.8258  0.0067  0.0000  0.4275  0.7854  0.5000    18.5821 -7815.4673
