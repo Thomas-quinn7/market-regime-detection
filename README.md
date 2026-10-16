@@ -145,3 +145,34 @@ notebooks/       # exploration only, not the headline
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+## Checking the holdout freezes
+
+Every forecasting holdout was run once, under a protocol committed and pushed before the holdout data
+was opened. The commits below are the evidence. Each one can be checked on GitHub (its page shows the
+commit date and the files it added) or locally with `git show --stat <hash>`. The results commits
+came after the freeze commits in every case, and the result files under `docs/results/` have not been
+changed since.
+
+| Holdout | Protocol | Freeze commit | Results commit |
+|---|---|---|---|
+| Stock-bond correlation, 1962-2004 | docs/HOLDOUT_PROTOCOL.md | 53b50c6 (2026-10-13) | see the protocol |
+| VIX, S&P 500 1990-2004 and 2024-2026 | docs/VIX_HOLDOUT_PROTOCOL.md | 3fea6a7 (2026-10-13) | see the protocol |
+| Nasdaq-100, Dow, Russell 2000 | docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md | 963cb5e (2026-10-14) | 6f4a3d4 (2026-10-14) |
+| Oil, gold, EM and Brazil ETFs, MS-GARCH and credit | docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md | da0cf0f (2026-10-14) | 58a351f (2026-10-14) |
+
+A git hash is a local commitment made public by the push, not a third-party registration. The push
+times are GitHub's record, not mine.
+
+## Reproducing the numbers
+
+`requirements-lock.txt` holds the exact package versions (Python 3.11.5) the holdouts were run with.
+The data pulls are cached and the bootstrap is seeded, so reruns of the development scripts are
+deterministic. The holdout scripts can be rerun too, and with the same cached data files they give the same
+forecasts (a fresh download can differ where Yahoo revises adjusted prices), however the
+holdouts themselves are spent: a rerun is a reproduction, not a new test.
+
+## Citing this work
+
+A `CITATION.cff` file is in the repository root, so GitHub's "Cite this repository" button gives the
+reference. Release v1.0.0 is the version the write-up describes.

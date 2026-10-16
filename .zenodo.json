@@ -1,0 +1,21 @@
+{
+  "title": "market-regime-detection: does a regime model forecast volatility better than the simple measures it competes with?",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Quinn, Thomas",
+      "affiliation": "University College Dublin"
+    }
+  ],
+  "description": "A two-state Markov-switching model of equity-index volatility, estimated walk-forward with no look-ahead, tested against a HAR regression plus the asset's implied volatility index on four holdouts whose protocols were committed and pushed before the holdout data was opened, each run once. Adding the regime probability to HAR plus implied volatility never changed the forecast error measurably. Code, protocols, result files and the full write-up are in the repository.",
+  "license": "MIT",
+  "keywords": [
+    "volatility forecasting",
+    "Markov-switching",
+    "regime detection",
+    "HAR",
+    "implied volatility",
+    "pre-registered holdout"
+  ],
+  "access_right": "open"
+}
