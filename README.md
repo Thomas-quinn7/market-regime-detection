@@ -148,16 +148,19 @@ MIT, see [LICENSE](LICENSE).
 
 ## Checking the holdout freezes
 
-Every forecasting holdout was run once, under a protocol committed and pushed before the holdout data
-was opened. The commits below are the evidence. Each one can be checked on GitHub (its page shows the
+Every forecasting holdout was run once, under a protocol committed before the holdout data was
+opened. The commits below are the evidence. Each one can be checked on GitHub (its page shows the
 commit date and the files it added) or locally with `git show --stat <hash>`. The results commits
-came after the freeze commits in every case, and the result files under `docs/results/` have not been
-changed since.
+came after the freeze commits in every case, the protocol files were not edited between freeze and
+results except to add the freeze hash, and the result files under `docs/results/` have not been
+changed since. One caveat: the stock-bond freeze (53b50c6) was pushed in the same push as its
+results, so for that holdout the commit order is local evidence only. The three later freezes were
+public on GitHub before their results were pushed.
 
 | Holdout | Protocol | Freeze commit | Results commit |
 |---|---|---|---|
-| Stock-bond correlation, 1962-2004 | docs/HOLDOUT_PROTOCOL.md | 53b50c6 (2026-10-13) | see the protocol |
-| VIX, S&P 500 1990-2004 and 2024-2026 | docs/VIX_HOLDOUT_PROTOCOL.md | 3fea6a7 (2026-10-13) | see the protocol |
+| Stock-bond correlation, 1962-2004 | docs/HOLDOUT_PROTOCOL.md | 53b50c6 (2026-10-13) | tables in docs/WRITEUP.md, "Holdout, 1962-2004, run once" |
+| VIX, S&P 500 1990-2004 and 2024-2026 | docs/VIX_HOLDOUT_PROTOCOL.md | 3fea6a7 (2026-10-13) | tables in docs/WRITEUP.md, "Adding the VIX" (be96564); no raw log was committed |
 | Nasdaq-100, Dow, Russell 2000 | docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md | 963cb5e (2026-10-14) | 6f4a3d4 (2026-10-14) |
 | Oil, gold, EM and Brazil ETFs, MS-GARCH and credit | docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md | da0cf0f (2026-10-14) | 58a351f (2026-10-14) |
 
