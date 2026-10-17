@@ -1,0 +1,42 @@
+reference docs/results/reproductions/stock_bond
+candidate /opt/hmm-agent/out/repro/identity/stock_bond_S3
+  stdout.txt       1 identical
+  forecasts        0 identical
+  scored           0 identical
+  walk_forwards    2 identical, DIFFER: walk_forward_corr_regimes_001__implied_corr.csv, walk_forward_corr_regimes_001__prob_high.csv, walk_forward_corr_regimes_001__state_rho.csv, walk_forward_corr_regimes_002__implied_corr.csv, walk_forward_corr_regimes_002__prob_high.csv, walk_forward_corr_regimes_002__state_rho.csv
+  convergence.csv  1 identical
+verdict: DIFFERS
+  walk_forward_corr_regimes_001: 158 of 158 refits converged (315 of 315 starts)
+  walk_forward_corr_regimes_002: 158 of 158 refits converged (274 of 315 starts)
+
+reference /opt/hmm-agent/out/repro/identity/stock_bond_S3
+candidate /opt/hmm-agent/out/repro/identity/stock_bond_S3b
+  stdout.txt       1 identical
+  forecasts        0 identical
+  scored           0 identical
+  walk_forwards    8 identical
+  convergence.csv  1 identical
+verdict: identical on every shared file
+  walk_forward_corr_regimes_001: 158 of 158 refits converged (315 of 315 starts)
+  walk_forward_corr_regimes_002: 158 of 158 refits converged (274 of 315 starts)
+
+reference docs/results/reproductions/stock_bond
+candidate /opt/hmm-agent/out/repro/identity/stock_bond_pin_S1
+  stdout.txt       1 identical
+  forecasts        0 identical
+  scored           0 identical
+  walk_forwards    0 identical, DIFFER: walk_forward_corr_regimes_001__implied_corr.csv, walk_forward_corr_regimes_001__prob_high.csv, walk_forward_corr_regimes_001__state_rho.csv, walk_forward_corr_regimes_002__implied_corr.csv, walk_forward_corr_regimes_002__prob_high.csv, walk_forward_corr_regimes_002__state_rho.csv; only in reference: walk_forward_corr_regimes_001__convergence.csv, walk_forward_corr_regimes_002__convergence.csv
+  convergence.csv  1 identical
+verdict: DIFFERS
+
+reference /opt/hmm-agent/out/repro/identity/stock_bond_pin_S1
+candidate /opt/hmm-agent/out/repro/identity/stock_bond_S3
+  stdout.txt       1 identical
+  forecasts        0 identical
+  scored           0 identical
+  walk_forwards    6 identical; only in candidate: walk_forward_corr_regimes_001__convergence.csv, walk_forward_corr_regimes_002__convergence.csv
+  convergence.csv  1 identical
+verdict: identical on every shared file
+  walk_forward_corr_regimes_001: 158 of 158 refits converged (315 of 315 starts)
+  walk_forward_corr_regimes_002: 158 of 158 refits converged (274 of 315 starts)
+

@@ -163,10 +163,30 @@ on the patched code and compared file by file with the folders above by
 | vix_recent | identical | 11 of 11 | 2 of 2 | 6 of 6 | identical on every shared file | HMM 75 of 75 refits; VIX-HMM 75 of 75 refits (149 of 149 EM starts) |
 | etf_frozen_checkpoints | identical | 36 of 36 | 4 of 4 | none run (checkpoints loaded) | identical on every shared file | not exercised: the frozen checkpoints are loaded, so GJR and MS-GARCH were not refit |
 | cross_index | identical | 30 of 30 | 3 of 3 | 19 of 19 | identical on every shared file | per index: HMM 95 of 95, GJR 95 of 95, MSM 95 of 95 refits (430 of 430 L-BFGS-B starts) |
+| stock_bond (run 3, 22:00-22:29Z, two runs of 890 s and 877 s) | identical | none saved | none saved | 2 of 8 identical; 6 series differ by at most 2.2e-16 (see below) | DIFFERS at the last bit; every printed table identical | correlation HMM: 158 of 158 refits per walk-forward (315 of 315 and 274 of 315 EM starts) |
 
 The only files present on one side are the new `walk_forwards/*__convergence.csv` tables, copied
 into the folders above. The MS-GARCH refit path is covered by the unit test only
 (`tests/test_convergence.py`: the `info` hook returns the same parameters and likelihood), because a
 full ETF refit does not reproduce the committed numbers on this host anyway (see the ETF section).
-The stock-bond walk-forward was not rerun tonight (about an hour); its change has the same shape as
-the VIX-HMM one and is covered by the same unit test.
+**Stock-bond (rerun in run 3, 17 Oct 22:00-22:29Z; `identity_2026-10-17_S3_stock_bond.txt`,
+logs in `logs_2026-10-17/identity_stock_bond_S3*.log`).** The printed output (`stdout.txt`, which
+carries every number the WRITEUP's two stock-bond tables use) is identical to the S1 reference. The
+six saved walk-forward series are not byte-identical: `implied_corr`, `prob_high` and `state_rho` of
+both correlation HMM walk-forwards differ from the S1 files in the last bit, at most 1.1e-16 to
+2.2e-16 (one unit in the last place near 1), in 705 to 2116 of 9941 daily entries and 28 to 38 of
+316 state-correlation entries; no sign, shape, index or NaN pattern differs. Two runs of the patched
+code (22:00Z and 22:14Z, under different machine load) are byte-identical to each other, so the
+patched code is deterministic on this host. The patch to `correlation.py` (`git diff 7ee241f 8e454ec`)
+adds an `info` dict and an iteration counter and rewrites `max(fits, key=...)[0]` as an index
+`max(...)`, which has the same tie-breaking; it changes no arithmetic. A third run with the pre-S3
+`regimes` package (`git archive 7ee241f src/regimes`, shadowed via PYTHONPATH, same shell, same data)
+was started at 22:32Z to pin whether the last-bit difference follows the code or the environment of
+the S1 run (made at 20:00Z while other refits were running); its result (22:32-22:46Z, `logs_2026-10-17/identity_stock_bond_pin_S1.log`): the pre-S3 package
+run in tonight's shell is byte-identical to the patched run on all six walk-forward series and the
+stdout, and differs from the S1 reference exactly as the patched run does. The last-bit difference
+therefore follows the environment of the S1 run (made at 20:00Z beside other refits), not the
+convergence patch; the patch is behaviour-preserving for the stock-bond walk-forward as well. The
+shadowed package was built from `git archive 7ee241f src/regimes` under `/opt/hmm-agent/out/repro/pin_s1`
+with the data folder symlinked. Nothing in `docs/results/` or the WRITEUP moves: the differences are
+at the 16th digit of unpublished intermediate series and every printed number is identical.

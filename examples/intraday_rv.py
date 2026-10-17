@@ -36,7 +36,7 @@ secondary; paired block bootstrap):
 
 Data: S&P 500 (Yahoo) and VIX 2005-2023, ES from June 2010. This is the repo's development period;
 nothing here is a holdout. The confirmation is on NQ, YM and RTY (downloaded, unopened) under a
-protocol still to be written. Databento flags 32 dates as degraded; the five S&P trading days in
+protocol still to be written. Databento flags 32 dates as degraded; the six S&P trading days in
 2014 with no ES bars are left missing, and degraded days that do have bars are kept.
 """
 from __future__ import annotations

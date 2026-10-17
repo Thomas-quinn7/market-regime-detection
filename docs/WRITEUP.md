@@ -646,7 +646,7 @@ one-minute bars, 09:30 to 16:00 New York time, June 2010 to 2023 (`regimes.intra
 they nor the daily series built from them are in this repo, and the script needs that data to run.
 Before using it I checked it against the index. Session moves account for 55% of close-to-close
 variance and the overnight move for 38%, the two together have a correlation of 0.996 with the S&P
-500 daily return, and the five S&P trading days in 2014 with no bars (Databento flags them as degraded)
+500 daily return, and the six S&P trading days in 2014 with no bars (Databento flags them as degraded)
 are left missing.
 
 A second HMM is fitted walk-forward on log daily realised vol, so it sees the clean measure directly.
