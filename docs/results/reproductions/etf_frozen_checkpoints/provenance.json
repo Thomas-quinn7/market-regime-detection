@@ -1,0 +1,219 @@
+{
+ "class": "reproduction of a spent holdout; not a test",
+ "holdout": "etf",
+ "frozen_script": "examples/msgarch_credit_holdout.py",
+ "wrapper": "examples/reproduce_holdout.py etf --use-checkpoints --out docs/results/reproductions/etf_frozen_checkpoints",
+ "host": "pc-lanes",
+ "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+ "cpus": 8,
+ "git_head": "17476b5aad4be615b1d491de5e4c42716c12ef33",
+ "git_dirty_paths": [
+  "?? data/MANIFEST.md",
+  "?? docs/results/audit/",
+  "?? docs/results/reproductions/",
+  "?? examples/check_writeup_tables.py",
+  "?? examples/data_manifest.py",
+  "?? examples/etf_refit_audit.py",
+  "?? examples/reproduce_holdout.py",
+  "?? examples/reproduction_report.py",
+  "?? tests/test_data_manifest.py",
+  "?? tests/test_etf_refit_audit.py",
+  "?? tests/test_reproduce_holdout.py",
+  "?? tests/test_reproduction_report.py"
+ ],
+ "python": "3.12.3",
+ "packages": {
+  "numpy": "2.4.6",
+  "pandas": "3.0.5",
+  "scipy": "1.17.1",
+  "statsmodels": "0.14.6",
+  "arch": "8.0.0",
+  "numba": "0.68.0",
+  "yfinance": "1.5.2",
+  "hmmlearn": null
+ },
+ "started_utc": "2026-10-17T20:29:52+00:00",
+ "notes": [],
+ "frozen_script_sha256": "cc9b71de94de880c9a6372fe833f2cc042f64af88b3e4d4159099b34f2f0363d",
+ "wall_clock_seconds": 4.6,
+ "finished_utc": "2026-10-17T20:29:58+00:00",
+ "data_files": [
+  {
+   "path": "data/EEM_2000-01-01_2026-10-13.csv",
+   "sha256": "2ee15313ec37a6161cc8861273aeb0502e20fba8c8a70f21b565729ba22f6030",
+   "bytes": 173694,
+   "mtime_utc": "2026-10-14T12:17:28+00:00"
+  },
+  {
+   "path": "data/EWZ_2000-01-01_2026-10-13.csv",
+   "sha256": "aa788cdbac3e32c079defba9f1466945ad2d379112c3b2d5ac796cbf08ce7f7d",
+   "bytes": 194403,
+   "mtime_utc": "2026-10-14T12:20:50+00:00"
+  },
+  {
+   "path": "data/GLD_2000-01-01_2026-10-13.csv",
+   "sha256": "0e8f882dd0ab9792900c284471f0b9ca456aef706428ce5ca45894fb82f6544c",
+   "bytes": 159554,
+   "mtime_utc": "2026-10-14T12:14:55+00:00"
+  },
+  {
+   "path": "data/USO_2000-01-01_2026-10-13.csv",
+   "sha256": "53a31cae66a44c0bef0d813bef58cc0c72372e0dbde1dfcf20212d5cc9a3049f",
+   "bytes": 147406,
+   "mtime_utc": "2026-10-14T12:12:16+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/brazil_ewz__garch__2026-10-12__6599.csv",
+   "sha256": "9c4ac2c4139005d194b05e4390f58024d84f5f4a895b1147bf718bd9dba38107",
+   "bytes": 173060,
+   "mtime_utc": "2026-10-14T12:21:37+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/brazil_ewz__garch__2026-10-12__6599.params.csv",
+   "sha256": "b6b8039668d77771b16314bc97e506b4d9bb832aaa154c3fed995b22b136a82c",
+   "bytes": 11918,
+   "mtime_utc": "2026-10-14T12:21:37+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/brazil_ewz__hmm__2026-10-12__6599.csv",
+   "sha256": "e0cf445372602c724647e29a052f0f65bc3482dec239dca1ce98985ffa958593",
+   "bytes": 290821,
+   "mtime_utc": "2026-10-14T12:21:35+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/brazil_ewz__ms_garch__2026-10-12__6599.csv",
+   "sha256": "c876f13a85d292929d00b22fee8c0cc6f961e2f13d3a3b68614cf83f67418f12",
+   "bytes": 273528,
+   "mtime_utc": "2026-10-14T12:25:00+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/brazil_ewz__ms_garch__2026-10-12__6599.params.csv",
+   "sha256": "f4b414aaf4858eb0c4cc32ab31d13717882a1d2a3885a669e03fab62b08b4bfb",
+   "bytes": 25124,
+   "mtime_utc": "2026-10-14T12:25:00+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/crude_oil_uso__garch__2026-10-12__5158.csv",
+   "sha256": "a6e31883483e267328dbf20e60120372fecad9b6a6086b40226e757bd644cb8b",
+   "bytes": 130442,
+   "mtime_utc": "2026-10-14T12:12:45+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/crude_oil_uso__garch__2026-10-12__5158.params.csv",
+   "sha256": "4155ca2a79a75981c559026808f22454d3ab4ed93d73c0b806a3de3504e19dd7",
+   "bytes": 9153,
+   "mtime_utc": "2026-10-14T12:12:45+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/crude_oil_uso__hmm__2026-10-12__5158.csv",
+   "sha256": "7980601324921e848dd33b774ac98918c22cedde8d13679a487d8678769fa0f9",
+   "bytes": 219603,
+   "mtime_utc": "2026-10-14T12:12:44+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/crude_oil_uso__ms_garch__2026-10-12__5158.csv",
+   "sha256": "b19c2d9af3cb44fbf8c8935ed2575df0fbc7c589eed5c571b5d5429b047b9f3f",
+   "bytes": 217200,
+   "mtime_utc": "2026-10-14T12:14:54+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/crude_oil_uso__ms_garch__2026-10-12__5158.params.csv",
+   "sha256": "f726525618d3f5471474daf340c3fc17e6d2f46ab40de5c26bd11dcbab78d468",
+   "bytes": 18623,
+   "mtime_utc": "2026-10-14T12:14:54+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/emerging_markets_eem__garch__2026-10-12__5911.csv",
+   "sha256": "9d79feb19c454dc4d565997342c9bdbfd5f4f68de7b88f3206edcb1511bae70a",
+   "bytes": 153209,
+   "mtime_utc": "2026-10-14T12:18:03+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/emerging_markets_eem__garch__2026-10-12__5911.params.csv",
+   "sha256": "2b49d8c461173ebf2a14c39d35ab220760db9597e6d7b75ff6222bc8adf322de",
+   "bytes": 10551,
+   "mtime_utc": "2026-10-14T12:18:03+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/emerging_markets_eem__hmm__2026-10-12__5911.csv",
+   "sha256": "f4c22ab6235f8393fca4fb7124e387a8f06854abce80ea2e9453ddf0340abf1f",
+   "bytes": 259107,
+   "mtime_utc": "2026-10-14T12:18:02+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/emerging_markets_eem__ms_garch__2026-10-12__5911.csv",
+   "sha256": "009c040ef43ed11362866d3014d8406f6e60bbcb87eef37dcfa73fc123d513b9",
+   "bytes": 253177,
+   "mtime_utc": "2026-10-14T12:20:49+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/emerging_markets_eem__ms_garch__2026-10-12__5911.params.csv",
+   "sha256": "36fc120b77ecd24bf1d00cef0927e08022f8ea00ae95b68ed07f3b7713cae0c3",
+   "bytes": 21794,
+   "mtime_utc": "2026-10-14T12:20:49+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/gold_gld__garch__2026-10-12__5507.csv",
+   "sha256": "762bf544f2cdd73e3d7d6403e785047bbf786a3b2857b369f56c25d5ae6fc7a5",
+   "bytes": 141574,
+   "mtime_utc": "2026-10-14T12:15:26+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/gold_gld__garch__2026-10-12__5507.params.csv",
+   "sha256": "08830838488f70be9375e6209218ca0ee3565c68b587d1e70bf3ba8914613695",
+   "bytes": 9942,
+   "mtime_utc": "2026-10-14T12:15:26+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/gold_gld__hmm__2026-10-12__5507.csv",
+   "sha256": "4b9a2b3ed1d30329862e908c985be94da97ed5f3c7381ab061c9929f23c0fcf3",
+   "bytes": 236767,
+   "mtime_utc": "2026-10-14T12:15:24+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/gold_gld__ms_garch__2026-10-12__5507.csv",
+   "sha256": "5963c8b1e8def805a714489e091ef95c4e081ebf2061300ad9d28c242c76585b",
+   "bytes": 234801,
+   "mtime_utc": "2026-10-14T12:17:27+00:00"
+  },
+  {
+   "path": "data/checkpoints/msgarch_credit/gold_gld__ms_garch__2026-10-12__5507.params.csv",
+   "sha256": "91df92b34d490db2e5178f736e542e047cdd0c9652670ac9f9832c2d0e8903c6",
+   "bytes": 20486,
+   "mtime_utc": "2026-10-14T12:17:27+00:00"
+  },
+  {
+   "path": "data/fred_BAA10Y.csv",
+   "sha256": "d68146535f8f2951a29f2854a1bd5eeac1bc67c4d92f4a471eaa9ba8dff68aed",
+   "bytes": 168428,
+   "mtime_utc": "2026-10-14T11:55:54+00:00"
+  },
+  {
+   "path": "data/fred_GVZCLS.csv",
+   "sha256": "4ad6cbd527c52ec9881592d4f68382831e8fdad16d69d4b313a89b9d5440538e",
+   "bytes": 80549,
+   "mtime_utc": "2026-10-14T12:14:55+00:00"
+  },
+  {
+   "path": "data/fred_OVXCLS.csv",
+   "sha256": "a15a52e6cc3f73f1b3dd1677f496b8eb9ce0d2f1ff795dca2d36de315c3129f5",
+   "bytes": 85333,
+   "mtime_utc": "2026-10-14T12:12:16+00:00"
+  },
+  {
+   "path": "data/fred_VXEEMCLS.csv",
+   "sha256": "c21653450ca481d45cacd0c36cba5ab98d4441091f210b50d8133e1ec09ef9dc",
+   "bytes": 68379,
+   "mtime_utc": "2026-10-14T12:17:29+00:00"
+  },
+  {
+   "path": "data/fred_VXEWZCLS.csv",
+   "sha256": "6977c3b5b6eda7db61f115ccfd7e31f9ef208b46a5cf94451b9294f1d19cad86",
+   "bytes": 68389,
+   "mtime_utc": "2026-10-14T12:20:50+00:00"
+  }
+ ],
+ "n_regression_forecasts_saved": 36,
+ "n_walk_forwards_saved": 0,
+ "compare_verdict": "differs in 28 lines"
+}

@@ -1,0 +1,35 @@
+differs in 28 lines
+--- committed
++++ reproduction
+@@ -4,4 +4,3 @@
+-  hmm: 70 refits
+-  garch: 70 refits
+-  MS-GARCH: last fit p00 0.9975, p11 0.9965, nu 21.2 / 5.9, loglik -10673.2
+-  MS-GARCH: 70 refits
++  hmm: loaded from crude_oil_uso__hmm__2026-10-12__5158.csv
++  garch: loaded from crude_oil_uso__garch__2026-10-12__5158.csv
++  MS-GARCH: loaded from crude_oil_uso__ms_garch__2026-10-12__5158.csv
+@@ -33,4 +32,3 @@
+-  hmm: 76 refits
+-  garch: 76 refits
+-  MS-GARCH: last fit p00 0.9948, p11 0.9902, nu 5.4 / 7.1, loglik -7770.0
+-  MS-GARCH: 76 refits
++  hmm: loaded from gold_gld__hmm__2026-10-12__5507.csv
++  garch: loaded from gold_gld__garch__2026-10-12__5507.csv
++  MS-GARCH: loaded from gold_gld__ms_garch__2026-10-12__5507.csv
+@@ -62,4 +60,3 @@
+-  hmm: 82 refits
+-  garch: 82 refits
+-  MS-GARCH: last fit p00 0.9950, p11 0.9964, nu 14.8 / 9.8, loglik -9939.0
+-  MS-GARCH: 82 refits
++  hmm: loaded from emerging_markets_eem__hmm__2026-10-12__5911.csv
++  garch: loaded from emerging_markets_eem__garch__2026-10-12__5911.csv
++  MS-GARCH: loaded from emerging_markets_eem__ms_garch__2026-10-12__5911.csv
+@@ -91,4 +88,3 @@
+-  hmm: 93 refits
+-  garch: 93 refits
+-  MS-GARCH: last fit p00 0.9933, p11 0.9877, nu 28.3 / 6.1, loglik -13834.5
+-  MS-GARCH: 93 refits
++  hmm: loaded from brazil_ewz__hmm__2026-10-12__6599.csv
++  garch: loaded from brazil_ewz__garch__2026-10-12__6599.csv
++  MS-GARCH: loaded from brazil_ewz__ms_garch__2026-10-12__6599.csv

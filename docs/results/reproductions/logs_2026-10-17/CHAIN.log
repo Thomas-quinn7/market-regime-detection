@@ -1,0 +1,13 @@
+start 2026-10-17T14:44:42Z
+git 17476b5aad4be615b1d491de5e4c42716c12ef33
+vix_early start 2026-10-17T14:44:42Z
+vix_early exit 0 2026-10-17T14:45:04Z
+vix_recent start 2026-10-17T14:45:04Z
+vix_recent exit 0 2026-10-17T14:45:53Z
+cross_index start 2026-10-17T14:45:53Z
+cross_index exit 1 2026-10-17T14:45:53Z
+msgarch_credit_holdout start 2026-10-17T14:45:53Z
+msgarch_credit_holdout exit 0 2026-10-17T14:45:57Z
+stock_bond start 2026-10-17T14:45:57Z
+stock_bond exit 0 2026-10-17T14:57:15Z
+end 2026-10-17T14:57:15Z

@@ -1,0 +1,130 @@
+
+##### Crude oil (USO): returns 2006-04-11 -> 2026-10-12 (5158 days); IV from 2007-05-10, credit from 2006-04-12
+walk-forward: two-state HMM, GJR-GARCH, MS-GARCH ...
+  hmm: loaded from crude_oil_uso__hmm__2026-10-12__5158.csv
+  garch: loaded from crude_oil_uso__garch__2026-10-12__5158.csv
+  MS-GARCH: loaded from crude_oil_uso__ms_garch__2026-10-12__5158.csv
+scored days: 3604, 2012-05-11 -> 2026-09-11
+                            rmse  qlike  pearson
+HAR                        0.932  0.333    0.616
+HAR + IV                   0.859  0.247    0.688
+HAR + credit               0.934  0.341    0.617
+HAR + IV + credit          0.872  0.236    0.680
+GJR-GARCH                  0.971  0.352    0.596
+Two-state HMM implied vol  1.081  0.467    0.410
+MS-GARCH                   0.988  0.345    0.575
+HAR + IV + MS-GARCH        0.868  0.251    0.682
+HAR + IV + MS-GARCH prob   0.860  0.247    0.688
+paired block bootstrap (63-day blocks, 2,000 draws, seed 0):
+claim                 forecast                 reference   expected        dRMSE 95%          RMSE       dQLIKE 95%         QLIKE
+   M1                 MS-GARCH                 GJR-GARCH     better -0.016 to +0.046 no difference -0.022 to +0.007 no difference
+   M2      HAR + IV + MS-GARCH                  HAR + IV     better +0.000 to +0.024         worse +0.001 to +0.010         worse
+   M3                 MS-GARCH Two-state HMM implied vol     better -0.277 to +0.122 no difference -0.323 to -0.004        better
+   M4 HAR + IV + MS-GARCH prob                  HAR + IV     better -0.003 to +0.005 no difference -0.002 to +0.003 no difference
+   M5                 MS-GARCH                  HAR + IV     better +0.038 to +0.240         worse +0.034 to +0.181         worse
+   C1        HAR + IV + credit                  HAR + IV not better -0.008 to +0.042 no difference -0.036 to +0.003 no difference
+   C2             HAR + credit                       HAR     better -0.003 to +0.007 no difference +0.002 to +0.018         worse
+   R1                 HAR + IV                       HAR     better -0.127 to -0.010        better -0.148 to -0.038        better
+   R2                GJR-GARCH                  HAR + IV not better +0.043 to +0.204         worse +0.044 to +0.185         worse
+
+##### Gold (GLD): returns 2004-11-19 -> 2026-10-12 (5507 days); IV from 2008-06-03, credit from 2004-11-22
+walk-forward: two-state HMM, GJR-GARCH, MS-GARCH ...
+  hmm: loaded from gold_gld__hmm__2026-10-12__5507.csv
+  garch: loaded from gold_gld__garch__2026-10-12__5507.csv
+  MS-GARCH: loaded from gold_gld__ms_garch__2026-10-12__5507.csv
+scored days: 3821, 2011-07-01 -> 2026-09-11
+                            rmse  qlike  pearson
+HAR                        0.380  0.258    0.518
+HAR + IV                   0.344  0.223    0.625
+HAR + credit               0.381  0.276    0.507
+HAR + IV + credit          0.342  0.228    0.628
+GJR-GARCH                  0.368  0.251    0.548
+Two-state HMM implied vol  0.392  0.277    0.457
+MS-GARCH                   0.370  0.251    0.540
+HAR + IV + MS-GARCH        0.345  0.224    0.623
+HAR + IV + MS-GARCH prob   0.349  0.231    0.614
+paired block bootstrap (63-day blocks, 2,000 draws, seed 0):
+claim                 forecast                 reference   expected        dRMSE 95%          RMSE       dQLIKE 95%         QLIKE
+   M1                 MS-GARCH                 GJR-GARCH     better -0.007 to +0.011 no difference -0.013 to +0.015 no difference
+   M2      HAR + IV + MS-GARCH                  HAR + IV     better -0.000 to +0.001 no difference -0.000 to +0.003 no difference
+   M3                 MS-GARCH Two-state HMM implied vol     better -0.044 to -0.002        better -0.064 to +0.024 no difference
+   M4 HAR + IV + MS-GARCH prob                  HAR + IV     better -0.001 to +0.011 no difference -0.001 to +0.018 no difference
+   M5                 MS-GARCH                  HAR + IV     better +0.013 to +0.038         worse -0.009 to +0.060 no difference
+   C1        HAR + IV + credit                  HAR + IV not better -0.008 to +0.005 no difference -0.009 to +0.027 no difference
+   C2             HAR + credit                       HAR     better -0.012 to +0.015 no difference -0.007 to +0.047 no difference
+   R1                 HAR + IV                       HAR     better -0.051 to -0.022        better -0.067 to +0.007 no difference
+   R2                GJR-GARCH                  HAR + IV not better +0.010 to +0.037         worse -0.006 to +0.056 no difference
+
+##### Emerging markets (EEM): returns 2003-04-15 -> 2026-10-12 (5911 days); IV from 2011-03-16, credit from 2003-04-16
+walk-forward: two-state HMM, GJR-GARCH, MS-GARCH ...
+  hmm: loaded from emerging_markets_eem__hmm__2026-10-12__5911.csv
+  garch: loaded from emerging_markets_eem__garch__2026-10-12__5911.csv
+  MS-GARCH: loaded from emerging_markets_eem__ms_garch__2026-10-12__5911.csv
+scored days: 3119, 2014-04-17 -> 2026-09-11
+                            rmse  qlike  pearson
+HAR                        0.498  0.257    0.456
+HAR + IV                   0.471  0.253    0.540
+HAR + credit               0.504  0.294    0.444
+HAR + IV + credit          0.475  0.262    0.531
+GJR-GARCH                  0.504  0.271    0.468
+Two-state HMM implied vol  0.532  0.333    0.322
+MS-GARCH                   0.494  0.281    0.470
+HAR + IV + MS-GARCH        0.472  0.254    0.536
+HAR + IV + MS-GARCH prob   0.473  0.255    0.535
+paired block bootstrap (63-day blocks, 2,000 draws, seed 0):
+claim                 forecast                 reference   expected        dRMSE 95%          RMSE       dQLIKE 95%         QLIKE
+   M1                 MS-GARCH                 GJR-GARCH     better -0.029 to +0.006 no difference -0.005 to +0.029 no difference
+   M2      HAR + IV + MS-GARCH                  HAR + IV     better -0.003 to +0.004 no difference -0.008 to +0.009 no difference
+   M3                 MS-GARCH Two-state HMM implied vol     better -0.058 to -0.017        better -0.133 to +0.010 no difference
+   M4 HAR + IV + MS-GARCH prob                  HAR + IV     better -0.003 to +0.006 no difference -0.006 to +0.010 no difference
+   M5                 MS-GARCH                  HAR + IV     better +0.005 to +0.048         worse -0.022 to +0.070 no difference
+   C1        HAR + IV + credit                  HAR + IV not better -0.001 to +0.013 no difference -0.005 to +0.030 no difference
+   C2             HAR + credit                       HAR     better -0.011 to +0.019 no difference -0.003 to +0.087 no difference
+   R1                 HAR + IV                       HAR     better -0.049 to -0.009        better -0.040 to +0.052 no difference
+   R2                GJR-GARCH                  HAR + IV not better +0.009 to +0.061         worse -0.038 to +0.058 no difference
+
+##### Brazil (EWZ): returns 2000-07-17 -> 2026-10-12 (6599 days); IV from 2011-03-16, credit from 2000-07-18
+walk-forward: two-state HMM, GJR-GARCH, MS-GARCH ...
+  hmm: loaded from brazil_ewz__hmm__2026-10-12__6599.csv
+  garch: loaded from brazil_ewz__garch__2026-10-12__6599.csv
+  MS-GARCH: loaded from brazil_ewz__ms_garch__2026-10-12__6599.csv
+scored days: 3119, 2014-04-17 -> 2026-09-11
+                            rmse  qlike  pearson
+HAR                        0.892  0.317    0.425
+HAR + IV                   0.868  0.316    0.485
+HAR + credit               0.895  0.323    0.422
+HAR + IV + credit          0.872  0.311    0.477
+GJR-GARCH                  0.917  0.335    0.408
+Two-state HMM implied vol  0.953  0.402    0.290
+MS-GARCH                   0.931  0.361    0.348
+HAR + IV + MS-GARCH        0.870  0.318    0.481
+HAR + IV + MS-GARCH prob   0.860  0.312    0.487
+paired block bootstrap (63-day blocks, 2,000 draws, seed 0):
+claim                 forecast                 reference   expected        dRMSE 95%          RMSE       dQLIKE 95%         QLIKE
+   M1                 MS-GARCH                 GJR-GARCH     better -0.061 to +0.063 no difference -0.022 to +0.089 no difference
+   M2      HAR + IV + MS-GARCH                  HAR + IV     better +0.001 to +0.006         worse -0.001 to +0.005 no difference
+   M3                 MS-GARCH Two-state HMM implied vol     better -0.053 to +0.021 no difference -0.079 to -0.010        better
+   M4 HAR + IV + MS-GARCH prob                  HAR + IV     better -0.026 to +0.005 no difference -0.025 to +0.014 no difference
+   M5                 MS-GARCH                  HAR + IV     better +0.026 to +0.122         worse -0.011 to +0.093 no difference
+   C1        HAR + IV + credit                  HAR + IV not better -0.003 to +0.020 no difference -0.019 to +0.005 no difference
+   C2             HAR + credit                       HAR     better -0.001 to +0.008 no difference +0.002 to +0.011         worse
+   R1                 HAR + IV                       HAR     better -0.072 to +0.001 no difference -0.047 to +0.078 no difference
+   R2                GJR-GARCH                  HAR + IV not better -0.006 to +0.157 no difference -0.074 to +0.087 no difference
+
+##### Scored days per asset
+  Crude oil (USO): 3604
+  Gold (GLD): 3821
+  Emerging markets (EEM): 3119
+  Brazil (EWZ): 3119
+
+##### Claims across assets (RMSE verdict per asset)
+claim                 forecast                 reference   expected Crude oil (USO)    Gold (GLD) Emerging markets (EEM)  Brazil (EWZ)   outcome
+   M1                 MS-GARCH                 GJR-GARCH     better   no difference no difference          no difference no difference  rejected
+   M2      HAR + IV + MS-GARCH                  HAR + IV     better           worse no difference          no difference         worse  rejected
+   M3                 MS-GARCH Two-state HMM implied vol     better   no difference        better                 better no difference confirmed
+   M4 HAR + IV + MS-GARCH prob                  HAR + IV     better   no difference no difference          no difference no difference  rejected
+   M5                 MS-GARCH                  HAR + IV     better           worse         worse                  worse         worse  rejected
+   C1        HAR + IV + credit                  HAR + IV not better   no difference no difference          no difference no difference     holds
+   C2             HAR + credit                       HAR     better   no difference no difference          no difference no difference  rejected
+   R1                 HAR + IV                       HAR     better          better        better                 better no difference confirmed
+   R2                GJR-GARCH                  HAR + IV not better           worse         worse                  worse no difference     holds

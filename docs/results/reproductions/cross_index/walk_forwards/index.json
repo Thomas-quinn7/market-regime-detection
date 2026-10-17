@@ -1,0 +1,83 @@
+[
+ {
+  "stem": "walk_forward_oos_001",
+  "function": "walk_forward_oos",
+  "saved": [
+   "high_vol_prob",
+   "implied_vol"
+  ],
+  "n_refits": 95
+ },
+ {
+  "stem": "walk_forward_gjr_002",
+  "function": "walk_forward_gjr",
+  "saved": [
+   "implied_vol",
+   "params"
+  ],
+  "n_refits": 95
+ },
+ {
+  "stem": "walk_forward_msm_003",
+  "function": "walk_forward_msm",
+  "saved": [
+   "implied_vol",
+   "params"
+  ],
+  "n_refits": 95
+ },
+ {
+  "stem": "walk_forward_oos_004",
+  "function": "walk_forward_oos",
+  "saved": [
+   "high_vol_prob",
+   "implied_vol"
+  ],
+  "n_refits": 95
+ },
+ {
+  "stem": "walk_forward_gjr_005",
+  "function": "walk_forward_gjr",
+  "saved": [
+   "implied_vol",
+   "params"
+  ],
+  "n_refits": 95
+ },
+ {
+  "stem": "walk_forward_msm_006",
+  "function": "walk_forward_msm",
+  "saved": [
+   "implied_vol",
+   "params"
+  ],
+  "n_refits": 95
+ },
+ {
+  "stem": "walk_forward_oos_007",
+  "function": "walk_forward_oos",
+  "saved": [
+   "high_vol_prob",
+   "implied_vol"
+  ],
+  "n_refits": 95
+ },
+ {
+  "stem": "walk_forward_gjr_008",
+  "function": "walk_forward_gjr",
+  "saved": [
+   "implied_vol",
+   "params"
+  ],
+  "n_refits": 95
+ },
+ {
+  "stem": "walk_forward_msm_009",
+  "function": "walk_forward_msm",
+  "saved": [
+   "implied_vol",
+   "params"
+  ],
+  "n_refits": 95
+ }
+]

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/home/pc/research/market-regime-detection/examples/cross_index_holdout.py", line 110, in <module>
+    main()
+  File "/home/pc/research/market-regime-detection/examples/cross_index_holdout.py", line 89, in main
+    rv, returns, iv = load_index(*spec, end=end)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pc/research/market-regime-detection/examples/cross_index_holdout.py", line 60, in load_index
+    raise FileNotFoundError(f"expected one bar file for {job}/{glob}, found {len(files)}")
+FileNotFoundError: expected one bar file for R2/*/*.ohlcv-1m.NQ.v.0.dbn.zst, found 0

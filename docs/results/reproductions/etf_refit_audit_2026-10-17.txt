@@ -1,0 +1,26 @@
+1. refit vs frozen checkpoint (reproduction; forecasts in daily percent)
+               asset    model  days max |diff| median |diff|  days > 0.01 refits         loglik moved > 0.01
+       crude_oil_uso      hmm  4402   6.14e-12         2e-14            0                                   
+       crude_oil_uso    garch  4402     0.0141       4.5e-06            9                                   
+       crude_oil_uso ms_garch  4402     0.0498       0.00034          229     70      6 (range -0.1 to +0.0)
+            gold_gld      hmm  4751   7.94e-13       4.8e-15            0                                   
+            gold_gld    garch  4751   8.87e-05       4.6e-07            0                                   
+            gold_gld ms_garch  4751       0.18       9.9e-05          189     76      4 (range -0.0 to +1.6)
+emerging_markets_eem      hmm  5155   6.19e-13       4.7e-15            0                                   
+emerging_markets_eem    garch  5155   0.000972       2.5e-06            0                                   
+emerging_markets_eem ms_garch  5155      0.107       0.00019          297     82      4 (range -0.1 to +0.0)
+          brazil_ewz      hmm  5843   4.36e-11       1.2e-14            0                                   
+          brazil_ewz    garch  5843   9.35e-05       2.9e-06            0                                   
+          brazil_ewz ms_garch  5843       8.68       0.00094         2252     93 39 (range -505.6 to +887.5)
+
+2. MS-GARCH refits with a regime at a boundary (post hoc, from the frozen and reproduced walk-forwards)
+               asset  refits  frozen  refit  both       frozen, first-last
+       crude_oil_uso      70       0      0     0                        -
+            gold_gld      76       4      7     4 2010-11-22 to 2011-08-23
+emerging_markets_eem      82       0      0     0                        -
+          brazil_ewz      93      35     36    32 2003-07-23 to 2014-01-27
+
+3. GJR-GARCH on USO, same code and data, by OpenBLAS thread count (reproduction)
+  OPENBLAS_NUM_THREADS=1: max |diff| vs checkpoint 0.009546, forecast hash 1cc72a7b3324
+  OPENBLAS_NUM_THREADS=2: max |diff| vs checkpoint 0.0141, forecast hash 3607feaf54d4
+  OPENBLAS_NUM_THREADS=8: max |diff| vs checkpoint 0.0141, forecast hash 3607feaf54d4

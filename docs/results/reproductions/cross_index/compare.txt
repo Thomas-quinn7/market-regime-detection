@@ -1,0 +1,12 @@
+differs in 6 lines
+--- committed
++++ reproduction
+@@ -5 +5 @@
+-  last MSM fit: m0 1.504, sigma 1.786, b 3.798, gamma_k 0.054
++  last MSM fit: m0 1.504, sigma 1.786, b 3.795, gamma_k 0.054
+@@ -34 +34 @@
+-  last MSM fit: m0 1.511, sigma 1.929, b 4.558, gamma_k 0.077
++  last MSM fit: m0 1.511, sigma 1.929, b 4.559, gamma_k 0.077
+@@ -63 +63 @@
+-  last MSM fit: m0 1.424, sigma 2.233, b 3.046, gamma_k 0.032
++  last MSM fit: m0 1.424, sigma 2.233, b 3.047, gamma_k 0.032

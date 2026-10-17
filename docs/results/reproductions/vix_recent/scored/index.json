@@ -1,0 +1,32 @@
+[
+ {
+  "file": "scored_01.csv",
+  "block": "",
+  "columns": [
+   "HMM implied vol",
+   "VIX-HMM implied vol",
+   "EWMA vol (0.94)",
+   "trailing 21-day vol",
+   "VIX"
+  ],
+  "n": 676
+ },
+ {
+  "file": "scored_02.csv",
+  "block": "",
+  "columns": [
+   "HMM high-vol probability",
+   "HMM implied vol",
+   "VIX-HMM implied vol",
+   "EWMA vol (0.94)",
+   "trailing 21-day vol",
+   "HAR",
+   "VIX",
+   "HAR + VIX",
+   "HAR + HMM prob",
+   "HAR + VIX + HMM prob",
+   "HAR + VIX + VIX-HMM prob"
+  ],
+  "n": 676
+ }
+]

@@ -1,0 +1,21 @@
+[
+ {
+  "stem": "walk_forward_oos_001",
+  "function": "walk_forward_oos",
+  "saved": [
+   "high_vol_prob",
+   "implied_vol"
+  ],
+  "n_refits": 49
+ },
+ {
+  "stem": "walk_forward_vix_hmm_002",
+  "function": "walk_forward_vix_hmm",
+  "saved": [
+   "high_vol_prob",
+   "implied_vol",
+   "state_vol"
+  ],
+  "n_refits": 49
+ }
+]

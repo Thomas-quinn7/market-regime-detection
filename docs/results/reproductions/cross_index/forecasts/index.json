@@ -1,0 +1,281 @@
+[
+ {
+  "file": "regression_001.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_002.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_003.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_004.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "q_term"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_005.csv",
+  "features": [
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "rv_neg",
+   "rv_pos"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_006.csv",
+  "features": [
+   "garch"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_007.csv",
+  "features": [
+   "msm"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_008.csv",
+  "features": [
+   "hmm_iv"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_009.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "msm"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_010.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "p"
+  ],
+  "n": 3307
+ },
+ {
+  "file": "regression_011.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_012.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_013.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_014.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "q_term"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_015.csv",
+  "features": [
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "rv_neg",
+   "rv_pos"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_016.csv",
+  "features": [
+   "garch"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_017.csv",
+  "features": [
+   "msm"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_018.csv",
+  "features": [
+   "hmm_iv"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_019.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "msm"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_020.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "p"
+  ],
+  "n": 3318
+ },
+ {
+  "file": "regression_021.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_022.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_023.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_024.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "q_term"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_025.csv",
+  "features": [
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "rv_neg",
+   "rv_pos"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_026.csv",
+  "features": [
+   "garch"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_027.csv",
+  "features": [
+   "msm"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_028.csv",
+  "features": [
+   "hmm_iv"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_029.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "msm"
+  ],
+  "n": 1534
+ },
+ {
+  "file": "regression_030.csv",
+  "features": [
+   "rv_1d",
+   "rv_5d",
+   "rv_22d",
+   "iv",
+   "p"
+  ],
+  "n": 1534
+ }
+]

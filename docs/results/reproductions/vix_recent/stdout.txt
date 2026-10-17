@@ -1,0 +1,47 @@
+period recent: S&P 500 returns with VIX, 5477 days, 2005-01-04 -> 2026-10-12
+walk-forward: return-only HMM ...
+  refits=75, skipped=0
+walk-forward: joint return/VIX HMM ...
+  refits=75, skipped=0
+  state vols (daily %), first and last refit:
+            state_0  state_1
+2008-01-07     0.54     1.10
+2026-07-21     0.63     1.75
+
+scored days (common to every forecast): 676, 2024-01-02 -> 2026-09-11
+
+1) raw signal vs next-month realised vol (no calibration), same days
+                          pearson  spearman   rmse  qlike
+HMM high-vol probability    0.432     0.203    NaN    NaN
+HMM implied vol             0.427     0.175  0.454  0.301
+VIX-HMM implied vol         0.351     0.255  0.499  0.318
+EWMA vol (0.94)             0.252     0.073  0.505  0.414
+trailing 21-day vol         0.279     0.121  0.529  0.509
+VIX                         0.412     0.352  0.480  0.339
+(VIX raw is in implied-vol terms, biased upwards by the variance risk premium.)
+
+2) calibrated walk-forward forecasts, same days
+                           rmse  qlike  pearson
+HMM high-vol probability  0.410  0.265    0.427
+HMM implied vol           0.403  0.261    0.423
+VIX-HMM implied vol       0.422  0.287    0.345
+EWMA vol (0.94)           0.454  0.349    0.254
+trailing 21-day vol       0.445  0.340    0.288
+HAR                       0.429  0.315    0.346
+VIX                       0.408  0.303    0.411
+HAR + VIX                 0.406  0.297    0.419
+HAR + HMM prob            0.414  0.283    0.408
+HAR + VIX + HMM prob      0.399  0.282    0.448
+HAR + VIX + VIX-HMM prob  0.408  0.303    0.413
+
+3) the frozen comparisons (paired block bootstrap, 63-day blocks, 2,000 draws, seed 0)
+                forecast reference        dRMSE 95%  RMSE verdict       dQLIKE 95% QLIKE verdict
+                     VIX       HAR -0.052 to +0.002 no difference -0.062 to +0.061 no difference
+               HAR + VIX       HAR -0.053 to -0.001        better -0.060 to +0.044 no difference
+          HAR + HMM prob       HAR -0.033 to +0.010 no difference -0.071 to -0.004        better
+    HAR + VIX + HMM prob HAR + VIX -0.015 to +0.004 no difference -0.038 to +0.002 no difference
+HAR + VIX + VIX-HMM prob HAR + VIX -0.003 to +0.005 no difference -0.002 to +0.019 no difference
+         HMM implied vol       HAR -0.063 to +0.023 no difference -0.100 to -0.013        better
+     VIX-HMM implied vol       HAR -0.035 to +0.034 no difference -0.061 to +0.005 no difference
+
+An interval wholly below zero means the forecast beats its reference; wholly above, worse.

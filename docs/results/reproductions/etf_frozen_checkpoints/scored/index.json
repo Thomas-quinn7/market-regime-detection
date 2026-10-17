@@ -1,0 +1,66 @@
+[
+ {
+  "file": "scored_01.csv",
+  "block": "Crude oil (USO)",
+  "columns": [
+   "HAR",
+   "HAR + IV",
+   "HAR + credit",
+   "HAR + IV + credit",
+   "GJR-GARCH",
+   "Two-state HMM implied vol",
+   "MS-GARCH",
+   "HAR + IV + MS-GARCH",
+   "HAR + IV + MS-GARCH prob"
+  ],
+  "n": 3604
+ },
+ {
+  "file": "scored_02.csv",
+  "block": "Gold (GLD)",
+  "columns": [
+   "HAR",
+   "HAR + IV",
+   "HAR + credit",
+   "HAR + IV + credit",
+   "GJR-GARCH",
+   "Two-state HMM implied vol",
+   "MS-GARCH",
+   "HAR + IV + MS-GARCH",
+   "HAR + IV + MS-GARCH prob"
+  ],
+  "n": 3821
+ },
+ {
+  "file": "scored_03.csv",
+  "block": "Emerging markets (EEM)",
+  "columns": [
+   "HAR",
+   "HAR + IV",
+   "HAR + credit",
+   "HAR + IV + credit",
+   "GJR-GARCH",
+   "Two-state HMM implied vol",
+   "MS-GARCH",
+   "HAR + IV + MS-GARCH",
+   "HAR + IV + MS-GARCH prob"
+  ],
+  "n": 3119
+ },
+ {
+  "file": "scored_04.csv",
+  "block": "Brazil (EWZ)",
+  "columns": [
+   "HAR",
+   "HAR + IV",
+   "HAR + credit",
+   "HAR + IV + credit",
+   "GJR-GARCH",
+   "Two-state HMM implied vol",
+   "MS-GARCH",
+   "HAR + IV + MS-GARCH",
+   "HAR + IV + MS-GARCH prob"
+  ],
+  "n": 3119
+ }
+]

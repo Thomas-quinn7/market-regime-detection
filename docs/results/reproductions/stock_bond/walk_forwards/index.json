@@ -1,0 +1,22 @@
+[
+ {
+  "stem": "walk_forward_corr_regimes_001",
+  "function": "walk_forward_corr_regimes",
+  "saved": [
+   "prob_high",
+   "implied_corr",
+   "state_rho"
+  ],
+  "n_refits": 158
+ },
+ {
+  "stem": "walk_forward_corr_regimes_002",
+  "function": "walk_forward_corr_regimes",
+  "saved": [
+   "prob_high",
+   "implied_corr",
+   "state_rho"
+  ],
+  "n_refits": 158
+ }
+]

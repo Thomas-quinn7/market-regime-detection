@@ -1,0 +1,56 @@
+[
+ {
+  "file": "scored_01.csv",
+  "block": "Nasdaq-100",
+  "columns": [
+   "HAR",
+   "HAR-RV",
+   "HAR-RV + IV",
+   "HARQ + IV",
+   "SHAR + IV",
+   "GJR-GARCH",
+   "MSM",
+   "Two-state HMM implied vol",
+   "HAR-RV + IV + MSM",
+   "HAR-RV + IV + HMM prob",
+   "Combination"
+  ],
+  "n": 3286
+ },
+ {
+  "file": "scored_02.csv",
+  "block": "Dow Jones Industrial Average",
+  "columns": [
+   "HAR",
+   "HAR-RV",
+   "HAR-RV + IV",
+   "HARQ + IV",
+   "SHAR + IV",
+   "GJR-GARCH",
+   "MSM",
+   "Two-state HMM implied vol",
+   "HAR-RV + IV + MSM",
+   "HAR-RV + IV + HMM prob",
+   "Combination"
+  ],
+  "n": 3297
+ },
+ {
+  "file": "scored_03.csv",
+  "block": "Russell 2000",
+  "columns": [
+   "HAR",
+   "HAR-RV",
+   "HAR-RV + IV",
+   "HARQ + IV",
+   "SHAR + IV",
+   "GJR-GARCH",
+   "MSM",
+   "Two-state HMM implied vol",
+   "HAR-RV + IV + MSM",
+   "HAR-RV + IV + HMM prob",
+   "Combination"
+  ],
+  "n": 1513
+ }
+]
