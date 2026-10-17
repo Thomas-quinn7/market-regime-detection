@@ -21,6 +21,7 @@ class GarchWalkForward:
     implied_vol: pd.Series   # forecast of vol over the next ``horizon`` days, made at each date
     params: pd.DataFrame     # fitted parameters per refit
     n_refits: int
+    convergence: pd.DataFrame | None = None  # per refit: best_converged (arch flag 0), detail
 
 
 def walk_forward_gjr(returns: pd.Series, *, min_train: int = 756, step: int = 63,
@@ -29,7 +30,7 @@ def walk_forward_gjr(returns: pd.Series, *, min_train: int = 756, step: int = 63
     from arch import arch_model
 
     r = returns.astype(float)
-    pieces, rows, idx = [], [], []
+    pieces, rows, idx, conv_rows = [], [], [], []
     for i in range(min_train, len(r), step):
         end = min(i + step, len(r))
         # Fit on rows [0, i) only, then filter forward with those parameters frozen.
@@ -41,6 +42,9 @@ def walk_forward_gjr(returns: pd.Series, *, min_train: int = 756, step: int = 63
         pieces.append(pd.Series(np.sqrt(var.mean(axis=1)), index=r.index[i:end]))
         rows.append(res.params.to_dict())
         idx.append(r.index[i])
+        flag = getattr(res, "convergence_flag", None)
+        conv_rows.append({"best_converged": flag == 0, "detail": str(flag)})
     return GarchWalkForward(implied_vol=pd.concat(pieces),
                             params=pd.DataFrame(rows, index=pd.DatetimeIndex(idx)),
-                            n_refits=len(pieces))
+                            n_refits=len(pieces),
+                            convergence=pd.DataFrame(conv_rows, index=pd.DatetimeIndex(idx)))

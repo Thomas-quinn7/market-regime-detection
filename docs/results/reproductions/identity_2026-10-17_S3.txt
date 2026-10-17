@@ -1,0 +1,49 @@
+reference docs/results/reproductions/vix_early
+candidate <identity rerun folder>/vix_early
+  stdout.txt       1 identical
+  forecasts        11 identical
+  scored           2 identical
+  walk_forwards    8 identical
+  convergence.csv  1 identical
+verdict: identical on every shared file
+  walk_forward_oos_001: 49 of 49 refits converged
+  walk_forward_vix_hmm_002: 49 of 49 refits converged (97 of 97 starts)
+
+reference docs/results/reproductions/vix_recent
+candidate <identity rerun folder>/vix_recent
+  stdout.txt       1 identical
+  forecasts        11 identical
+  scored           2 identical
+  walk_forwards    8 identical
+  convergence.csv  1 identical
+verdict: identical on every shared file
+  walk_forward_oos_001: 75 of 75 refits converged
+  walk_forward_vix_hmm_002: 75 of 75 refits converged (149 of 149 starts)
+
+reference docs/results/reproductions/etf_frozen_checkpoints
+candidate <identity rerun folder>/etf_frozen_checkpoints
+  stdout.txt       1 identical
+  forecasts        36 identical
+  scored           4 identical
+  walk_forwards    0 identical
+  convergence.csv  1 identical
+verdict: identical on every shared file
+
+reference docs/results/reproductions/cross_index
+candidate <identity rerun folder>/cross_index
+  stdout.txt       1 identical
+  forecasts        30 identical
+  scored           3 identical
+  walk_forwards    28 identical
+  convergence.csv  1 identical
+verdict: identical on every shared file
+  walk_forward_gjr_002: 95 of 95 refits converged
+  walk_forward_gjr_005: 95 of 95 refits converged
+  walk_forward_gjr_008: 95 of 95 refits converged
+  walk_forward_msm_003: 95 of 95 refits converged (430 of 430 starts)
+  walk_forward_msm_006: 95 of 95 refits converged (430 of 430 starts)
+  walk_forward_msm_009: 95 of 95 refits converged (430 of 430 starts)
+  walk_forward_oos_001: 95 of 95 refits converged
+  walk_forward_oos_004: 95 of 95 refits converged
+  walk_forward_oos_007: 95 of 95 refits converged
+

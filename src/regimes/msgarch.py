@@ -41,6 +41,8 @@ import pandas as pd
 from numba import njit
 from scipy.optimize import minimize
 
+from .msm import starts_row
+
 _NORMAL = np.inf  # nu = inf in the kernels means Gaussian innovations
 
 
@@ -272,8 +274,11 @@ def start_grid(var: float, k: int = 2, dist: str = "t") -> list[MSGarchParams]:
 
 def fit_msgarch(returns: pd.Series | np.ndarray, k: int = 2, dist: str = "t", *,
                 starts: list[MSGarchParams] | None = None,
-                min_stay: float = 0.001) -> tuple[MSGarchParams, float]:
+                min_stay: float = 0.001, info: dict | None = None) -> tuple[MSGarchParams, float]:
     """Maximum-likelihood fit (L-BFGS-B on transformed parameters), best of every start.
+
+    ``info``, if given, is filled as in ``msm.fit_msm`` (per-start ``converged`` and ``message``,
+    and ``best``); nothing else changes.
 
     ``min_stay`` is the lowest allowed probability of staying in a regime. At the default the fit
     may settle on a regime that lasts a single day, which makes the model a fat-tailed mixture
@@ -293,10 +298,14 @@ def fit_msgarch(returns: pd.Series | np.ndarray, k: int = 2, dist: str = "t", *,
         return -ll if np.isfinite(ll) and ll > -1e299 else 1e12
 
     best = None
-    for s0 in starts or start_grid(float(r.var()), k, dist):
+    runs = []
+    for j, s0 in enumerate(starts or start_grid(float(r.var()), k, dist)):
         res = minimize(nll, _pack(s0, dist, min_stay), method="L-BFGS-B")
+        runs.append({"converged": bool(res.success), "message": str(res.message)})
         if best is None or res.fun < best.fun:
-            best = res
+            best, best_j = res, j
+    if info is not None:
+        info.update(starts=runs, best=best_j)
     return _ordered(_unpack(best.x, k, dist, min_stay)), float(-best.fun)
 
 
@@ -308,6 +317,7 @@ class MSGarchWalkForward:
     high_vol_prob: pd.Series    # filtered probability of the turbulent regime, same dates
     params: pd.DataFrame        # fitted parameters per refit, indexed by refit date
     n_refits: int
+    convergence: pd.DataFrame | None = None  # per refit: starts, converged, best_converged
 
 
 def walk_forward_msgarch(returns: pd.Series, k: int = 2, dist: str = "t", *, min_train: int = 756,
@@ -321,13 +331,15 @@ def walk_forward_msgarch(returns: pd.Series, k: int = 2, dist: str = "t", *, min
     start grid; the others start from the previous fit and from the first grid point.
     """
     r = returns.astype(float)
-    vols, probs_out, rows, idx = [], [], [], []
+    vols, probs_out, rows, idx, conv_rows = [], [], [], [], []
     prev = None
     for n_fit, i in enumerate(range(min_train, len(r), step)):
         end = min(i + step, len(r))
         grid = start_grid(float(r.iloc[:i].var()), k, dist)
+        info: dict = {}
         p, ll = fit_msgarch(r.iloc[:i], k, dist, starts=grid if n_fit % 4 == 0 else [prev, grid[0]],
-                            min_stay=min_stay)
+                            min_stay=min_stay, info=info)
+        conv_rows.append(starts_row(info))
         prev = p
         probs, h_next, _ = msgarch_filter(r.iloc[:end].to_numpy(), p)
         var = forecast_variance(probs[i:end], h_next[i:end], p, horizon)
@@ -337,7 +349,8 @@ def walk_forward_msgarch(returns: pd.Series, k: int = 2, dist: str = "t", *, min
         idx.append(r.index[i])
     return MSGarchWalkForward(implied_vol=pd.concat(vols), high_vol_prob=pd.concat(probs_out),
                               params=pd.DataFrame(rows, index=pd.DatetimeIndex(idx)),
-                              n_refits=len(vols))
+                              n_refits=len(vols),
+                              convergence=pd.DataFrame(conv_rows, index=pd.DatetimeIndex(idx)))
 
 
 def simulate_msgarch(p: MSGarchParams, n: int, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:

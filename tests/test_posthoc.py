@@ -82,3 +82,33 @@ def test_excluded_change_pct():
     assert excluded_change_pct(0.01, 0.02, 0.5)["largest_gain_allowed"] == 0.0
     with pytest.raises(ValueError):
         paired_interval(np.zeros(5), np.zeros(5), scheme="moving")
+
+
+def test_mcs_removes_the_dominated_model_and_keeps_equals():
+    """A model worse by half a unit every day is always out; two models of equal expected loss are
+    both kept in at least 85% of 20 samples (the 10% set drops a true equal about one time in ten)."""
+    from regimes.posthoc import mcs
+    both_kept = 0
+    for rep in range(20):
+        rng = np.random.default_rng(rep)
+        base = rng.standard_normal(600) ** 2
+        losses = np.column_stack([base + 0.02 * rng.standard_normal(600),
+                                  base + 0.02 * rng.standard_normal(600),
+                                  base + 0.5])
+        res = mcs(losses, alpha=0.10, block=21, n_boot=200, seed=0)
+        assert res["elimination_rank"][2] == 1 and res["p_value"][2] < 0.05 and not res["in_set"][2]
+        assert res["p_value"][res["elimination_rank"].argmax()] == 1.0
+        ranked = res["p_value"][np.argsort(res["elimination_rank"])]
+        assert np.all(np.diff(ranked) >= 0)  # p-values are non-decreasing in elimination order
+        both_kept += bool(res["in_set"][0] and res["in_set"][1])
+    assert both_kept >= 17
+
+
+def test_mcs_deterministic_and_shape():
+    from regimes.posthoc import mcs
+    rng = np.random.default_rng(7)
+    losses = rng.standard_normal((200, 4)) ** 2
+    a = mcs(losses, block=21, n_boot=100, seed=3)
+    b = mcs(losses, block=21, n_boot=100, seed=3)
+    assert np.array_equal(a["p_value"], b["p_value"]) and a["p_value"].shape == (4,)
+    assert sorted(a["elimination_rank"]) == [1, 2, 3, 4]

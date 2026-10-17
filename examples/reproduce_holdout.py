@@ -162,8 +162,12 @@ class Recorder:
                 if isinstance(value, (pd.Series, pd.DataFrame)):
                     value.to_csv(self.out / "walk_forwards" / f"{stem}__{f.name}.csv", float_format="%.17g")
                     saved.append(f.name)
-        self.walk_forward_index.append({"stem": stem, "function": func, "saved": saved,
-                                        "n_refits": getattr(result, "n_refits", None)})
+        entry = {"stem": stem, "function": func, "saved": saved,
+                 "n_refits": getattr(result, "n_refits", None)}
+        if getattr(result, "convergence", None) is not None:
+            from regimes.correlation import convergence_counts
+            entry["convergence"] = convergence_counts(result.convergence)
+        self.walk_forward_index.append(entry)
 
     def write(self) -> None:
         pd.DataFrame(self.convergence).to_csv(self.out / "convergence.csv", index=False)

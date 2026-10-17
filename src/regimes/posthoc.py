@@ -96,3 +96,46 @@ def excluded_change_pct(lo: float, hi: float, reference: float) -> dict[str, flo
     """
     return {"largest_gain_allowed": 100.0 * max(0.0, -lo) / reference,
             "largest_loss_allowed": 100.0 * max(0.0, hi) / reference}
+
+
+def mcs(losses: np.ndarray, *, alpha: float = 0.10, block: int = 63, n_boot: int = 2000,
+        seed: int = 0) -> dict[str, np.ndarray]:
+    """Model confidence set (Hansen, Lunde and Nason 2011) with the T_max statistic.
+
+    ``losses`` is an n-by-m array of per-day losses, one column per forecast. Models are eliminated
+    one at a time, worst first, until the equal-predictive-ability hypothesis on the survivors is not
+    rejected at ``alpha``. The bootstrap is the same circular block bootstrap as the holdouts; the
+    draws are fixed once and reused at every step. Returns, per model, the MCS p-value (the largest
+    bootstrap p-value at or before the step that removed it, 1.0 for the last survivor), the rank of
+    elimination (1 = eliminated first, m = last survivor) and membership at ``alpha``.
+    """
+    L = np.asarray(losses, dtype=float)
+    n, m = L.shape
+    rng = np.random.default_rng(seed)
+    draws = np.stack([_circular_indices(rng, n, block) for _ in range(n_boot)])  # n_boot x n
+    mean_full = L.mean(axis=0)
+    boot_full = np.stack([L[idx].mean(axis=0) for idx in draws])  # n_boot x m
+    alive = list(range(m))
+    p_values = np.ones(m)
+    order = np.zeros(m, dtype=int)
+    p_running = 0.0
+    step = 0
+    while len(alive) > 1:
+        cols = np.array(alive)
+        d = mean_full[cols] - mean_full[cols].mean()
+        d_boot = boot_full[:, cols] - boot_full[:, cols].mean(axis=1, keepdims=True)
+        var = ((d_boot - d) ** 2).mean(axis=0)
+        var = np.where(var > 0, var, np.nan)
+        t = d / np.sqrt(var)
+        t_boot = (d_boot - d) / np.sqrt(var)
+        t_max = np.nanmax(t)
+        p = float(np.mean(np.nanmax(t_boot, axis=1) >= t_max))
+        p_running = max(p_running, p)
+        worst = cols[int(np.nanargmax(t))]
+        step += 1
+        p_values[worst] = p_running
+        order[worst] = step
+        alive.remove(int(worst))
+    p_values[alive[0]] = 1.0
+    order[alive[0]] = m
+    return {"p_value": p_values, "elimination_rank": order, "in_set": p_values >= alpha}

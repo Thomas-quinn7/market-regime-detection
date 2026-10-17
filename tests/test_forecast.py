@@ -1,10 +1,13 @@
 """The forecast comparison must not leak: calibration is embargoed and the HAR inputs are causal."""
 import numpy as np
 import pandas as pd
+import pytest
 
 from regimes.evaluate import horizon_weights
 from regimes.forecast import (
+    forward_rv,
     forward_vol,
+    har_rv,
     har_features,
     qlike,
     walk_forward_regression,
@@ -69,3 +72,46 @@ def test_fred_loader_reads_cache_without_network(tmp_path, monkeypatch):
                                              "2020-01-06,2.2\n")
     s = data.load_fred_series("BAA10Y")
     assert list(s) == [2.1, 2.2] and s.name == "BAA10Y"
+
+
+def test_forward_rv_and_har_rv_align_on_a_hand_built_series():
+    """forward_rv at t is the RMS of RV over (t, t + horizon]; har_rv at t uses RV up to and including t."""
+    idx = pd.bdate_range("2020-01-01", periods=30)
+    rv = pd.Series(np.arange(1, 31, dtype=float), index=idx)  # RV_t = t + 1, so everything is checkable by hand
+    fwd = forward_rv(rv, horizon=3)
+    # at position 0 the next three RVs are 2, 3, 4
+    assert fwd.iloc[0] == pytest.approx(np.sqrt((4 + 9 + 16) / 3))
+    assert fwd.iloc[26] == pytest.approx(np.sqrt((28 ** 2 + 29 ** 2 + 30 ** 2) / 3))
+    assert fwd.iloc[27:].isna().all()  # the last three days have no complete forward window...
+    # the shift means a window at the sample end is never produced: exactly 30 - 21 targets exist
+    assert forward_rv(rv, horizon=21).notna().sum() == 9
+    # the min_periods tolerance applies to missing days INSIDE a window: up to 3 NaNs are averaged over
+    gappy = rv.copy()
+    gappy.iloc[5:8] = np.nan
+    assert forward_rv(gappy, horizon=21).iloc[0] == pytest.approx(np.sqrt(np.nanmean(gappy.iloc[1:22] ** 2)))
+    gappy.iloc[8] = np.nan
+    assert np.isnan(forward_rv(gappy, horizon=21).iloc[0])  # four missing days: no target
+    h = har_rv(rv)
+    assert h["rv_1d"].iloc[10] == 11.0
+    assert h["rv_5d"].iloc[10] == pytest.approx(np.sqrt(np.mean(np.arange(7, 12) ** 2)))
+    assert h["rv_22d"].iloc[25] == pytest.approx(np.sqrt(np.mean(np.arange(5, 27) ** 2)))
+    assert np.isnan(h["rv_22d"].iloc[16])  # 17 days < 18 minimum
+    assert not np.isnan(h["rv_22d"].iloc[17])  # 18 days are enough
+    # the regression target for row t never overlaps its features: features end at t, target starts at t + 1
+    rv2 = rv.copy()
+    rv2.iloc[11:] = 999.0
+    pd.testing.assert_frame_equal(har_rv(rv).iloc[:11], har_rv(rv2).iloc[:11])
+    assert forward_rv(rv, 3).iloc[10] != forward_rv(rv2, 3).iloc[10]
+
+
+def test_qlike_is_pattons_form_up_to_a_per_day_constant():
+    """qlike(f, y) = y^2/f^2 - log(y^2/f^2) - 1 equals log(h) + y^2/h with h = f^2, minus the per-day
+    constant log(y^2) + 1, so forecast rankings and differences between forecasts are those of Patton (2011)."""
+    rng = np.random.default_rng(0)
+    y, f, g = rng.uniform(0.5, 2.0, 50), rng.uniform(0.5, 2.0, 50), rng.uniform(0.5, 2.0, 50)
+    patton = lambda fc: np.log(fc ** 2) + y ** 2 / fc ** 2  # noqa: E731
+    const = np.log(y ** 2) + 1.0
+    assert np.allclose(qlike(f, y), patton(f) - const)
+    assert np.allclose(qlike(f, y) - qlike(g, y), patton(f) - patton(g))
+    # scale-free: scaling forecast and realised together changes nothing
+    assert np.allclose(qlike(3 * f, 3 * y), qlike(f, y))

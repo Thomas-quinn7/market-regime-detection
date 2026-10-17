@@ -4,9 +4,11 @@
   "function": "walk_forward_oos",
   "saved": [
    "high_vol_prob",
-   "implied_vol"
+   "implied_vol",
+   "convergence"
   ],
-  "n_refits": 49
+  "n_refits": 49,
+  "convergence": "49 of 49 refits converged"
  },
  {
   "stem": "walk_forward_vix_hmm_002",
@@ -14,8 +16,10 @@
   "saved": [
    "high_vol_prob",
    "implied_vol",
-   "state_vol"
+   "state_vol",
+   "convergence"
   ],
-  "n_refits": 49
+  "n_refits": 49,
+  "convergence": "49 of 49 refits converged (97 of 97 starts)"
  }
 ]

@@ -136,18 +136,24 @@ def start_grid(sd: float) -> list[MSMParams]:
 
 
 def fit_msm(returns: pd.Series | np.ndarray, k: int, *,
-            starts: list[MSMParams] | None = None) -> tuple[MSMParams, float]:
+            starts: list[MSMParams] | None = None, info: dict | None = None) -> tuple[MSMParams, float]:
     """Maximum-likelihood fit (L-BFGS-B on transformed parameters). Returns params and log-lik.
 
     Every start in ``starts`` (default: ``start_grid``) is optimised and the best fit is kept.
+    ``info``, if given, is filled with ``starts`` (one dict per start: ``converged``, ``message``)
+    and ``best`` (the index of the kept start); nothing else changes.
     """
     r = np.asarray(returns, dtype=float)
     best = None
-    for s0 in starts or start_grid(float(r.std())):
+    runs = []
+    for j, s0 in enumerate(starts or start_grid(float(r.std()))):
         res = minimize(lambda x: -msm_filter(r, _unpack(x), k, store=False)[1], _pack(s0),
                        method="L-BFGS-B")
+        runs.append({"converged": bool(res.success), "message": str(res.message)})
         if best is None or res.fun < best.fun:
-            best = res
+            best, best_j = res, j
+    if info is not None:
+        info.update(starts=runs, best=best_j)
     return _unpack(best.x), float(-best.fun)
 
 
@@ -163,6 +169,7 @@ class MSMWalkForward:
     implied_vol: pd.Series   # out-of-sample forecast of next-``horizon``-day vol
     params: pd.DataFrame     # fitted parameters per refit, indexed by refit date
     n_refits: int
+    convergence: pd.DataFrame | None = None  # per refit: starts, converged, best_converged
 
 
 def walk_forward_msm(returns: pd.Series, k: int, *, min_train: int = 756, step: int = 63,
@@ -175,12 +182,14 @@ def walk_forward_msm(returns: pd.Series, k: int, *, min_train: int = 756, step: 
     start grid; the others start from the previous fit and from one fixed grid point.
     """
     r = returns.astype(float)
-    pieces, rows, idx = [], [], []
+    pieces, rows, idx, conv_rows = [], [], [], []
     prev = None
     for n_fit, i in enumerate(range(min_train, len(r), step)):
         end = min(i + step, len(r))
         grid = start_grid(float(r.iloc[:i].std()))
-        p, _ = fit_msm(r.iloc[:i], k, starts=grid if n_fit % 4 == 0 else [prev, grid[1]])
+        info: dict = {}
+        p, _ = fit_msm(r.iloc[:i], k, starts=grid if n_fit % 4 == 0 else [prev, grid[1]], info=info)
+        conv_rows.append(starts_row(info))
         prev = p
         probs, _ = msm_filter(r.iloc[:end].to_numpy(), p, k)
         pieces.append(pd.Series(implied_vol(probs[i:end], p, k, horizon), index=r.index[i:end]))
@@ -188,7 +197,15 @@ def walk_forward_msm(returns: pd.Series, k: int, *, min_train: int = 756, step: 
         idx.append(r.index[i])
     return MSMWalkForward(implied_vol=pd.concat(pieces),
                           params=pd.DataFrame(rows, index=pd.DatetimeIndex(idx)),
-                          n_refits=len(pieces))
+                          n_refits=len(pieces),
+                          convergence=pd.DataFrame(conv_rows, index=pd.DatetimeIndex(idx)))
+
+
+def starts_row(info: dict) -> dict:
+    """Convergence record of one multi-start fit from its ``info`` dict."""
+    runs = info["starts"]
+    return {"starts": len(runs), "converged": int(sum(r["converged"] for r in runs)),
+            "best_converged": bool(runs[info["best"]]["converged"])}
 
 
 def simulate_msm(p: MSMParams, k: int, n: int, seed: int = 0) -> np.ndarray:

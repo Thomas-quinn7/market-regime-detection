@@ -76,3 +76,23 @@ def test_checkpoint_refuses_different_settings(tmp_path):
     walk_forward_oos(y, min_train=300, step=100, horizon=21, checkpoint_dir=tmp_path)
     with pytest.raises(ValueError, match="different settings"):
         walk_forward_oos(y, min_train=300, step=50, horizon=21, checkpoint_dir=tmp_path)
+
+
+def test_walk_forward_probabilities_before_a_cut_ignore_returns_after_it():
+    """Frozen-parameter perturbation (the GJR, MSM and MS-GARCH tests have the same shape): scale the
+    returns from a block boundary onward by 3 and every out-of-sample probability and implied vol
+    before that boundary must be unchanged, because each refit fits on returns before its edge and
+    filters forward causally."""
+    r = _series()
+    base = walk_forward_oos(r, min_train=600, step=100, horizon=21)
+    cut = 800  # a block boundary: blocks start at 600, 700, 800, 900
+    r2 = r.copy()
+    r2.iloc[cut:] *= 3.0
+    again = walk_forward_oos(r2, min_train=600, step=100, horizon=21)
+    before = base.high_vol_prob.index[base.high_vol_prob.index < r.index[cut]]
+    assert len(before) == cut - 600
+    pd.testing.assert_series_equal(base.high_vol_prob.loc[before], again.high_vol_prob.loc[before])
+    pd.testing.assert_series_equal(base.implied_vol.loc[before], again.implied_vol.loc[before])
+    # ...and the perturbation did reach the later blocks (the refit at 900 sees the scaled data).
+    after = r.index[cut:]
+    assert not np.allclose(base.implied_vol.loc[after], again.implied_vol.loc[after])

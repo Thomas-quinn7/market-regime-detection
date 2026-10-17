@@ -145,3 +145,28 @@ for the 28 lines where a checkpoint load replaces the "N refits" and last-fit li
   recorded; `requirements-lock.txt` (added 16 Oct) pins the same numpy, pandas, scipy, statsmodels,
   arch, numba and yfinance versions as used here (a few non-numerical packages differ by a patch
   version).
+
+## Identity reruns after the convergence-recording change (stage S3, 17 Oct 2026, 21:10-21:17Z)
+
+Class: reproduction. Stage S3 of the reopen added a per-refit convergence record to every
+walk-forward (`regimes.evaluate.walk_forward_oos`, `garch.walk_forward_gjr`, `msm.walk_forward_msm`,
+`msgarch.walk_forward_msgarch`, `vix_regimes.walk_forward_vix_hmm`,
+`correlation.walk_forward_corr_regimes`): the fitters take an optional `info` dict and the results
+gain a `convergence` table; no return value, signature or number changes. The proof is this rerun:
+each holdout was reproduced again with `examples/reproduce_holdout.py --out <identity rerun folder>`
+on the patched code and compared file by file with the folders above by
+`examples/compare_reproductions.py` (output in `identity_2026-10-17_S3.txt`, numbers below from it).
+
+| Holdout | stdout | forecasts | scored | walk-forward series | verdict | convergence recorded |
+|---|---|---|---|---|---|---|
+| vix_early | identical | 11 of 11 | 2 of 2 | 6 of 6 | identical on every shared file | HMM 49 of 49 refits; VIX-HMM 49 of 49 refits (97 of 97 EM starts) |
+| vix_recent | identical | 11 of 11 | 2 of 2 | 6 of 6 | identical on every shared file | HMM 75 of 75 refits; VIX-HMM 75 of 75 refits (149 of 149 EM starts) |
+| etf_frozen_checkpoints | identical | 36 of 36 | 4 of 4 | none run (checkpoints loaded) | identical on every shared file | not exercised: the frozen checkpoints are loaded, so GJR and MS-GARCH were not refit |
+| cross_index | identical | 30 of 30 | 3 of 3 | 19 of 19 | identical on every shared file | per index: HMM 95 of 95, GJR 95 of 95, MSM 95 of 95 refits (430 of 430 L-BFGS-B starts) |
+
+The only files present on one side are the new `walk_forwards/*__convergence.csv` tables, copied
+into the folders above. The MS-GARCH refit path is covered by the unit test only
+(`tests/test_convergence.py`: the `info` hook returns the same parameters and likelihood), because a
+full ETF refit does not reproduce the committed numbers on this host anyway (see the ETF section).
+The stock-bond walk-forward was not rerun tonight (about an hour); its change has the same shape as
+the VIX-HMM one and is covered by the same unit test.

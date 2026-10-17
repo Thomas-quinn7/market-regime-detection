@@ -160,8 +160,11 @@ def _default_init(z: np.ndarray, K: int) -> CorrHMMParams:
 
 def fit_corr_hmm(z: np.ndarray, n_regimes: int = 2, *, init: CorrHMMParams | None = None,
                  max_iter: int = 200, tol: float = 1e-4,
-                 tie_variances: bool = False) -> tuple[CorrHMMParams, float]:
+                 tie_variances: bool = False, info: dict | None = None) -> tuple[CorrHMMParams, float]:
     """Fit a full-covariance Gaussian HMM by EM. Returns (params ordered by correlation, loglik).
+
+    ``info``, if given, is filled with ``iterations`` and ``converged`` (True when the loop stopped
+    on the tolerance rather than on ``max_iter``); nothing else changes.
 
     ``tie_variances=True`` forces every state to share the same variances, so the states can differ
     only in correlation (and mean). Unconstrained, maximum likelihood prefers to spend the states on
@@ -176,7 +179,10 @@ def fit_corr_hmm(z: np.ndarray, n_regimes: int = 2, *, init: CorrHMMParams | Non
     pi, A, mu, cov = p.pi.copy(), p.A.copy(), p.mu.copy(), p.cov.copy()
 
     prev_ll = -np.inf
+    converged = False
+    iterations = 0
     for _ in range(max_iter):
+        iterations += 1
         gamma, xi_sum, ll = _forward_backward(_gauss_logpdf(z, mu, cov), A, pi)
         g = gamma.sum(axis=0)
         mu = (gamma.T @ z) / g[:, None]
@@ -191,8 +197,11 @@ def fit_corr_hmm(z: np.ndarray, n_regimes: int = 2, *, init: CorrHMMParams | Non
         pi = gamma[0] / gamma[0].sum()
         A = xi_sum / xi_sum.sum(axis=1, keepdims=True)
         if ll - prev_ll < tol:
+            converged = True
             break
         prev_ll = ll
+    if info is not None:
+        info.update(iterations=iterations, converged=converged)
     return CorrHMMParams(pi, A, mu, cov).ordered(), float(ll)
 
 
@@ -220,6 +229,7 @@ class CorrWalkForwardResult:
     state_rho: pd.DataFrame    # per-refit state correlations (diagnostic), indexed by refit date
     n_refits: int
     n_skipped: int
+    convergence: pd.DataFrame | None = None  # per refit: starts, converged, best_converged, iterations
 
 
 def walk_forward_corr_regimes(returns: pd.DataFrame, *, n_regimes: int = 2, min_train: int = 756,
@@ -238,16 +248,23 @@ def walk_forward_corr_regimes(returns: pd.DataFrame, *, n_regimes: int = 2, min_
         raise ValueError(f"min_train={min_train} leaves no out-of-sample data (n={n})")
 
     probs, implied, rho_rows, rho_idx = [], [], [], []
+    conv_rows, conv_idx = [], []
     params = None
     n_refits = n_skipped = 0
     for i in range(min_train, n, step):
         end = min(i + step, n)
         try:
             # EM finds a local optimum, so keep the better of a warm start and a fresh start.
-            fits = [fit_corr_hmm(z[:i], n_regimes, tie_variances=tie_variances)]
+            infos = [{}]
+            fits = [fit_corr_hmm(z[:i], n_regimes, tie_variances=tie_variances, info=infos[0])]
             if params is not None and warm_start:
-                fits.append(fit_corr_hmm(z[:i], n_regimes, init=params, tie_variances=tie_variances))
-            params = max(fits, key=lambda f: f[1])[0]
+                infos.append({})
+                fits.append(fit_corr_hmm(z[:i], n_regimes, init=params, tie_variances=tie_variances,
+                                         info=infos[-1]))
+            best = max(range(len(fits)), key=lambda j: fits[j][1])
+            params = fits[best][0]
+            conv_rows.append(convergence_row(infos, best))
+            conv_idx.append(z_df.index[i])
         except (np.linalg.LinAlgError, FloatingPointError, ValueError) as exc:
             warnings.warn(f"correlation HMM fit failed at i={i}: {exc}", RuntimeWarning, stacklevel=2)
             n_skipped += 1
@@ -269,7 +286,31 @@ def walk_forward_corr_regimes(returns: pd.DataFrame, *, n_regimes: int = 2, min_
         state_rho=pd.DataFrame(rho_rows, index=pd.DatetimeIndex(rho_idx), columns=cols),
         n_refits=n_refits,
         n_skipped=n_skipped,
+        convergence=pd.DataFrame(conv_rows, index=pd.DatetimeIndex(conv_idx)),
     )
+
+
+def convergence_row(infos: list[dict], best: int) -> dict:
+    """One walk-forward refit's convergence record from the per-start ``info`` dicts: how many
+    starts were run, how many converged, whether the start that won did, and its iteration count
+    (EM) when known."""
+    row = {"starts": len(infos), "converged": int(sum(bool(d.get("converged")) for d in infos)),
+           "best_converged": bool(infos[best].get("converged"))}
+    if "iterations" in infos[best]:
+        row["iterations"] = int(infos[best]["iterations"])
+    return row
+
+
+def convergence_counts(convergence: pd.DataFrame | None) -> str:
+    """Printable summary of a walk-forward's convergence table, e.g. "95 of 95 refits converged
+    (190 of 190 starts)"."""
+    if convergence is None or convergence.empty:
+        return "no convergence record"
+    n = len(convergence)
+    text = f"{int(convergence['best_converged'].sum())} of {n} refits converged"
+    if "starts" in convergence:
+        text += f" ({int(convergence['converged'].sum())} of {int(convergence['starts'].sum())} starts)"
+    return text
 
 
 def sustained_sign_state(signal: pd.Series, run: int = 21) -> pd.Series:

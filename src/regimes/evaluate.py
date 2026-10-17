@@ -183,6 +183,7 @@ class WalkForwardResult:
     n_refits: int
     n_skipped: int
     implied_vol: pd.Series | None = None
+    convergence: pd.DataFrame | None = None  # per refit: best_converged (statsmodels flag), detail
 
 
 def walk_forward_oos(
@@ -241,6 +242,8 @@ def walk_forward_oos(
 
     oos_pieces: list[pd.Series] = []
     implied_pieces: list[pd.Series] = []
+    conv_rows: list[dict] = []
+    conv_idx: list = []
     n_refits = 0
     n_skipped = 0
 
@@ -266,6 +269,8 @@ def walk_forward_oos(
                 n_refits += 1
                 oos_pieces.append(saved["hv"].set_axis(y.index[i:end]))
                 implied_pieces.append(saved["iv"].set_axis(y.index[i:end]))
+                conv_rows.append({"best_converged": None, "detail": "loaded from checkpoint"})
+                conv_idx.append(y.index[i])
             continue
         train = y.iloc[:i].reset_index(drop=True)
         try:
@@ -279,6 +284,10 @@ def walk_forward_oos(
                 pd.DataFrame(columns=["hv", "iv"]).to_csv(block_file)
             continue
         n_refits += 1
+        retvals = getattr(train_res, "mle_retvals", None) or {}
+        conv_rows.append({"best_converged": bool(retvals.get("converged", False)),
+                          "detail": str(retvals.get("warnflag", ""))})
+        conv_idx.append(y.index[i])
 
         # Canonical order from the TRAIN fit's variances (high-vol regime is last).
         train_var = np.asarray(
@@ -322,6 +331,7 @@ def walk_forward_oos(
         n_refits=n_refits,
         n_skipped=n_skipped,
         implied_vol=pd.concat(implied_pieces).sort_index().rename("hmm_implied_vol"),
+        convergence=pd.DataFrame(conv_rows, index=pd.DatetimeIndex(conv_idx)),
     )
 
 

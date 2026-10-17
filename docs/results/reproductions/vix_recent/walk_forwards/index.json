@@ -4,7 +4,8 @@
   "function": "walk_forward_oos",
   "saved": [
    "high_vol_prob",
-   "implied_vol"
+   "implied_vol",
+   "convergence"
   ],
   "n_refits": 75
  },
@@ -14,7 +15,8 @@
   "saved": [
    "high_vol_prob",
    "implied_vol",
-   "state_vol"
+   "state_vol",
+   "convergence"
   ],
   "n_refits": 75
  }

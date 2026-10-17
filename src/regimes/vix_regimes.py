@@ -27,7 +27,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from .correlation import CorrHMMParams, filter_probs, fit_corr_hmm
+from .correlation import CorrHMMParams, convergence_row, filter_probs, fit_corr_hmm
 from .evaluate import horizon_weights
 
 
@@ -55,11 +55,12 @@ def _vix_split_init(z: np.ndarray, K: int) -> CorrHMMParams:
 
 
 def fit_vix_hmm(z: np.ndarray, n_regimes: int = 2, *, init: CorrHMMParams | None = None,
-                max_iter: int = 200, tol: float = 1e-4) -> tuple[CorrHMMParams, float]:
-    """Fit the joint return/VIX HMM. Returns (params ordered by return variance, loglik)."""
+                max_iter: int = 200, tol: float = 1e-4, info: dict | None = None) -> tuple[CorrHMMParams, float]:
+    """Fit the joint return/VIX HMM. Returns (params ordered by return variance, loglik).
+    ``info`` is filled as in ``fit_corr_hmm``."""
     z = np.asarray(z, dtype=float)
     start = init if init is not None else _vix_split_init(z, n_regimes)
-    params, ll = fit_corr_hmm(z, n_regimes, init=start, max_iter=max_iter, tol=tol)
+    params, ll = fit_corr_hmm(z, n_regimes, init=start, max_iter=max_iter, tol=tol, info=info)
     return _order_by_return_var(params), ll
 
 
@@ -70,6 +71,7 @@ class VixWalkForwardResult:
     state_vol: pd.DataFrame     # per-refit state return vols (diagnostic), indexed by refit date
     n_refits: int
     n_skipped: int
+    convergence: pd.DataFrame | None = None  # per refit: starts, converged, best_converged, iterations
 
 
 def walk_forward_vix_hmm(returns: pd.Series, vix: pd.Series, *, n_regimes: int = 2,
@@ -83,15 +85,21 @@ def walk_forward_vix_hmm(returns: pd.Series, vix: pd.Series, *, n_regimes: int =
         raise ValueError(f"min_train={min_train} leaves no out-of-sample data (n={n})")
 
     probs, implied, vol_rows, vol_idx = [], [], [], []
+    conv_rows, conv_idx = [], []
     params = None
     n_refits = n_skipped = 0
     for i in range(min_train, n, step):
         end = min(i + step, n)
         try:
-            fits = [fit_vix_hmm(z[:i], n_regimes)]
+            infos = [{}]
+            fits = [fit_vix_hmm(z[:i], n_regimes, info=infos[0])]
             if params is not None and warm_start:
-                fits.append(fit_vix_hmm(z[:i], n_regimes, init=params))
-            params = max(fits, key=lambda f: f[1])[0]
+                infos.append({})
+                fits.append(fit_vix_hmm(z[:i], n_regimes, init=params, info=infos[-1]))
+            best = max(range(len(fits)), key=lambda j: fits[j][1])
+            params = fits[best][0]
+            conv_rows.append(convergence_row(infos, best))
+            conv_idx.append(obs.index[i])
         except (np.linalg.LinAlgError, FloatingPointError, ValueError) as exc:
             warnings.warn(f"VIX HMM fit failed at i={i}: {exc}", RuntimeWarning, stacklevel=2)
             n_skipped += 1
@@ -115,4 +123,5 @@ def walk_forward_vix_hmm(returns: pd.Series, vix: pd.Series, *, n_regimes: int =
         state_vol=pd.DataFrame(vol_rows, index=pd.DatetimeIndex(vol_idx), columns=cols),
         n_refits=n_refits,
         n_skipped=n_skipped,
+        convergence=pd.DataFrame(conv_rows, index=pd.DatetimeIndex(conv_idx)),
     )
