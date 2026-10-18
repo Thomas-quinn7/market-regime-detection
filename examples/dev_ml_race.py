@@ -116,7 +116,26 @@ def terciles(index: pd.DatetimeIndex, f1_rows: pd.DatetimeIndex, vix: pd.Series,
     return lab.reindex(index)
 
 
-def markdown(returns: pd.Series, ivs: pd.DataFrame, horizons, n_boot: int) -> tuple[str, pd.DataFrame, pd.DataFrame]:
+def worse_in_mcs(vs_ols: pd.DataFrame, in_set: dict) -> pd.DataFrame:
+    """Per horizon and loss: forecasts 'worse' than HAR + VIX in the paired test that the MCS still keeps.
+
+    ``in_set`` maps (h, loss, forecast) to the MCS membership; ``loss`` is "RMSE" or "QLIKE" (the MCS on
+    squared error stands for RMSE). The two tests ask different questions: the pair is one forecast against
+    HAR + VIX, the T_max MCS each forecast against the average of the set, with a critical value for the
+    largest of all the statistics, so a forecast can lose its pair and survive the set.
+    """
+    rows = []
+    for h, loss in sorted({(k[0], k[1]) for k in in_set}):
+        sub = vs_ols[vs_ols["h"] == h]
+        worse = [f for f, v in zip(sub["forecast"], sub[loss]) if v == "worse"]
+        kept = [f for f in worse if in_set.get((h, loss, f), False)]
+        rows.append({"h": h, "loss": loss, "worse than HAR + VIX": len(worse), "of which in the MCS": len(kept),
+                     "forecasts": ", ".join(kept) if kept else "-"})
+    return pd.DataFrame(rows)
+
+
+def markdown(returns: pd.Series, ivs: pd.DataFrame, horizons,
+             n_boot: int) -> tuple[str, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     out = [f"{CLASS}\n", "# The best-forecaster race, development data, October 2026\n",
            "**Known limit, first:** one series (the S&P 500), about 3,200 scored days at 21 days (about 150 "
            "non-overlapping windows). A gain over HAR + VIX is expected to be small and concentrated in the high-vol "
@@ -132,7 +151,7 @@ def markdown(returns: pd.Series, ivs: pd.DataFrame, horizons, n_boot: int) -> tu
            "HAC Diebold-Mariano, lag 20. The model confidence set (Hansen, Lunde and Nason 2011, T_max, 10%) is over "
            "every forecast present at the horizon, on squared error (the RMSE loss) and on QLIKE; it is post hoc and "
            "descriptive. Nothing here is a claim.\n"]
-    vs_ols, tert_rows = [], []
+    vs_ols, tert_rows, in_set = [], [], {}
     for h in horizons:
         fc = all_forecasts(h)
         if "ols F0" not in fc:
@@ -157,6 +176,8 @@ def markdown(returns: pd.Series, ivs: pd.DataFrame, horizons, n_boot: int) -> tu
         out.append(md_table(table.sort_values("QLIKE", key=lambda s: s.astype(float))) + "\n")
         out.append(f"In the 10% MCS on squared error: {', '.join(c for c, k in zip(cols, m_se['in_set']) if k)}. "
                    f"On QLIKE: {', '.join(c for c, k in zip(cols, m_ql['in_set']) if k)}.\n")
+        for c, k_se, k_ql in zip(cols, m_se["in_set"], m_ql["in_set"]):
+            in_set[(h, "RMSE", c)], in_set[(h, "QLIKE", c)] = bool(k_se), bool(k_ql)
         for c in cols:
             if c != "ols F0":
                 vs_ols.append({"h": h, "forecast": c, "windows": len(df) // h, **dm.cmp_row(df, c, "ols F0", h, n_boot)})
@@ -174,6 +195,16 @@ def markdown(returns: pd.Series, ivs: pd.DataFrame, horizons, n_boot: int) -> tu
     out.append("## Every forecast against HAR + VIX (OLS on F0)\n")
     out.append(f"Class: {CLASS}.\n")
     out.append(md_table(pd.DataFrame(vs_ols)) + "\n" if vs_ols else "Not run.\n")
+    kept = worse_in_mcs(pd.DataFrame(vs_ols), in_set) if vs_ols else pd.DataFrame()
+    if vs_ols:
+        out.append("## Worse than HAR + VIX in the pair, yet in the MCS\n")
+        out.append(f"Class: {CLASS}. The paired interval asks whether one forecast differs from HAR + VIX; the T_max "
+                   "MCS asks whether a forecast is worse than the average of every forecast in the set, against a "
+                   "critical value for the largest of all those statistics. With about 20 forecasts that bar is high, "
+                   "so a forecast can lose to HAR + VIX and still stay in the set. Membership of the MCS is therefore "
+                   "not evidence that a forecast matches HAR + VIX; the paired verdict is the comparison that answers "
+                   "that question.\n")
+        out.append(md_table(kept) + "\n")
     tert = pd.DataFrame(tert_rows)
     out.append("## By tercile of the training-window VIX: each learner on F0 against HAR + VIX\n")
     out.append(f"Class: {CLASS}. The tercile cut points are the 33rd and 67th percentiles of the VIX over each refit's "
@@ -184,7 +215,7 @@ def markdown(returns: pd.Series, ivs: pd.DataFrame, horizons, n_boot: int) -> tu
         out.append(md_table(tert[tert["forecast"].str.endswith(" F0")]) + "\n")
     else:
         out.append("Not run.\n")
-    return "\n".join(out) + "\n", tert, pd.DataFrame(vs_ols)
+    return "\n".join(out) + "\n", tert, pd.DataFrame(vs_ols), kept
 
 
 def main() -> None:
@@ -212,10 +243,11 @@ def main() -> None:
             if not run(returns, ivs, noise, h, kinds, stop_at):
                 return
         return
-    text, tert, vs_ols = markdown(returns, ivs, HORIZONS, args.n_boot)
+    text, tert, vs_ols, kept = markdown(returns, ivs, HORIZONS, args.n_boot)
     CACHE.mkdir(parents=True, exist_ok=True)
     tert.to_csv(CACHE / "terciles.csv", index=False)
     vs_ols.to_csv(CACHE / "vs_ols.csv", index=False)
+    kept.to_csv(CACHE / "worse_in_mcs.csv", index=False)
     Path(args.out).write_text(text, encoding="ascii")
     print(f"wrote {args.out}")
 

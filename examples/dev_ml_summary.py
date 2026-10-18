@@ -237,6 +237,13 @@ def main() -> None:
         t["family"] = t["forecast"].str.rsplit(" ", n=1).str[0]
         out.append(f"Class: {CLASS}. From `docs/DEV_ML_RACE_2026-10.md` (the MCS and the tercile split are there).\n")
         out.append(md_table(verdict_counts(t, "family")) + "\n")
+        wk = race.CACHE / "worse_in_mcs.csv"
+        if wk.exists():
+            w = pd.read_csv(wk)
+            out.append(f"Of the {int(w['worse than HAR + VIX'].sum())} forecast-loss pairs 'worse' than HAR + VIX above, the "
+                       f"10% MCS keeps {int(w['of which in the MCS'].sum())} (T_max compares each forecast with the "
+                       "average of the set, not with HAR + VIX; table in `docs/DEV_ML_RACE_2026-10.md`). Membership of "
+                       "the MCS is not read as parity with HAR + VIX anywhere in this summary.\n")
     else:
         out.append("Not yet scored (`examples/dev_ml_race.py --markdown-only` writes the table this reads).\n")
     dc = drd.CACHE / "vs_f0.csv"

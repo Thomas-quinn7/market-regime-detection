@@ -820,3 +820,8 @@ is the one proposal sentence naming the continuation. Not applied.
   (RMSE -0.026 to +0.022, QLIKE -0.040 to +0.013); the clause "no learner ... beat HAR + VIX" stays true.
   Detectors now include the h = 21 learner part (lasso, chosen by the race rule; `examples/dev_regime_detectors.py
   --part learner`, 2026-10-18 15:29Z): 'better' than F0 in 0 of 48, 'worse' in 5 (was 0 of 36, 4 with OLS only).
+  Interim 3 (2026-10-18 16:37Z, same 10 race fits, `examples/dev_ml_race.py --markdown-only` then
+  `examples/dev_ml_summary.py` at f0e9ce0 plus uncommitted files, development data only): of the 58
+  forecast-loss pairs 'worse' than HAR + VIX in the race, the 10% MCS keeps 55, so the MCS here separates
+  almost nothing. If the sentence or a footnote mentions the race, cite the paired verdict against HAR + VIX,
+  not MCS membership (the 'top of the MCS ranking' remark in Interim 2 is a ranking, not a test result).

@@ -32,3 +32,20 @@ def test_race_cache_names(monkeypatch, tmp_path):
     monkeypatch.setattr(race, "CACHE", tmp_path)
     assert race.cache_path(5, "gru", "F1n") == tmp_path / "h005__gru__F1n.csv"
     assert race.HORIZONS == (5, 21, 63) and race.SETS == ("F0", "F1", "F1n")
+
+
+def test_worse_in_mcs_counts_only_worse_and_kept():
+    vs = pd.DataFrame({"h": [21, 21, 21, 5], "forecast": ["a", "b", "c", "a"],
+                       "RMSE": ["worse", "worse", "no difference", "worse"],
+                       "QLIKE": ["worse", "better", "worse", "no difference"]})
+    in_set = {(21, "RMSE", "a"): True, (21, "RMSE", "b"): False, (21, "RMSE", "c"): True,
+              (21, "QLIKE", "a"): False, (21, "QLIKE", "b"): True, (21, "QLIKE", "c"): True,
+              (5, "RMSE", "a"): True, (5, "QLIKE", "a"): True}
+    out = race.worse_in_mcs(vs, in_set).set_index(["h", "loss"])
+    assert out.loc[(21, "RMSE"), "worse than HAR + VIX"] == 2
+    assert out.loc[(21, "RMSE"), "of which in the MCS"] == 1
+    assert out.loc[(21, "RMSE"), "forecasts"] == "a"
+    assert out.loc[(21, "QLIKE"), "of which in the MCS"] == 1  # c only; a is worse but not kept
+    assert out.loc[(21, "QLIKE"), "forecasts"] == "c"
+    assert out.loc[(5, "QLIKE"), "worse than HAR + VIX"] == 0
+    assert out.loc[(5, "QLIKE"), "forecasts"] == "-"

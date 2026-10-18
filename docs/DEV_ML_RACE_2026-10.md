@@ -4,7 +4,7 @@ development data only (S&P 500, 2005-2023), no holdout, not a claim
 
 **Known limit, first:** one series (the S&P 500), about 3,200 scored days at 21 days (about 150 non-overlapping windows). A gain over HAR + VIX is expected to be small and concentrated in the high-vol tercile; a race won by a few tenths of a percent of RMSE is a description of this sample, not a finding.
 
-Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout, not a claim**. Written by `examples/dev_ml_race.py` at e290471 plus uncommitted files, 2026-10-18 16:05Z, 2,000 bootstrap draws (seed 0). Design: amendment A1 of `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit. The LSTM and GRU forecasts are in `docs/results/dev_ml_race/`; every other forecast is read from the S8 (b) cache `docs/results/dev_ml_regime/` and scored here on the same rows. The recurrent learners need 65 earlier days as input, so their first 65 F1 rows serve only as inputs and each training window is 65 rows shorter than the other learners'; the scored rows are the same. Stage S8 (c) of the reopen.
+Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout, not a claim**. Written by `examples/dev_ml_race.py` at f0e9ce0 plus uncommitted files, 2026-10-18 16:36Z, 2,000 bootstrap draws (seed 0). Design: amendment A1 of `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit. The LSTM and GRU forecasts are in `docs/results/dev_ml_race/`; every other forecast is read from the S8 (b) cache `docs/results/dev_ml_regime/` and scored here on the same rows. The recurrent learners need 65 earlier days as input, so their first 65 F1 rows serve only as inputs and each training window is 65 rows shorter than the other learners'; the scored rows are the same. Stage S8 (c) of the reopen.
 
 Every comparison is against OLS on F0 (HAR + VIX): paired circular block bootstrap, block max(63, h), and HAC Diebold-Mariano, lag 20. The model confidence set (Hansen, Lunde and Nason 2011, T_max, 10%) is over every forecast present at the horizon, on squared error (the RMSE loss) and on QLIKE; it is post hoc and descriptive. Nothing here is a claim.
 
@@ -166,6 +166,19 @@ Class: development data only (S&P 500, 2005-2023), no holdout, not a claim.
 | 63 | mlp F0 | 49 | +0.019 to +0.086 | worse | 0.000 | +0.027 to +0.370 | worse | 0.021 |
 | 63 | mlp F1 | 49 | +0.007 to +0.077 | worse | 0.008 | +0.008 to +0.179 | worse | 0.027 |
 | 63 | mlp F1n | 49 | +0.008 to +0.074 | worse | 0.009 | -0.017 to +0.103 | no difference | 0.105 |
+
+## Worse than HAR + VIX in the pair, yet in the MCS
+
+Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The paired interval asks whether one forecast differs from HAR + VIX; the T_max MCS asks whether a forecast is worse than the average of every forecast in the set, against a critical value for the largest of all those statistics. With about 20 forecasts that bar is high, so a forecast can lose to HAR + VIX and still stay in the set. Membership of the MCS is therefore not evidence that a forecast matches HAR + VIX; the paired verdict is the comparison that answers that question.
+
+| h | loss | worse than HAR + VIX | of which in the MCS | forecasts |
+|---|---|---|---|---|
+| 5 | QLIKE | 1 | 0 | - |
+| 5 | RMSE | 8 | 8 | random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, lightgbm F1n, mlp F1n, lstm F1n |
+| 21 | QLIKE | 13 | 12 | random forest F0, random forest F1, lightgbm F0, lightgbm F1, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1, gru F0, gru F1, gru F1n |
+| 21 | RMSE | 16 | 16 | ridge F0, ridge F1n, lasso F0, lasso F1n, random forest F0, random forest F1, random forest F1n, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1, lstm F1n, gru F0, gru F1, gru F1n |
+| 63 | QLIKE | 6 | 6 | ridge F0, ridge F1, ridge F1n, random forest F1, mlp F0, mlp F1 |
+| 63 | RMSE | 14 | 13 | ols F1n, ridge F0, ridge F1, ridge F1n, lasso F1, random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, mlp F0, mlp F1, mlp F1n |
 
 ## By tercile of the training-window VIX: each learner on F0 against HAR + VIX
 
