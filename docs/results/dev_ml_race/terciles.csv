@@ -156,6 +156,10 @@ h,tercile,forecast,days,RMSE of forecast,RMSE HAR + VIX,dRMSE 95%,RMSE,DM p (MSE
 63,low,mlp F1n,1648,0.5323,0.5166,-0.002 to +0.045,no difference,0.031,-0.094 to +0.145,no difference,0.497
 63,low,lstm F0,1648,0.6167,0.5166,+0.016 to +0.237,worse,0.006,-0.135 to +0.339,no difference,0.191
 63,low,lstm F1,1648,0.5348,0.5166,-0.009 to +0.061,no difference,0.139,-0.214 to +0.177,no difference,0.942
+63,low,lstm F1n,1648,0.6337,0.5166,-0.004 to +0.320,no difference,0.038,-0.340 to +0.379,no difference,0.664
+63,low,gru F0,1648,0.5589,0.5166,-0.005 to +0.130,no difference,0.085,-0.178 to +0.103,no difference,0.862
+63,low,gru F1,1648,0.5248,0.5166,-0.016 to +0.039,no difference,0.492,-0.028 to +0.290,no difference,0.137
+63,low,gru F1n,1648,0.5333,0.5166,-0.007 to +0.057,no difference,0.090,-0.109 to +0.168,no difference,0.467
 63,middle,ols F1,765,0.5733,0.5720,-0.010 to +0.013,no difference,0.770,-0.012 to +0.029,no difference,0.474
 63,middle,ols F1n,765,0.5722,0.5720,-0.001 to +0.001,no difference,0.683,-0.001 to +0.007,no difference,0.333
 63,middle,ridge F0,765,0.5803,0.5720,-0.008 to +0.022,no difference,0.119,-0.008 to +0.071,no difference,0.083
@@ -175,6 +179,10 @@ h,tercile,forecast,days,RMSE of forecast,RMSE HAR + VIX,dRMSE 95%,RMSE,DM p (MSE
 63,middle,mlp F1n,765,0.5843,0.5720,-0.015 to +0.033,no difference,0.201,-0.001 to +0.111,no difference,0.101
 63,middle,lstm F0,765,0.6124,0.5720,-0.001 to +0.112,no difference,0.060,+0.025 to +0.146,worse,0.006
 63,middle,lstm F1,765,0.5909,0.5720,-0.015 to +0.059,no difference,0.185,+0.037 to +0.226,worse,0.013
+63,middle,lstm F1n,765,0.5868,0.5720,-0.033 to +0.083,no difference,0.455,-0.077 to +0.073,no difference,0.914
+63,middle,gru F0,765,0.5965,0.5720,-0.025 to +0.071,no difference,0.138,+0.009 to +0.169,worse,0.014
+63,middle,gru F1,765,0.5918,0.5720,-0.046 to +0.072,no difference,0.394,-0.020 to +0.223,no difference,0.099
+63,middle,gru F1n,765,0.6557,0.5720,-0.016 to +0.243,no difference,0.089,-0.040 to +0.207,no difference,0.214
 63,high,ols F1,729,0.4868,0.4690,-0.007 to +0.047,no difference,0.098,-0.008 to +0.027,no difference,0.211
 63,high,ols F1n,729,0.4696,0.4690,-0.000 to +0.002,no difference,0.279,-0.000 to +0.001,no difference,0.698
 63,high,ridge F0,729,0.5387,0.4690,+0.011 to +0.142,worse,0.001,+0.014 to +0.102,worse,0.000
@@ -194,3 +202,7 @@ h,tercile,forecast,days,RMSE of forecast,RMSE HAR + VIX,dRMSE 95%,RMSE,DM p (MSE
 63,high,mlp F1n,729,0.5797,0.4690,+0.009 to +0.206,worse,0.043,+0.020 to +0.103,worse,0.000
 63,high,lstm F0,729,0.6031,0.4690,-0.010 to +0.242,no difference,0.063,+0.033 to +0.586,worse,0.042
 63,high,lstm F1,729,0.5703,0.4690,-0.033 to +0.215,no difference,0.137,+0.008 to +0.487,worse,0.062
+63,high,lstm F1n,729,0.6414,0.4690,-0.055 to +0.352,no difference,0.099,-0.024 to +0.689,no difference,0.152
+63,high,gru F0,729,0.4803,0.4690,-0.054 to +0.062,no difference,0.659,-0.025 to +0.080,no difference,0.181
+63,high,gru F1,729,0.4671,0.4690,-0.098 to +0.065,no difference,0.958,-0.041 to +0.142,no difference,0.324
+63,high,gru F1n,729,0.4936,0.4690,-0.103 to +0.108,no difference,0.616,-0.038 to +0.195,no difference,0.231
