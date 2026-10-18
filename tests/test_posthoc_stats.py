@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "examples"))
 
@@ -64,6 +65,13 @@ def test_md_table_round_trips_columns():
     assert text.splitlines()[0] == "| a | b |" and text.splitlines()[-1] == "| 2 | y |"
 
 
+def _vix_caches_present(period: str) -> bool:
+    from regimes.data import _cache_path
+    start, end, _ = ps.VIX_PERIODS[period]
+    return _cache_path("^GSPC", start, end).exists() and _cache_path("^VIX", start, end).exists()
+
+
+@pytest.mark.skipif(not _vix_caches_present("recent"), reason="gitignored data caches not present (CI)")
 def test_vix_features_rebuild_the_registered_forecasts_offline(monkeypatch):
     """The own-row recalibration from the saved HMM outputs equals the registered forecasts."""
     import types

@@ -78,6 +78,7 @@ def test_exclusion_table_reports_removed_rows():
 
 
 @pytest.mark.skipif(not (dq.REPRO / "cross_index" / "scored" / "index.json").exists(), reason="reproduction not present")
+@pytest.mark.skipif(not (dq.DATA_DIR / "ym_rv_5min.csv").exists(), reason="gitignored data cache not present (CI)")
 def test_dow_ols_replica_matches_the_saved_reproduction():
     dq.block_network()
     dow = "Dow Jones Industrial Average"
