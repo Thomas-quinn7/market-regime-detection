@@ -2,7 +2,7 @@
 
 Class of every table in this file: **post hoc, computed from the reproduced forecasts; not a registered test**. The registered verdicts are the RMSE verdicts in `docs/results/cross_index_holdout_2026-10-14.txt`, `docs/results/msgarch_credit_holdout_2026-10-14.txt` and the VIX tables in `docs/WRITEUP.md`; nothing here changes them, and no sentence here says a reproduction confirms or re-tests a claim.
 
-Written by `examples/posthoc_stats.py` at 7ee241f plus uncommitted files, 2026-10-17 20:59Z, with 2,000 bootstrap draws (seed 0). Inputs: the scored forecast tables under `docs/results/reproductions/<holdout>/scored/` written by `examples/reproduce_holdout.py` on 2026-10-17 (the exact forecasts and target the frozen scripts scored; the ETF tables are the frozen MS-GARCH, GJR and HMM checkpoints re-scored, which the S1 reproduction showed identical to the committed file), the saved walk-forward implied vols beside them, and the data caches listed in `data/MANIFEST.md`. A laptop draft of tables (a) and (b) from the printed 3-decimal intervals (`QLIKE_EQUIVALENCE_TABLES_DRAFT_2026-10-17.md`, desk review) widened each bound by 0.0005; the bounds here use the unrounded interval ends and are therefore a little tighter.
+Written by `examples/posthoc_stats.py` at e6dad63 plus uncommitted files, 2026-10-18 16:51Z, with 2,000 bootstrap draws (seed 0). Inputs: the scored forecast tables under `docs/results/reproductions/<holdout>/scored/` written by `examples/reproduce_holdout.py` on 2026-10-17 (the exact forecasts and target the frozen scripts scored; the ETF tables are the frozen MS-GARCH, GJR and HMM checkpoints re-scored, which the S1 reproduction showed identical to the committed file), the saved walk-forward implied vols beside them, and the data caches listed in `data/MANIFEST.md`. A laptop draft of tables (a) and (b) from the printed 3-decimal intervals (`QLIKE_EQUIVALENCE_TABLES_DRAFT_2026-10-17.md`, desk review) widened each bound by 0.0005; the bounds here use the unrounded interval ends and are therefore a little tighter.
 
 Desk and panel items this answers: panel item 4 and ranked items 2-4 (HAC DM, MCS, equivalence bounds, block length), desk findings 3, 6, 7 and 9 of `HMM_DESK_REVIEW_2026-10-17.md` (QLIKE beside RMSE, own-row calibration, raw vs recalibrated, what the null is entitled to), and the unregistered HMM-vs-HAR + VIX comparison of desk finding 1.
 
@@ -100,6 +100,7 @@ vix_recent | own-row recalibration from the saved HMM outputs | identical days, 
 - MS-GARCH and credit holdout: claim outcomes that change under QLIKE: R1 (confirmed -> mixed).
 - S&P 500, 1996-2004: claim outcomes that change under QLIKE: C. regime models' own forecasts lose to HAR (holds -> not shown).
 - S&P 500, 2024-2026: claim outcomes that change under QLIKE: A. VIX improves HAR (holds -> not shown).
+- (c) MCS vs the registered pairs: of 45 pair-loss intervals that exclude zero, the losing forecast stays in the 10% MCS in 15 (cross_index 5 of 12, etf 7 of 22, vix_early 0 of 8, vix_recent 3 of 3); MCS membership is not read as parity.
 - (f) HMM implied vol vs HAR + VIX: S&P 500, 1996-2004 +0.044 to +0.133 worse on RMSE, +0.077 to +0.275 worse on QLIKE; S&P 500, 2024-2026 -0.038 to +0.052 no difference on RMSE, -0.136 to +0.033 no difference on QLIKE.
 
 ## Cross-index holdout (Nasdaq-100, Dow, Russell 2000; 2026-10-14)
@@ -229,6 +230,17 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | MSM | 0.370 | 0.072 |  | 0.277 | 0.060 |  |
 | Two-state HMM implied vol | 0.377 | 0.104 | yes | 0.312 | 0.060 |  |
 
+Registered pairs on Nasdaq-100 with a 95% interval that excludes zero: 6; the losing forecast is still in the 10% MCS in 3 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| P4 | Combination vs HAR-RV + IV | RMSE | worse | Combination | yes |
+| R1 | HAR-RV + IV vs HAR-RV | RMSE | better | HAR-RV | yes |
+| R2 | HAR-RV vs HAR | RMSE | better | HAR |  |
+| R2 | HAR-RV vs HAR | QLIKE | better | HAR |  |
+| R4 | GJR-GARCH vs HAR-RV + IV | RMSE | worse | GJR-GARCH | yes |
+| R4 | GJR-GARCH vs HAR-RV + IV | QLIKE | worse | GJR-GARCH |  |
+
 **Dow Jones Industrial Average**, 3,297 days: MSE set has 9 of 11 forecasts, QLIKE set 10 of 11.
 
 | forecast | RMSE | MCS p (MSE) | in set (MSE) | QLIKE | MCS p (QLIKE) | in set (QLIKE) |
@@ -245,6 +257,14 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | MSM | 0.345 | 0.089 |  | 0.373 | 0.035 |  |
 | Two-state HMM implied vol | 0.361 | 0.239 | yes | 0.435 | 0.216 | yes |
 
+Registered pairs on Dow Jones Industrial Average with a 95% interval that excludes zero: 3; the losing forecast is still in the 10% MCS in 2 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| P4 | Combination vs HAR-RV + IV | RMSE | worse | Combination | yes |
+| R2 | HAR-RV vs HAR | RMSE | better | HAR |  |
+| R4 | GJR-GARCH vs HAR-RV + IV | RMSE | worse | GJR-GARCH | yes |
+
 **Russell 2000**, 1,513 days: MSE set has 9 of 11 forecasts, QLIKE set 9 of 11.
 
 | forecast | RMSE | MCS p (MSE) | in set (MSE) | QLIKE | MCS p (QLIKE) | in set (QLIKE) |
@@ -260,6 +280,14 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | HAR | 0.316 | 0.038 |  | 0.130 | 0.027 |  |
 | GJR-GARCH | 0.318 | 0.478 | yes | 0.141 | 0.352 | yes |
 | Two-state HMM implied vol | 0.370 | 0.015 |  | 0.182 | 0.015 |  |
+
+Registered pairs on Russell 2000 with a 95% interval that excludes zero: 3; the losing forecast is still in the 10% MCS in 0 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| P5 | MSM vs Two-state HMM implied vol | RMSE | better | Two-state HMM implied vol |  |
+| P5 | MSM vs Two-state HMM implied vol | QLIKE | better | Two-state HMM implied vol |  |
+| R2 | HAR-RV vs HAR | QLIKE | better | HAR |  |
 
 ## MS-GARCH and credit holdout (USO, GLD, EEM, EWZ; 2026-10-14)
 
@@ -404,6 +432,21 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | MS-GARCH | 0.988 | 0.323 | yes | 0.345 | 0.085 |  |
 | Two-state HMM implied vol | 1.081 | 0.323 | yes | 0.467 | 0.085 |  |
 
+Registered pairs on Crude oil (USO) with a 95% interval that excludes zero: 10; the losing forecast is still in the 10% MCS in 5 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| M2 | HAR + IV + MS-GARCH vs HAR + IV | RMSE | worse | HAR + IV + MS-GARCH | yes |
+| M2 | HAR + IV + MS-GARCH vs HAR + IV | QLIKE | worse | HAR + IV + MS-GARCH | yes |
+| M3 | MS-GARCH vs Two-state HMM implied vol | QLIKE | better | Two-state HMM implied vol |  |
+| M5 | MS-GARCH vs HAR + IV | RMSE | worse | MS-GARCH | yes |
+| M5 | MS-GARCH vs HAR + IV | QLIKE | worse | MS-GARCH |  |
+| C2 | HAR + credit vs HAR | QLIKE | worse | HAR + credit |  |
+| R1 | HAR + IV vs HAR | RMSE | better | HAR | yes |
+| R1 | HAR + IV vs HAR | QLIKE | better | HAR |  |
+| R2 | GJR-GARCH vs HAR + IV | RMSE | worse | GJR-GARCH | yes |
+| R2 | GJR-GARCH vs HAR + IV | QLIKE | worse | GJR-GARCH |  |
+
 **Gold (GLD)**, 3,821 days: MSE set has 4 of 9 forecasts, QLIKE set 9 of 9.
 
 | forecast | RMSE | MCS p (MSE) | in set (MSE) | QLIKE | MCS p (QLIKE) | in set (QLIKE) |
@@ -417,6 +460,15 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | HAR | 0.380 | 0.001 |  | 0.258 | 0.325 | yes |
 | HAR + credit | 0.381 | 0.020 |  | 0.276 | 0.152 | yes |
 | Two-state HMM implied vol | 0.392 | 0.020 |  | 0.277 | 0.326 | yes |
+
+Registered pairs on Gold (GLD) with a 95% interval that excludes zero: 4; the losing forecast is still in the 10% MCS in 0 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| M3 | MS-GARCH vs Two-state HMM implied vol | RMSE | better | Two-state HMM implied vol |  |
+| M5 | MS-GARCH vs HAR + IV | RMSE | worse | MS-GARCH |  |
+| R1 | HAR + IV vs HAR | RMSE | better | HAR |  |
+| R2 | GJR-GARCH vs HAR + IV | RMSE | worse | GJR-GARCH |  |
 
 **Emerging markets (EEM)**, 3,119 days: MSE set has 4 of 9 forecasts, QLIKE set 8 of 9.
 
@@ -432,6 +484,15 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | HAR + credit | 0.504 | 0.052 |  | 0.294 | 0.192 | yes |
 | Two-state HMM implied vol | 0.532 | 0.021 |  | 0.333 | 0.096 |  |
 
+Registered pairs on Emerging markets (EEM) with a 95% interval that excludes zero: 4; the losing forecast is still in the 10% MCS in 0 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| M3 | MS-GARCH vs Two-state HMM implied vol | RMSE | better | Two-state HMM implied vol |  |
+| M5 | MS-GARCH vs HAR + IV | RMSE | worse | MS-GARCH |  |
+| R1 | HAR + IV vs HAR | RMSE | better | HAR |  |
+| R2 | GJR-GARCH vs HAR + IV | RMSE | worse | GJR-GARCH |  |
+
 **Brazil (EWZ)**, 3,119 days: MSE set has 6 of 9 forecasts, QLIKE set 7 of 9.
 
 | forecast | RMSE | MCS p (MSE) | in set (MSE) | QLIKE | MCS p (QLIKE) | in set (QLIKE) |
@@ -445,6 +506,15 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | GJR-GARCH | 0.917 | 0.241 | yes | 0.335 | 0.726 | yes |
 | MS-GARCH | 0.931 | 0.089 |  | 0.361 | 0.040 |  |
 | Two-state HMM implied vol | 0.953 | 0.093 |  | 0.402 | 0.008 |  |
+
+Registered pairs on Brazil (EWZ) with a 95% interval that excludes zero: 4; the losing forecast is still in the 10% MCS in 2 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| M2 | HAR + IV + MS-GARCH vs HAR + IV | RMSE | worse | HAR + IV + MS-GARCH | yes |
+| M3 | MS-GARCH vs Two-state HMM implied vol | QLIKE | better | Two-state HMM implied vol |  |
+| M5 | MS-GARCH vs HAR + IV | RMSE | worse | MS-GARCH |  |
+| C2 | HAR + credit vs HAR | QLIKE | worse | HAR + credit | yes |
 
 ## S&P 500, 1996-2004 VIX holdout (examples/vol_forecast_vix.py --period early)
 
@@ -527,6 +597,19 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | HMM implied vol | 0.442 | 0.018 |  | 0.366 | 0.009 |  |
 | HMM high-vol probability | 0.450 | 0.018 |  | 0.440 | 0.000 |  |
 
+Registered pairs on all forecasts with a 95% interval that excludes zero: 8; the losing forecast is still in the 10% MCS in 0 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| 1 | VIX vs HAR | RMSE | better | HAR |  |
+| 1 | VIX vs HAR | QLIKE | better | HAR |  |
+| 2 | HAR + VIX vs HAR | RMSE | better | HAR |  |
+| 2 | HAR + VIX vs HAR | QLIKE | better | HAR |  |
+| 3 | HAR + HMM prob vs HAR | QLIKE | worse | HAR + HMM prob |  |
+| 6 | HMM implied vol vs HAR | RMSE | worse | HMM implied vol |  |
+| 6 | HMM implied vol vs HAR | QLIKE | worse | HMM implied vol |  |
+| 7 | VIX-HMM implied vol vs HAR | RMSE | worse | VIX-HMM implied vol |  |
+
 ## S&P 500, 2024-2026 VIX holdout (examples/vol_forecast_vix.py --period recent)
 
 Class: post hoc, computed from the reproduced forecasts; not a registered test. Days scored per asset: S&P 500, 2024-2026 676.
@@ -607,6 +690,14 @@ Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day
 | HAR | 0.429 | 0.525 | yes | 0.315 | 0.106 | yes |
 | trailing 21-day vol | 0.445 | 0.408 | yes | 0.340 | 0.045 |  |
 | EWMA vol (0.94) | 0.454 | 0.567 | yes | 0.349 | 0.106 | yes |
+
+Registered pairs on all forecasts with a 95% interval that excludes zero: 3; the losing forecast is still in the 10% MCS in 3 of them. MCS membership is therefore not read as parity with the reference.
+
+| id | pair | loss | verdict | loser | loser in set |
+|---|---|---|---|---|---|
+| 2 | HAR + VIX vs HAR | RMSE | better | HAR | yes |
+| 3 | HAR + HMM prob vs HAR | QLIKE | better | HAR | yes |
+| 6 | HMM implied vol vs HAR | QLIKE | better | HAR | yes |
 
 ## (e) Raw next to recalibrated own forecasts
 

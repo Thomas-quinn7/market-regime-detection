@@ -77,3 +77,15 @@ def test_vix_features_rebuild_the_registered_forecasts_offline(monkeypatch):
     scored = ps.load_scored("vix_recent")[1][1]
     joined = fc.reindex(scored.index)
     assert np.allclose(joined.to_numpy(), scored["HAR + VIX + HMM prob"].to_numpy(), atol=1e-12)
+
+
+def test_losers_kept_names_the_loser_of_each_decisive_pair():
+    rows = [{"id": "A", "forecast": "f", "reference": "r",
+             "dRMSE lo": 0.01, "dRMSE hi": 0.03, "dQLIKE lo": -0.02, "dQLIKE hi": -0.01},
+            {"id": "B", "forecast": "g", "reference": "r",
+             "dRMSE lo": -0.01, "dRMSE hi": 0.01, "dQLIKE lo": -0.01, "dQLIKE hi": 0.02}]
+    in_set = {"RMSE": {"f": True, "g": True, "r": True}, "QLIKE": {"f": True, "g": True, "r": False}}
+    kept = ps.losers_kept(rows, in_set)
+    # B is "no difference" on both losses and is skipped
+    assert [(k["id"], k["loss"], k["verdict"], k["loser"], k["loser in set"]) for k in kept] == [
+        ("A", "RMSE", "worse", "f", True), ("A", "QLIKE", "better", "r", False)]

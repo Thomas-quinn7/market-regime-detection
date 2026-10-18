@@ -301,12 +301,35 @@ def section_claims(out: list[str], title: str, rows: list[dict], claims, blocks:
     return outcomes
 
 
-def section_mcs(out: list[str], blocks: list[tuple[str, pd.DataFrame]], n_boot: int, drop: tuple = ()) -> None:
+def losers_kept(rows: list[dict], in_set: dict[str, dict[str, bool]]) -> list[dict]:
+    """Decisive registered pairs whose losing forecast the MCS still keeps.
+
+    ``rows`` are comparison rows from ``compare`` (forecast, reference and the unrounded interval ends);
+    ``in_set`` maps "RMSE" (the MCS on squared error) and "QLIKE" to {forecast: membership}. A pair is
+    decisive under a loss if its 95% interval excludes zero; the loser is the forecast on the worse side.
+    The pair tests one forecast against one reference; the T_max MCS tests each forecast against the
+    average of the set, so a forecast can lose its pair and stay in the set.
+    """
+    out = []
+    for r in rows:
+        for loss, lo, hi in (("RMSE", r["dRMSE lo"], r["dRMSE hi"]), ("QLIKE", r["dQLIKE lo"], r["dQLIKE hi"])):
+            v = verdict(lo, hi)
+            if v == "no difference":
+                continue
+            loser = r["forecast"] if v == "worse" else r["reference"]
+            out.append({"id": r["id"], "pair": f"{r['forecast']} vs {r['reference']}", "loss": loss,
+                        "verdict": v, "loser": loser, "loser in set": bool(in_set[loss][loser])})
+    return out
+
+
+def section_mcs(out: list[str], blocks: list[tuple[str, pd.DataFrame]], n_boot: int, drop: tuple = (),
+                pairs: dict[str, list[dict]] | None = None) -> tuple[int, int]:
     out.append("### (c) Model confidence set per asset, 10%\n")
     out.append("Hansen, Lunde and Nason (2011) with the T_max statistic and the holdouts' 63-day circular "
                "block bootstrap (2,000 draws, seed 0), over every forecast in the scored table. A model is "
                "in the set if its MCS p-value is at least 0.10. The set is the group of forecasts that the "
                "data cannot separate from the best; it replaces nothing in the registered claim rule.\n")
+    n_dec = n_kept_all = 0
     for block, df in blocks:
         names = [c for c in df.columns if c != "target" and c not in drop]
         y = df["target"].to_numpy()
@@ -326,6 +349,19 @@ def section_mcs(out: list[str], blocks: list[tuple[str, pd.DataFrame]], n_boot: 
         out.append(f"**{label}**, {len(y):,} days: MSE set has {int(r_se['in_set'].sum())} of {len(names)} forecasts, "
                    f"QLIKE set {int(r_ql['in_set'].sum())} of {len(names)}.\n")
         out.append(md_table(tab) + "\n")
+        if pairs is not None and pairs.get(block):
+            kept = losers_kept(pairs[block], {
+                "RMSE": dict(zip(names, r_se["in_set"])), "QLIKE": dict(zip(names, r_ql["in_set"]))})
+            n_kept = sum(k["loser in set"] for k in kept)
+            n_dec += len(kept)
+            n_kept_all += n_kept
+            out.append(f"Registered pairs on {label} with a 95% interval that excludes zero: {len(kept)}; the "
+                       f"losing forecast is still in the 10% MCS in {n_kept} of them. MCS membership is therefore "
+                       "not read as parity with the reference.\n")
+            if kept:
+                out.append(md_table(pd.DataFrame([{**k, "loser in set": "yes" if k["loser in set"] else ""}
+                                                  for k in kept])) + "\n")
+    return n_dec, n_kept_all
 
 
 def section_raw_vs_calibrated(out: list[str], label: str, scored: pd.DataFrame, raw: dict[str, pd.Series],
@@ -492,6 +528,7 @@ def main() -> None:
 
     body: list[str] = []
     all_rows = {}
+    mcs_counts: dict[str, tuple[int, int]] = {}
 
     # Multi-asset holdouts
     for key, spec in HOLDOUTS.items():
@@ -506,7 +543,8 @@ def main() -> None:
                 rows.append(r)
         all_rows[key] = rows
         outcomes = section_claims(body, spec["title"], rows, spec["claims"], names, committed, identity, True)
-        section_mcs(body, blocks, n_boot)
+        mcs_counts[key] = section_mcs(body, blocks, n_boot,
+                                      pairs={blk: [r for r in rows if r["block"] == blk] for blk in names})
         moved = [f"{c} ({o['RMSE (registered, 63)']} -> {o['QLIKE (post hoc, 63)']})" for c, o in outcomes.items()
                  if o["RMSE (registered, 63)"] != o["QLIKE (post hoc, 63)"]]
         summary.append(f"{spec['title'].split(' (')[0]}: claim outcomes that change under QLIKE: "
@@ -529,7 +567,7 @@ def main() -> None:
         vix_rows[folder] = (rows, raw_tab, cal_tab, committed, period)
         outcomes = section_claims(body, f"{VIX_HOLDOUTS[folder]} VIX holdout (examples/vol_forecast_vix.py --period {period})",
                                   rows, None, [VIX_HOLDOUTS[folder]], committed, identity, False)
-        section_mcs(body, [("", cal_tab)], n_boot)
+        mcs_counts[folder] = section_mcs(body, [("", cal_tab)], n_boot, pairs={"": rows})
         moved = [f"{c} ({o['RMSE (registered, 63)']} -> {o['QLIKE (post hoc, 63)']})" for c, o in outcomes.items()
                  if o["RMSE (registered, 63)"] != o["QLIKE (post hoc, 63)"]]
         summary.append(f"{VIX_HOLDOUTS[folder]}: claim outcomes that change under QLIKE: {', '.join(moved) if moved else 'none'}.")
@@ -593,6 +631,11 @@ def main() -> None:
                         "QLIKE bound": equivalence(r["dQLIKE lo"], r["dQLIKE hi"], r["ref QLIKE"]),
                         "DM p (MSE / QLIKE)": f"{r['DM MSE']['p']:.3f} / {r['DM QLIKE']['p']:.3f}"})
     body.append(md_table(pd.DataFrame(tab)) + "\n")
+    n_dec, n_kept = (sum(v[i] for v in mcs_counts.values()) for i in (0, 1))
+    summary.append(f"(c) MCS vs the registered pairs: of {n_dec} pair-loss intervals that exclude zero, the losing "
+                   f"forecast stays in the 10% MCS in {n_kept} ("
+                   + ", ".join(f"{k} {v[1]} of {v[0]}" for k, v in mcs_counts.items())
+                   + "); MCS membership is not read as parity.")
     summary.append("(f) HMM implied vol vs HAR + VIX: " + "; ".join(f"{t['period']} {t['dRMSE 95%']} on RMSE, {t['dQLIKE 95%']} on QLIKE" for t in tab if t["forecast vs reference"].startswith("HMM")) + ".")
 
     # (g) own rows vs common rows

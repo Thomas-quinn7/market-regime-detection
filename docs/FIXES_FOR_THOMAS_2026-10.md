@@ -825,3 +825,13 @@ is the one proposal sentence naming the continuation. Not applied.
   forecast-loss pairs 'worse' than HAR + VIX in the race, the 10% MCS keeps 55, so the MCS here separates
   almost nothing. If the sentence or a footnote mentions the race, cite the paired verdict against HAR + VIX,
   not MCS membership (the 'top of the MCS ranking' remark in Interim 2 is a ranking, not a test result).
+  Interim 4 (2026-10-18 16:50Z, 11 of 18 race fits, same two scripts at e6dad63, development data only): 'better'
+  than HAR + VIX in 0 of 22, 'worse' in 15 (new: GRU F1 at h = 5, 'worse' on QLIKE +0.001 to +0.137, 'no
+  difference' on RMSE). The clause stands.
+  Holdout MCS, the same question (post hoc, computed from the reproduced forecasts; not a registered test;
+  `examples/posthoc_stats.py` at e6dad63 plus uncommitted files, 2026-10-18, new table under each (c) section of
+  docs/POSTHOC_2026-10.md): of 45 registered pair-loss intervals that exclude zero, the losing forecast stays in
+  the 10% MCS in 15 (cross-index 5 of 12, ETF 7 of 22, S&P 1996-2004 0 of 8, S&P 2024-2026 3 of 3). The holdout
+  MCS separates more than the race's, but not enough to stand for a pairwise result. No claim sentence in
+  README.md or docs/WRITEUP.md cites MCS membership (checked with grep); if one is added at merge, it should
+  cite the paired interval instead.
