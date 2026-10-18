@@ -154,6 +154,8 @@ h,tercile,forecast,days,RMSE of forecast,RMSE HAR + VIX,dRMSE 95%,RMSE,DM p (MSE
 63,low,mlp F0,1648,0.5545,0.5166,+0.008 to +0.090,worse,0.000,-0.111 to +0.152,no difference,0.453
 63,low,mlp F1,1648,0.5283,0.5166,-0.007 to +0.043,no difference,0.174,-0.053 to +0.273,no difference,0.163
 63,low,mlp F1n,1648,0.5323,0.5166,-0.002 to +0.045,no difference,0.031,-0.094 to +0.145,no difference,0.497
+63,low,lstm F0,1648,0.6167,0.5166,+0.016 to +0.237,worse,0.006,-0.135 to +0.339,no difference,0.191
+63,low,lstm F1,1648,0.5348,0.5166,-0.009 to +0.061,no difference,0.139,-0.214 to +0.177,no difference,0.942
 63,middle,ols F1,765,0.5733,0.5720,-0.010 to +0.013,no difference,0.770,-0.012 to +0.029,no difference,0.474
 63,middle,ols F1n,765,0.5722,0.5720,-0.001 to +0.001,no difference,0.683,-0.001 to +0.007,no difference,0.333
 63,middle,ridge F0,765,0.5803,0.5720,-0.008 to +0.022,no difference,0.119,-0.008 to +0.071,no difference,0.083
@@ -171,6 +173,8 @@ h,tercile,forecast,days,RMSE of forecast,RMSE HAR + VIX,dRMSE 95%,RMSE,DM p (MSE
 63,middle,mlp F0,765,0.5766,0.5720,-0.046 to +0.036,no difference,0.765,+0.002 to +0.144,worse,0.081
 63,middle,mlp F1,765,0.5911,0.5720,-0.010 to +0.051,no difference,0.117,+0.012 to +0.169,worse,0.061
 63,middle,mlp F1n,765,0.5843,0.5720,-0.015 to +0.033,no difference,0.201,-0.001 to +0.111,no difference,0.101
+63,middle,lstm F0,765,0.6124,0.5720,-0.001 to +0.112,no difference,0.060,+0.025 to +0.146,worse,0.006
+63,middle,lstm F1,765,0.5909,0.5720,-0.015 to +0.059,no difference,0.185,+0.037 to +0.226,worse,0.013
 63,high,ols F1,729,0.4868,0.4690,-0.007 to +0.047,no difference,0.098,-0.008 to +0.027,no difference,0.211
 63,high,ols F1n,729,0.4696,0.4690,-0.000 to +0.002,no difference,0.279,-0.000 to +0.001,no difference,0.698
 63,high,ridge F0,729,0.5387,0.4690,+0.011 to +0.142,worse,0.001,+0.014 to +0.102,worse,0.000
@@ -188,3 +192,5 @@ h,tercile,forecast,days,RMSE of forecast,RMSE HAR + VIX,dRMSE 95%,RMSE,DM p (MSE
 63,high,mlp F0,729,0.5840,0.4690,+0.041 to +0.197,worse,0.007,+0.098 to +1.354,worse,0.039
 63,high,mlp F1,729,0.5868,0.4690,+0.024 to +0.200,worse,0.020,+0.017 to +0.098,worse,0.001
 63,high,mlp F1n,729,0.5797,0.4690,+0.009 to +0.206,worse,0.043,+0.020 to +0.103,worse,0.000
+63,high,lstm F0,729,0.6031,0.4690,-0.010 to +0.242,no difference,0.063,+0.033 to +0.586,worse,0.042
+63,high,lstm F1,729,0.5703,0.4690,-0.033 to +0.215,no difference,0.137,+0.008 to +0.487,worse,0.062

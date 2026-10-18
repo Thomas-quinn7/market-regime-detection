@@ -4,7 +4,7 @@ development data only (S&P 500, 2005-2023), no holdout, not a claim
 
 **Known limit, first:** one series (the S&P 500), about 3,200 scored days at 21 days (about 150 non-overlapping windows). A gain over HAR + VIX is expected to be small and concentrated in the high-vol tercile; a race won by a few tenths of a percent of RMSE is a description of this sample, not a finding.
 
-Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout, not a claim**. Written by `examples/dev_ml_race.py` at b0500c8 plus uncommitted files, 2026-10-18 17:24Z, 2,000 bootstrap draws (seed 0). Design: amendment A1 of `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit. The LSTM and GRU forecasts are in `docs/results/dev_ml_race/`; every other forecast is read from the S8 (b) cache `docs/results/dev_ml_regime/` and scored here on the same rows. The recurrent learners need 65 earlier days as input, so their first 65 F1 rows serve only as inputs and each training window is 65 rows shorter than the other learners'; the scored rows are the same. Stage S8 (c) of the reopen.
+Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout, not a claim**. Written by `examples/dev_ml_race.py` at c35f7c5 plus uncommitted files, 2026-10-18 17:35Z, 2,000 bootstrap draws (seed 0). Design: amendment A1 of `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit. The LSTM and GRU forecasts are in `docs/results/dev_ml_race/`; every other forecast is read from the S8 (b) cache `docs/results/dev_ml_regime/` and scored here on the same rows. The recurrent learners need 65 earlier days as input, so their first 65 F1 rows serve only as inputs and each training window is 65 rows shorter than the other learners'; the scored rows are the same. Stage S8 (c) of the reopen.
 
 Every comparison is against OLS on F0 (HAR + VIX): paired circular block bootstrap, block max(63, h), and HAC Diebold-Mariano, lag 20. The model confidence set (Hansen, Lunde and Nason 2011, T_max, 10%) is over every forecast present at the horizon, on squared error (the RMSE loss) and on QLIKE; it is post hoc and descriptive. Nothing here is a claim.
 
@@ -76,30 +76,32 @@ In the 10% MCS on squared error: ols F0, ols F1, ols F1n, ridge F0, ridge F1, ri
 
 ## Horizon 63
 
-Scored days 3,142, 2011-04-06 to 2023-09-29, windows 49; not yet fitted: lstm F0, lstm F1, lstm F1n, gru F0, gru F1, gru F1n.
+Scored days 3,142, 2011-04-06 to 2023-09-29, windows 49; not yet fitted: lstm F1n, gru F0, gru F1, gru F1n.
 
 | forecast | RMSE | QLIKE | MCS p (sq. error) | MCS p (QLIKE) |
 |---|---|---|---|---|
-| lasso F0 | 0.5309 | 0.5386 | 0.435 | 1.000 |
-| lasso F1n | 0.5309 | 0.5386 | 0.435 | 0.966 |
+| lasso F0 | 0.5309 | 0.5386 | 0.534 | 1.000 |
+| lasso F1n | 0.5309 | 0.5386 | 0.534 | 0.966 |
 | ols F0 | 0.5203 | 0.5454 | 1.000 | 0.939 |
-| lasso F1 | 0.5357 | 0.5458 | 0.435 | 0.939 |
-| ols F1n | 0.5208 | 0.5471 | 0.435 | 0.939 |
-| ols F1 | 0.5259 | 0.5525 | 0.435 | 0.801 |
-| ridge F0 | 0.5370 | 0.5709 | 0.435 | 0.621 |
-| ridge F1n | 0.5374 | 0.5727 | 0.435 | 0.621 |
-| ridge F1 | 0.5430 | 0.5773 | 0.393 | 0.540 |
-| mlp F1n | 0.5565 | 0.5880 | 0.393 | 0.387 |
-| lightgbm F1n | 0.5680 | 0.5935 | 0.087 | 0.387 |
-| lightgbm F1 | 0.5519 | 0.5958 | 0.393 | 0.621 |
-| random forest F1n | 0.5567 | 0.5966 | 0.195 | 0.387 |
-| random forest F0 | 0.5569 | 0.5967 | 0.195 | 0.387 |
-| lightgbm F0 | 0.5712 | 0.5972 | 0.102 | 0.387 |
-| random forest F1 | 0.5565 | 0.6244 | 0.195 | 0.240 |
-| mlp F1 | 0.5580 | 0.6259 | 0.344 | 0.387 |
-| mlp F0 | 0.5668 | 0.7111 | 0.195 | 0.387 |
+| lasso F1 | 0.5357 | 0.5458 | 0.534 | 0.939 |
+| ols F1n | 0.5208 | 0.5471 | 0.534 | 0.939 |
+| ols F1 | 0.5259 | 0.5525 | 0.534 | 0.801 |
+| ridge F0 | 0.5370 | 0.5709 | 0.534 | 0.621 |
+| ridge F1n | 0.5374 | 0.5727 | 0.534 | 0.621 |
+| ridge F1 | 0.5430 | 0.5773 | 0.534 | 0.540 |
+| mlp F1n | 0.5565 | 0.5880 | 0.390 | 0.444 |
+| lightgbm F1n | 0.5680 | 0.5935 | 0.217 | 0.444 |
+| lightgbm F1 | 0.5519 | 0.5958 | 0.420 | 0.621 |
+| random forest F1n | 0.5567 | 0.5966 | 0.234 | 0.444 |
+| random forest F0 | 0.5569 | 0.5967 | 0.234 | 0.444 |
+| lightgbm F0 | 0.5712 | 0.5972 | 0.234 | 0.444 |
+| random forest F1 | 0.5565 | 0.6244 | 0.234 | 0.293 |
+| lstm F1 | 0.5572 | 0.6252 | 0.534 | 0.444 |
+| mlp F1 | 0.5580 | 0.6259 | 0.351 | 0.444 |
+| lstm F0 | 0.6125 | 0.6865 | 0.234 | 0.122 |
+| mlp F0 | 0.5668 | 0.7111 | 0.234 | 0.444 |
 
-In the 10% MCS on squared error: ols F0, ols F1, ols F1n, ridge F0, ridge F1, ridge F1n, lasso F0, lasso F1, lasso F1n, random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, mlp F0, mlp F1, mlp F1n. On QLIKE: ols F0, ols F1, ols F1n, ridge F0, ridge F1, ridge F1n, lasso F0, lasso F1, lasso F1n, random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, lightgbm F1n, mlp F0, mlp F1, mlp F1n.
+In the 10% MCS on squared error: ols F0, ols F1, ols F1n, ridge F0, ridge F1, ridge F1n, lasso F0, lasso F1, lasso F1n, random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, lightgbm F1n, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1. On QLIKE: ols F0, ols F1, ols F1n, ridge F0, ridge F1, ridge F1n, lasso F0, lasso F1, lasso F1n, random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, lightgbm F1n, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1.
 
 ## Every forecast against HAR + VIX (OLS on F0)
 
@@ -170,6 +172,8 @@ Class: development data only (S&P 500, 2005-2023), no holdout, not a claim.
 | 63 | mlp F0 | 49 | +0.019 to +0.086 | worse | 0.000 | +0.027 to +0.370 | worse | 0.021 |
 | 63 | mlp F1 | 49 | +0.007 to +0.077 | worse | 0.008 | +0.008 to +0.179 | worse | 0.027 |
 | 63 | mlp F1n | 49 | +0.008 to +0.074 | worse | 0.009 | -0.017 to +0.103 | no difference | 0.105 |
+| 63 | lstm F0 | 49 | +0.029 to +0.171 | worse | 0.000 | +0.028 to +0.263 | worse | 0.008 |
+| 63 | lstm F1 | 49 | +0.000 to +0.077 | worse | 0.040 | -0.028 to +0.188 | no difference | 0.126 |
 
 ## Worse than HAR + VIX in the pair, yet in the MCS
 
@@ -181,8 +185,8 @@ Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The 
 | 5 | RMSE | 8 | 8 | random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, lightgbm F1n, mlp F1n, lstm F1n |
 | 21 | QLIKE | 13 | 12 | random forest F0, random forest F1, lightgbm F0, lightgbm F1, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1, gru F0, gru F1, gru F1n |
 | 21 | RMSE | 16 | 16 | ridge F0, ridge F1n, lasso F0, lasso F1n, random forest F0, random forest F1, random forest F1n, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1, lstm F1n, gru F0, gru F1, gru F1n |
-| 63 | QLIKE | 6 | 6 | ridge F0, ridge F1, ridge F1n, random forest F1, mlp F0, mlp F1 |
-| 63 | RMSE | 14 | 13 | ols F1n, ridge F0, ridge F1, ridge F1n, lasso F1, random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, mlp F0, mlp F1, mlp F1n |
+| 63 | QLIKE | 7 | 7 | ridge F0, ridge F1, ridge F1n, random forest F1, mlp F0, mlp F1, lstm F0 |
+| 63 | RMSE | 16 | 16 | ols F1n, ridge F0, ridge F1, ridge F1n, lasso F1, random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, lightgbm F1n, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1 |
 
 ## By tercile of the training-window VIX: each learner on F0 against HAR + VIX
 
@@ -237,14 +241,17 @@ Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The 
 | 63 | low | random forest F0 | 1648 | 0.5288 | 0.5166 | -0.006 to +0.044 | no difference | 0.143 | -0.112 to +0.159 | no difference | 0.574 |
 | 63 | low | lightgbm F0 | 1648 | 0.5433 | 0.5166 | +0.001 to +0.068 | worse | 0.008 | -0.122 to +0.170 | no difference | 0.567 |
 | 63 | low | mlp F0 | 1648 | 0.5545 | 0.5166 | +0.008 to +0.090 | worse | 0.000 | -0.111 to +0.152 | no difference | 0.453 |
+| 63 | low | lstm F0 | 1648 | 0.6167 | 0.5166 | +0.016 to +0.237 | worse | 0.006 | -0.135 to +0.339 | no difference | 0.191 |
 | 63 | middle | ridge F0 | 765 | 0.5803 | 0.5720 | -0.008 to +0.022 | no difference | 0.119 | -0.008 to +0.071 | no difference | 0.083 |
 | 63 | middle | lasso F0 | 765 | 0.5768 | 0.5720 | -0.010 to +0.021 | no difference | 0.364 | -0.024 to +0.032 | no difference | 0.805 |
 | 63 | middle | random forest F0 | 765 | 0.6188 | 0.5720 | +0.011 to +0.111 | worse | 0.008 | +0.023 to +0.161 | worse | 0.013 |
 | 63 | middle | lightgbm F0 | 765 | 0.6534 | 0.5720 | +0.020 to +0.194 | worse | 0.030 | +0.028 to +0.171 | worse | 0.009 |
 | 63 | middle | mlp F0 | 765 | 0.5766 | 0.5720 | -0.046 to +0.036 | no difference | 0.765 | +0.002 to +0.144 | worse | 0.081 |
+| 63 | middle | lstm F0 | 765 | 0.6124 | 0.5720 | -0.001 to +0.112 | no difference | 0.060 | +0.025 to +0.146 | worse | 0.006 |
 | 63 | high | ridge F0 | 729 | 0.5387 | 0.4690 | +0.011 to +0.142 | worse | 0.001 | +0.014 to +0.102 | worse | 0.000 |
 | 63 | high | lasso F0 | 729 | 0.5068 | 0.4690 | -0.012 to +0.077 | no difference | 0.171 | +0.006 to +0.135 | worse | 0.044 |
 | 63 | high | random forest F0 | 729 | 0.5501 | 0.4690 | +0.020 to +0.139 | worse | 0.011 | +0.018 to +0.104 | worse | 0.001 |
 | 63 | high | lightgbm F0 | 729 | 0.5395 | 0.4690 | -0.002 to +0.134 | no difference | 0.037 | +0.004 to +0.091 | worse | 0.005 |
 | 63 | high | mlp F0 | 729 | 0.5840 | 0.4690 | +0.041 to +0.197 | worse | 0.007 | +0.098 to +1.354 | worse | 0.039 |
+| 63 | high | lstm F0 | 729 | 0.6031 | 0.4690 | -0.010 to +0.242 | no difference | 0.063 | +0.033 to +0.586 | worse | 0.042 |
 

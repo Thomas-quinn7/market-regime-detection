@@ -845,3 +845,8 @@ is the one proposal sentence naming the continuation. Not applied.
   in 0 of 24, 'worse' in 16 (new: GRU F1n at h = 5, 'worse' on QLIKE +0.006 to +0.205, 'no difference' on RMSE).
   The clause stands. Adding the row changes the h = 5 MCS p-values of other forecasts (the set changed); LSTM F1
   at h = 5 stays outside the 10% MCS (p 0.048, was 0.029).
+  Interim 6 (2026-10-18 17:36Z, 14 of 18 race fits, `examples/dev_ml_race.py --markdown-only` then
+  `examples/dev_ml_summary.py` at d7660f7 plus uncommitted files, development data only): 'better' than HAR + VIX
+  in 0 of 28, 'worse' in 19. New: LSTM F0 at h = 63, 'worse' on RMSE (+0.029 to +0.171) and QLIKE (+0.028 to
+  +0.263); LSTM F1 at h = 63, 'worse' on RMSE with a lower bound that prints as +0.000 (knife-edge), 'no
+  difference' on QLIKE (-0.028 to +0.188). The clause stands. vs_ols.csv gains those two rows; no earlier row changed.
