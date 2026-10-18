@@ -59,7 +59,8 @@ def test_reading_counts_and_missing_parts():
     assert text.isascii()
 
 
-def test_reading_counts_schedule_moves():
+def test_reading_counts_schedule_moves(monkeypatch, tmp_path):
+    monkeypatch.setattr(s.drd, "CACHE", tmp_path)  # keep the real schedule_check.csv out of the synthetic count
     t1 = _table()
     t2 = pd.DataFrame({"h": [126, 63], "learner": ["lightgbm", "mlp"], "RMSE": ["worse"] * 2, "QLIKE": ["worse"] * 2})
     t3 = pd.DataFrame({"h": [5], "RMSE": ["no difference"], "QLIKE": ["no difference"]})
@@ -67,8 +68,9 @@ def test_reading_counts_schedule_moves():
                           "dRMSE 95%": ["e"] * 3, "RMSE": ["no difference", "worse", "better"],
                           "dQLIKE 95%": ["f"] * 3, "QLIKE": ["no difference", "better", "better"]})
     text = "\n".join(s.reading(t1, t2, t3, None, det_t))
-    assert "move 1 of 3 verdicts against S8 (b); F1n vs F0 (noise control), ridge at h = 21." in text
-    assert "HMM rows that move: 0 of 2" in text
+    assert ("move 1 of 3 verdicts against S8 (b); F1n vs F0 (noise control), ridge at h = 21 "
+            "(RMSE no difference -> worse)." in text)  # QLIKE is 'better' on both schedules, so it does not move
+    assert "HMM rows that move: 0 of 2; noise rows that read 'better' on either schedule: 1 of 1." in text
 
 
 def test_coverage_groups_learners_by_horizons():

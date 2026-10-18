@@ -2,7 +2,7 @@ development data only (S&P 500, 2005-2023), no holdout, not a claim
 
 # Alternative regime detectors in place of the HMM, development data, October 2026
 
-Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout, not a claim**. Written by `examples/dev_regime_detectors.py` at d6e2cef plus uncommitted files, 2026-10-18 18:54Z, 2,000 bootstrap draws (seed 0). Design: amendment A2 of `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit. Every detector is fitted on the training rows only and applied forward (`regimes.detectors`, causality test in `tests/test_detectors.py`). F1[d] = F0 + detector d's input in place of the HMM probability; F1 = the HMM; F1n = pure noise. Every set at a horizon is fitted on the same rows. Stage S8 (d) of the reopen.
+Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout, not a claim**. Written by `examples/dev_regime_detectors.py` at a14e59a plus uncommitted files, 2026-10-18 20:37Z, 2,000 bootstrap draws (seed 0). Design: amendment A2 of `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit. Every detector is fitted on the training rows only and applied forward (`regimes.detectors`, causality test in `tests/test_detectors.py`). F1[d] = F0 + detector d's input in place of the HMM probability; F1 = the HMM; F1n = pure noise. Every set at a horizon is fitted on the same rows. Stage S8 (d) of the reopen.
 
 Learner at h = 21: **lasso**, the lowest mean QLIKE on F0 at h = 21 over the S8 (b) and (c) forecasts, chosen before any detector fit with it.
 
@@ -58,13 +58,17 @@ Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The 
 | 5 | lasso | 3242 | 2011-02-11 | 2011-01-12 | 0.0073 | 0.1233 | 0.3167 | 2018-12-24 | 58 |
 | 5 | ols | 3242 | 2011-02-11 | 2011-01-12 | 0.0028 | 0.0347 | 0.0740 | 2020-04-21 | 0 |
 | 21 | lasso | 3226 | 2011-03-08 | 2011-02-04 | 0.0081 | 0.3879 | 1.4262 | 2020-03-16 | 210 |
+| 21 | lightgbm | 3226 | 2011-03-08 | 2011-02-04 | 0.0189 | 0.2062 | 0.7619 | 2020-03-09 | 229 |
+| 21 | mlp | 3226 | 2011-03-08 | 2011-02-04 | 0.0240 | 0.3584 | 0.9571 | 2022-03-07 | 417 |
 | 21 | ols | 3226 | 2011-03-08 | 2011-02-04 | 0.0032 | 0.0379 | 0.0853 | 2011-10-27 | 0 |
+| 21 | random forest | 3226 | 2011-03-08 | 2011-02-04 | 0.0154 | 0.1717 | 0.5104 | 2022-05-18 | 187 |
+| 21 | ridge | 3226 | 2011-03-08 | 2011-02-04 | 0.0068 | 0.1314 | 0.2019 | 2020-10-28 | 68 |
 | 63 | lasso | 3184 | 2011-05-06 | 2011-04-06 | 0.0074 | 0.1638 | 0.2530 | 2018-12-26 | 207 |
 | 63 | ols | 3184 | 2011-05-06 | 2011-04-06 | 0.0037 | 0.0527 | 0.1100 | 2011-10-27 | 1 |
 
 ## Do the HMM and noise verdicts depend on the refit schedule?
 
-Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The same comparison (F1 or F1n against F0, same model, same horizon) on the S8 (b) rows (`docs/results/dev_ml_regime/decisive_i.csv`) and on the later-starting detector rows here. The two differ in first day, refit dates and, for a tuned learner, the chosen penalty. Verdicts that move: 1 of 12 rows.
+Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The same comparison (F1 or F1n against F0, same model, same horizon) on the S8 (b) rows (`docs/results/dev_ml_regime/decisive_i.csv`) and on the later-starting detector rows here. The two differ in first day, refit dates and, for a tuned learner, the chosen penalty. Verdicts that move: 5 of 20 rows.
 
 | h | model | comparison | dRMSE S8 (b) | RMSE S8 (b) | dRMSE here | RMSE here | dQLIKE S8 (b) | QLIKE S8 (b) | dQLIKE here | QLIKE here | verdict moves |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -78,6 +82,14 @@ Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The 
 | 21 | lasso | F1n vs F0 (noise control) | -0.004 to +0.000 | no difference | -0.026 to +0.000 | no difference | -0.010 to +0.001 | no difference | -0.014 to +0.012 | no difference | no |
 | 5 | lasso | F1 vs F0 | -0.001 to +0.005 | no difference | -0.003 to +0.005 | no difference | -0.007 to +0.005 | no difference | -0.011 to +0.003 | no difference | no |
 | 5 | lasso | F1n vs F0 (noise control) | -0.000 to +0.002 | no difference | -0.000 to +0.002 | no difference | -0.003 to +0.002 | no difference | -0.002 to +0.001 | no difference | no |
+| 21 | lightgbm | F1 vs F0 | -0.008 to +0.010 | no difference | -0.010 to +0.012 | no difference | +0.001 to +0.101 | worse | -0.003 to +0.114 | no difference | yes |
+| 21 | lightgbm | F1n vs F0 (noise control) | -0.002 to +0.002 | no difference | -0.002 to +0.015 | no difference | -0.004 to +0.011 | no difference | -0.008 to -0.000 | better | yes |
+| 21 | mlp | F1 vs F0 | -0.018 to +0.020 | no difference | -0.026 to +0.012 | no difference | -0.030 to +0.073 | no difference | -0.057 to +0.069 | no difference | no |
+| 21 | mlp | F1n vs F0 (noise control) | -0.017 to +0.019 | no difference | -0.021 to +0.014 | no difference | -0.030 to +0.021 | no difference | -0.065 to -0.004 | better | yes |
+| 21 | random forest | F1 vs F0 | -0.005 to +0.018 | no difference | -0.001 to +0.018 | no difference | -0.012 to +0.095 | no difference | -0.014 to +0.064 | no difference | no |
+| 21 | random forest | F1n vs F0 (noise control) | -0.000 to +0.000 | no difference | -0.000 to +0.001 | no difference | -0.002 to -0.000 | better | -0.001 to +0.008 | no difference | yes |
+| 21 | ridge | F1 vs F0 | -0.004 to +0.012 | no difference | -0.004 to +0.012 | no difference | -0.009 to +0.031 | no difference | -0.010 to +0.037 | no difference | no |
+| 21 | ridge | F1n vs F0 (noise control) | -0.000 to +0.001 | no difference | -0.000 to +0.001 | no difference | -0.001 to +0.005 | no difference | -0.001 to +0.005 | no difference | no |
 | 63 | lasso | F1 vs F0 | -0.003 to +0.017 | no difference | -0.002 to +0.018 | no difference | -0.012 to +0.034 | no difference | -0.008 to +0.035 | no difference | no |
 | 63 | lasso | F1n vs F0 (noise control) | -0.000 to +0.000 | no difference | -0.000 to +0.000 | no difference | -0.000 to +0.000 | no difference | -0.002 to +0.000 | no difference | no |
 

@@ -850,3 +850,15 @@ is the one proposal sentence naming the continuation. Not applied.
   in 0 of 28, 'worse' in 19. New: LSTM F0 at h = 63, 'worse' on RMSE (+0.029 to +0.171) and QLIKE (+0.028 to
   +0.263); LSTM F1 at h = 63, 'worse' on RMSE with a lower bound that prints as +0.000 (knife-edge), 'no
   difference' on QLIKE (-0.028 to +0.188). The clause stands. vs_ols.csv gains those two rows; no earlier row changed.
+  Final (2026-10-18 20:50Z, 18 of 18 race fits; `examples/dev_ml_race.py --markdown-only` by s8_chain2.sh at
+  18:40Z, `examples/dev_regime_detectors.py --part schedule` and `examples/dev_ml_summary.py` at a14e59a plus
+  uncommitted files, development data only): LSTM/GRU 'better' than HAR + VIX in 0 of 36 comparisons, 'worse'
+  in 20; the sentence's last clause stands and needs no race count. The h = 21 LSTM rerun reproduced byte for
+  byte (6 files, 0 differ, race_rerun.log). The refit-schedule check now covers all six non-recurrent learners
+  at h = 21: 5 of 20 verdicts move with a one-month shift of the refit dates. The one HMM row that moves is the
+  single 'worse' in table (i) (LightGBM h = 21, QLIKE: worse -> no difference), and the noise row reads 'better'
+  on QLIKE under LightGBM and the MLP on the later schedule (and loses its 'better' under the random forest).
+  The evidence line's "1 'worse'" is therefore fragile; the proposed sentence does not cite it. If a footnote
+  quotes table (i), say that one 'better' and one 'worse' in 46 is within what the noise regressor produces (2 'better' in 46), and
+  that both depend on the refit dates (`docs/DEV_ML_2026-10.md`, "Reading", refit-schedule bullet). The race
+  clause is closed; nothing under P19 is open.

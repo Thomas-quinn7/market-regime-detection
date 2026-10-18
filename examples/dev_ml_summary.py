@@ -183,11 +183,18 @@ def reading(t1: pd.DataFrame, t2: pd.DataFrame, t3: pd.DataFrame, race_t: pd.Dat
         if len(two):
             hmm = two[two["comparison"] == "F1 vs F0"]
             mv = two[two["verdict moves"] == "yes"]
+            def moved(r):
+                parts = [f"{loss} {r[f'{loss} S8 (b)']} -> {r[f'{loss} here']}" for loss in ("RMSE", "QLIKE")
+                         if r.get(f"{loss} S8 (b)") != r.get(f"{loss} here")]
+                return f"; {r['comparison']}, {r['model']} at h = {int(r['h'])} ({', '.join(parts)})"
             out.append(f"- Refit schedule: the same F1 and F1n comparisons on the later-starting detector rows move "
                        f"{len(mv)} of {len(two)} verdicts against S8 (b)"
-                       + "".join(f"; {r['comparison']}, {r['model']} at h = {int(r['h'])}" for _, r in mv.iterrows())
-                       + f". HMM rows that move: {int((hmm['verdict moves'] == 'yes').sum())} of {len(hmm)} "
-                       "(`docs/DEV_REGIME_DETECTORS_2026-10.md`, schedule table).\n")
+                       + "".join(moved(r) for _, r in mv.iterrows())
+                       + f". HMM rows that move: {int((hmm['verdict moves'] == 'yes').sum())} of {len(hmm)}; "
+                       f"noise rows that read 'better' on either schedule: "
+                       f"{int(((two['comparison'] != 'F1 vs F0') & two[['RMSE S8 (b)', 'RMSE here', 'QLIKE S8 (b)', 'QLIKE here']].eq('better').any(axis=1)).sum())} "
+                       f"of {len(two) - len(hmm)}. A verdict that depends on a one-month shift of the refit dates is "
+                       "read as fragile (`docs/DEV_REGIME_DETECTORS_2026-10.md`, schedule table).\n")
     else:
         out.append("- The detectors (d): not scored when this file was written; no reading.\n")
     out.append("Multiplicity: none of these counts is corrected; at a 2.5% one-sided rate per comparison about "
@@ -219,6 +226,12 @@ def main() -> None:
            "Stage S8 (e) of the reopen. Nothing here is a claim or enters a claim sentence.\n"]
     out.append("## What ran\n")
     out.append(md_table(status()) + "\n")
+    out.append("What did not run: no learner beyond the protocol's five and amendment A1's LSTM and GRU was added under "
+               "the 'further learner from the literature' clause of S8 (c); the MLP was not fitted at h = 126 (protocol); "
+               "h = 252 is a descriptive line in `docs/DEV_HORIZONS_2026-10.md` with no interval; the refit-schedule "
+               "check (`examples/dev_regime_detectors.py --part schedule`) covers all six non-recurrent learners at "
+               "h = 21 and lasso at h = 5 and 63 only. No holdout was opened and nothing was fitted on data after "
+               "2023-12-31.\n")
     p = dm.CACHE
     if (p / "decisive_i.csv").exists():
         t1, t2, t3 = (pd.read_csv(p / f"decisive_{k}.csv") for k in ("i", "ii", "iii"))

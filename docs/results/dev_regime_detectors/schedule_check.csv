@@ -2,6 +2,18 @@ h,model,set,days,windows,RMSE,QLIKE,dRMSE 95%,DM p (MSE),dQLIKE 95%,DM p (QLIKE)
 5,lasso,F0,3237,647,0.4896,0.4666,,,,
 5,lasso,F1,3237,647,no difference,no difference,-0.003 to +0.005,0.634,-0.011 to +0.003,0.293
 5,lasso,F1n,3237,647,no difference,no difference,-0.000 to +0.002,0.267,-0.002 to +0.001,0.729
+21,lightgbm,F0,3205,152,0.5024,0.4843,,,,
+21,lightgbm,F1,3205,152,no difference,no difference,-0.010 to +0.012,0.880,-0.003 to +0.114,0.127
+21,lightgbm,F1n,3205,152,no difference,better,-0.002 to +0.015,0.450,-0.008 to -0.000,0.066
+21,mlp,F0,3205,152,0.5178,0.4863,,,,
+21,mlp,F1,3205,152,no difference,no difference,-0.026 to +0.012,0.661,-0.057 to +0.069,0.899
+21,mlp,F1n,3205,152,no difference,better,-0.021 to +0.014,0.899,-0.065 to -0.004,0.022
+21,random forest,F0,3205,152,0.5145,0.4945,,,,
+21,random forest,F1,3205,152,no difference,no difference,-0.001 to +0.018,0.088,-0.014 to +0.064,0.268
+21,random forest,F1n,3205,152,no difference,no difference,-0.000 to +0.001,0.336,-0.001 to +0.008,0.336
+21,ridge,F0,3205,152,0.4909,0.4423,,,,
+21,ridge,F1,3205,152,no difference,no difference,-0.004 to +0.012,0.405,-0.010 to +0.037,0.408
+21,ridge,F1n,3205,152,no difference,no difference,-0.000 to +0.001,0.105,-0.001 to +0.005,0.378
 63,lasso,F0,3121,49,0.5288,0.5321,,,,
 63,lasso,F1,3121,49,no difference,no difference,-0.002 to +0.018,0.069,-0.008 to +0.035,0.168
 63,lasso,F1n,3121,49,no difference,no difference,-0.000 to +0.000,0.230,-0.002 to +0.000,0.063
