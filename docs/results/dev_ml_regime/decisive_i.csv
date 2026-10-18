@@ -1,0 +1,47 @@
+h,learner,comparison,windows,dRMSE 95%,RMSE,DM p (MSE),dQLIKE 95%,QLIKE,DM p (QLIKE)
+5,ols,F1 vs F0,651,-0.001 to +0.006,no difference,0.297,-0.009 to +0.004,no difference,0.482
+5,ols,F1n vs F0 (noise control),651,-0.000 to +0.001,no difference,0.366,-0.002 to +0.001,no difference,0.993
+5,ridge,F1 vs F0,651,-0.001 to +0.007,no difference,0.201,-0.008 to +0.005,no difference,0.651
+5,ridge,F1n vs F0 (noise control),651,-0.000 to +0.002,no difference,0.322,-0.002 to +0.001,no difference,0.737
+5,lasso,F1 vs F0,651,-0.001 to +0.005,no difference,0.287,-0.007 to +0.005,no difference,0.792
+5,lasso,F1n vs F0 (noise control),651,-0.000 to +0.002,no difference,0.380,-0.003 to +0.002,no difference,0.625
+5,random forest,F1 vs F0,651,-0.004 to +0.001,no difference,0.291,-0.008 to +0.014,no difference,0.718
+5,random forest,F1n vs F0 (noise control),651,-0.001 to +0.001,no difference,0.848,-0.003 to +0.001,no difference,0.469
+5,lightgbm,F1 vs F0,651,-0.003 to +0.007,no difference,0.684,-0.005 to +0.022,no difference,0.257
+5,lightgbm,F1n vs F0 (noise control),651,-0.000 to +0.006,no difference,0.098,-0.005 to +0.006,no difference,0.902
+5,mlp,F1 vs F0,651,-0.010 to +0.024,no difference,0.510,-0.013 to +0.026,no difference,0.429
+5,mlp,F1n vs F0 (noise control),651,-0.003 to +0.033,no difference,0.208,-0.012 to +0.027,no difference,0.448
+21,ols,F1 vs F0,153,-0.004 to +0.012,no difference,0.469,-0.009 to +0.032,no difference,0.449
+21,ols,F1n vs F0 (noise control),153,-0.000 to +0.001,no difference,0.240,-0.001 to +0.005,no difference,0.389
+21,ridge,F1 vs F0,153,-0.004 to +0.012,no difference,0.441,-0.009 to +0.031,no difference,0.471
+21,ridge,F1n vs F0 (noise control),153,-0.000 to +0.001,no difference,0.154,-0.001 to +0.005,no difference,0.369
+21,lasso,F1 vs F0,153,-0.006 to +0.009,no difference,0.996,-0.007 to +0.031,no difference,0.365
+21,lasso,F1n vs F0 (noise control),153,-0.004 to +0.000,no difference,0.090,-0.010 to +0.001,no difference,0.287
+21,random forest,F1 vs F0,153,-0.005 to +0.018,no difference,0.538,-0.012 to +0.095,no difference,0.203
+21,random forest,F1n vs F0 (noise control),153,-0.000 to +0.000,no difference,0.132,-0.002 to -0.000,better,0.021
+21,lightgbm,F1 vs F0,153,-0.008 to +0.010,no difference,0.957,+0.001 to +0.101,worse,0.068
+21,lightgbm,F1n vs F0 (noise control),153,-0.002 to +0.002,no difference,0.825,-0.004 to +0.011,no difference,0.526
+21,mlp,F1 vs F0,153,-0.018 to +0.020,no difference,0.749,-0.030 to +0.073,no difference,0.624
+21,mlp,F1n vs F0 (noise control),153,-0.017 to +0.019,no difference,0.889,-0.030 to +0.021,no difference,0.576
+63,ols,F1 vs F0,49,-0.005 to +0.021,no difference,0.210,-0.016 to +0.038,no difference,0.476
+63,ols,F1n vs F0 (noise control),49,+0.000 to +0.001,worse,0.021,-0.000 to +0.005,no difference,0.105
+63,ridge,F1 vs F0,49,-0.003 to +0.019,no difference,0.117,-0.013 to +0.032,no difference,0.453
+63,ridge,F1n vs F0 (noise control),49,+0.000 to +0.001,worse,0.026,-0.000 to +0.005,no difference,0.107
+63,lasso,F1 vs F0,49,-0.003 to +0.017,no difference,0.151,-0.012 to +0.034,no difference,0.386
+63,lasso,F1n vs F0 (noise control),49,-0.000 to +0.000,no difference,0.535,-0.000 to +0.000,no difference,0.973
+63,random forest,F1 vs F0,49,-0.015 to +0.011,no difference,0.941,-0.002 to +0.066,no difference,0.040
+63,random forest,F1n vs F0 (noise control),49,-0.001 to +0.000,no difference,0.372,-0.001 to +0.000,no difference,0.784
+63,lightgbm,F1 vs F0,49,-0.046 to +0.001,no difference,0.071,-0.049 to +0.049,no difference,0.944
+63,lightgbm,F1n vs F0 (noise control),49,-0.009 to +0.001,no difference,0.163,-0.009 to +0.000,no difference,0.090
+63,mlp,F1 vs F0,49,-0.047 to +0.019,no difference,0.461,-0.299 to +0.055,no difference,0.238
+63,mlp,F1n vs F0 (noise control),49,-0.046 to +0.015,no difference,0.341,-0.328 to +0.002,no difference,0.071
+126,ols,F1 vs F0,23,-0.021 to +0.015,no difference,0.511,-0.033 to +0.013,no difference,0.249
+126,ols,F1n vs F0 (noise control),23,+0.000 to +0.002,worse,0.012,-0.001 to +0.001,no difference,0.942
+126,ridge,F1 vs F0,23,-0.010 to +0.016,no difference,0.804,-0.031 to +0.017,no difference,0.470
+126,ridge,F1n vs F0 (noise control),23,+0.000 to +0.002,worse,0.018,-0.001 to +0.001,no difference,0.952
+126,lasso,F1 vs F0,23,-0.009 to +0.016,no difference,0.593,-0.024 to +0.017,no difference,0.685
+126,lasso,F1n vs F0 (noise control),23,+0.000 to +0.001,worse,0.072,-0.000 to +0.000,no difference,0.340
+126,random forest,F1 vs F0,23,-0.034 to +0.014,no difference,0.389,-0.170 to +0.016,no difference,0.055
+126,random forest,F1n vs F0 (noise control),23,-0.001 to +0.000,no difference,0.192,-0.001 to +0.001,no difference,0.989
+126,lightgbm,F1 vs F0,23,-0.062 to -0.010,better,0.003,-0.191 to +0.020,no difference,0.049
+126,lightgbm,F1n vs F0 (noise control),23,-0.008 to +0.000,no difference,0.072,-0.020 to -0.001,better,0.002

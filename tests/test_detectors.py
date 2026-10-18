@@ -53,3 +53,17 @@ def test_persistence_and_rand():
     assert persistence(a) == pytest.approx(5 / 7)
     assert rand_agreement(a, 1 - a) == pytest.approx(1.0)
     assert rand_agreement(a, pd.Series([0, 1, 0, 1, 0, 1, 0, 1], dtype=float)) < 0.2
+
+
+@pytest.mark.parametrize("name", ["kmeans 2", "kmeans 3", "gmm 2", "gmm 3", "spectral 2"])
+def test_labels_are_vol_ranks_that_agree_with_the_signal_at_every_refit(name):
+    """Cluster ids are arbitrary per fit; labels are ranked by the centre's vol (k - 1 = most volatile),
+    so the same regime carries the same label after every refit, and the 0/1 signal is the top label."""
+    wf = walk_forward_detector(_inputs(), name, min_train=MIN_TRAIN, step=STEP)
+    k = int(name.split()[1])
+    assert set(np.unique(wf["label"])) <= set(range(k))
+    if not name.startswith("gmm"):
+        assert ((wf["label"] == k - 1) == (wf["signal"] == 1.0)).all()
+    feats = _inputs().reindex(wf.index)
+    top, bottom = feats["log_rms22"][wf["label"] == k - 1], feats["log_rms22"][wf["label"] == 0]
+    assert top.mean() > bottom.mean()

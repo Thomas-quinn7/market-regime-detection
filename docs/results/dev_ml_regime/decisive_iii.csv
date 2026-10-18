@@ -1,0 +1,24 @@
+h,learner,comparison,windows,dRMSE 95%,RMSE,DM p (MSE),dQLIKE 95%,QLIKE,DM p (QLIKE)
+5,ols,F2 vs F0 (F2 rows),500,-0.049 to +0.003,no difference,0.158,-0.043 to +0.020,no difference,0.409
+5,ridge,F2 vs F0 (F2 rows),500,-0.058 to -0.002,better,0.064,-0.045 to +0.016,no difference,0.380
+5,lasso,F2 vs F0 (F2 rows),500,-0.057 to -0.003,better,0.017,-0.047 to +0.009,no difference,0.207
+5,random forest,F2 vs F0 (F2 rows),500,-0.065 to -0.002,better,0.051,-0.090 to +0.022,no difference,0.343
+5,lightgbm,F2 vs F0 (F2 rows),500,-0.040 to +0.004,no difference,0.088,-0.032 to +0.053,no difference,0.648
+5,mlp,F2 vs F0 (F2 rows),500,+0.004 to +0.047,worse,0.009,+0.060 to +0.178,worse,0.000
+21,ols,F2 vs F0 (F2 rows),117,-0.011 to +0.015,no difference,0.888,-0.023 to +0.026,no difference,0.799
+21,ridge,F2 vs F0 (F2 rows),117,-0.014 to +0.011,no difference,0.513,-0.024 to +0.020,no difference,0.948
+21,lasso,F2 vs F0 (F2 rows),117,-0.012 to +0.010,no difference,0.846,-0.011 to +0.024,no difference,0.420
+21,random forest,F2 vs F0 (F2 rows),117,-0.018 to +0.013,no difference,0.833,-0.025 to +0.026,no difference,0.923
+21,lightgbm,F2 vs F0 (F2 rows),117,-0.015 to +0.031,no difference,0.557,-0.038 to +0.075,no difference,0.516
+21,mlp,F2 vs F0 (F2 rows),117,-0.002 to +0.048,no difference,0.069,-0.031 to +0.127,no difference,0.180
+63,ols,F2 vs F0 (F2 rows),37,+0.002 to +0.040,worse,0.005,-0.002 to +0.076,no difference,0.050
+63,ridge,F2 vs F0 (F2 rows),37,+0.004 to +0.050,worse,0.007,+0.008 to +0.076,worse,0.051
+63,lasso,F2 vs F0 (F2 rows),37,+0.004 to +0.050,worse,0.006,+0.009 to +0.066,worse,0.002
+63,random forest,F2 vs F0 (F2 rows),37,+0.002 to +0.022,worse,0.001,+0.013 to +0.101,worse,0.011
+63,lightgbm,F2 vs F0 (F2 rows),37,+0.000 to +0.021,worse,0.055,+0.002 to +0.129,worse,0.132
+63,mlp,F2 vs F0 (F2 rows),37,+0.014 to +0.061,worse,0.000,+0.051 to +0.310,worse,0.038
+126,ols,F2 vs F0 (F2 rows),17,+0.007 to +0.055,worse,0.001,+0.008 to +0.100,worse,0.126
+126,ridge,F2 vs F0 (F2 rows),17,+0.006 to +0.051,worse,0.001,+0.016 to +0.079,worse,0.102
+126,lasso,F2 vs F0 (F2 rows),17,-0.001 to +0.016,no difference,0.126,+0.001 to +0.029,worse,0.033
+126,random forest,F2 vs F0 (F2 rows),17,-0.001 to +0.028,no difference,0.028,-0.010 to +0.092,no difference,0.109
+126,lightgbm,F2 vs F0 (F2 rows),17,+0.002 to +0.037,worse,0.004,+0.017 to +0.090,worse,0.043

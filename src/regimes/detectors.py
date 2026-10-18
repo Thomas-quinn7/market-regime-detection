@@ -34,6 +34,13 @@ def rolling_features(returns: pd.Series, vix: pd.Series) -> pd.DataFrame:
     }).dropna()
 
 
+def _vol_rank(centres: np.ndarray) -> np.ndarray:
+    """Map a fit's arbitrary cluster ids to ranks by the centre's log 22-day RMS return (column 1):
+    0 = calmest, k - 1 = most volatile, so labels mean the same thing from one refit to the next.
+    The regime input (``signal``) does not use this; it only fixes the descriptive labels."""
+    return np.argsort(np.argsort(centres[:, 1]))
+
+
 class _Scaled:
     def _scale_fit(self, X):
         self.mu, self.sd = X.mean(axis=0), X.std(axis=0)
@@ -52,14 +59,15 @@ class KMeansDetector(_Scaled):
         from sklearn.cluster import KMeans
         Z = self._scale_fit(X)
         self.model = KMeans(n_clusters=self.k, n_init=10, random_state=SEED).fit(Z)
+        self.rank = _vol_rank(self.model.cluster_centers_)
         self.high = int(np.argmax(self.model.cluster_centers_[:, 1]))   # column 1 = log_rms22
         return self
 
     def labels(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict(self._scale(X))
+        return self.rank[self.model.predict(self._scale(X))]
 
     def signal(self, X: np.ndarray) -> np.ndarray:
-        return (self.labels(X) == self.high).astype(float)
+        return (self.model.predict(self._scale(X)) == self.high).astype(float)
 
 
 class GMMDetector(_Scaled):
@@ -70,11 +78,12 @@ class GMMDetector(_Scaled):
         from sklearn.mixture import GaussianMixture
         Z = self._scale_fit(X)
         self.model = GaussianMixture(n_components=self.k, covariance_type="full", n_init=5, random_state=SEED).fit(Z)
+        self.rank = _vol_rank(self.model.means_)
         self.high = int(np.argmax(self.model.means_[:, 1]))
         return self
 
     def labels(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict(self._scale(X))
+        return self.rank[self.model.predict(self._scale(X))]
 
     def signal(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict_proba(self._scale(X))[:, self.high]
@@ -94,15 +103,19 @@ class SpectralDetector(_Scaled):
         lab = SpectralClustering(n_clusters=self.k, affinity="nearest_neighbors", n_neighbors=15,
                                  assign_labels="cluster_qr", random_state=SEED).fit_predict(Z)
         self.centroids = np.vstack([Z[lab == c].mean(axis=0) for c in range(self.k)])
+        self.rank = _vol_rank(self.centroids)
         self.high = int(np.argmax(self.centroids[:, 1]))
         return self
 
-    def labels(self, X: np.ndarray) -> np.ndarray:
+    def _nearest(self, X: np.ndarray) -> np.ndarray:
         Z = self._scale(X)
         return np.argmin(((Z[:, None, :] - self.centroids[None]) ** 2).sum(axis=2), axis=1)
 
+    def labels(self, X: np.ndarray) -> np.ndarray:
+        return self.rank[self._nearest(X)]
+
     def signal(self, X: np.ndarray) -> np.ndarray:
-        return (self.labels(X) == self.high).astype(float)
+        return (self._nearest(X) == self.high).astype(float)
 
 
 class ChangePointDetector:

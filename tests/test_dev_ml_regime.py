@@ -38,3 +38,8 @@ def test_feature_sets_rows_and_columns():
 def test_learners_by_horizon_follow_the_protocol():
     assert dm.learners_at(126) == ("ols", "ridge", "lasso", "random forest", "lightgbm")
     assert dm.learners_at(21)[-1] == "mlp"
+
+
+def test_cache_path_follows_the_cache_folder(monkeypatch, tmp_path):
+    monkeypatch.setattr(dm, "CACHE", tmp_path)
+    assert dm.cache_path(21, "random forest", "F0@F2") == tmp_path / "h021__random_forest__F0_at_F2.csv"

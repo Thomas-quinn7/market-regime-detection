@@ -13,6 +13,7 @@ can be split across processes and resumed::
     python -u examples/dev_ml_regime.py --horizons 5,126        # one process
     python -u examples/dev_ml_regime.py --horizons 21,63        # another
     python -u examples/dev_ml_regime.py --markdown-only         # rebuild the markdown from the caches
+    python -u examples/dev_ml_regime.py --horizons 5 --cache /tmp/rerun --out /tmp/rerun.md   # determinism check
 
 Data from the committed caches to 2023-12-31; a download attempt raises.
 """
@@ -199,6 +200,9 @@ def markdown(returns: pd.Series, horizons, n_boot: int) -> str:
                 if f"{lr} F2" in d2 and f"{lr} F0@F2" in d2:
                     decisive["iii"].append({"h": h, "learner": lr, "comparison": "F2 vs F0 (F2 rows)",
                                             "windows": len(d2) // h, **cmp_row(d2, f"{lr} F2", f"{lr} F0@F2", h, n_boot)})
+    for k, rows in decisive.items():
+        if rows:
+            pd.DataFrame(rows).to_csv(CACHE / f"decisive_{k}.csv", index=False)
     out.append("## Decisive table (i): does the regime probability help a flexible learner?\n")
     out.append(f"Class: {CLASS}. Every learner F1 vs F0, with the noise control F1n vs F0 beside it.\n")
     out.append(md_table(pd.DataFrame(decisive["i"])) + "\n" if decisive["i"] else "Not run.\n")
@@ -212,12 +216,16 @@ def markdown(returns: pd.Series, horizons, n_boot: int) -> str:
 
 
 def main() -> None:
+    global CACHE
     parser = argparse.ArgumentParser()
     parser.add_argument("--horizons", default=",".join(str(h) for h in HORIZONS))
     parser.add_argument("--markdown-only", action="store_true")
     parser.add_argument("--n-boot", type=int, default=2000)
     parser.add_argument("--out", default=str(ROOT / "docs" / "DEV_ML_REGIME_2026-10.md"))
+    parser.add_argument("--cache", default=str(CACHE),
+                        help="folder for the per-fit CSVs (another folder for the byte-for-byte rerun check)")
     args = parser.parse_args()
+    CACHE = Path(args.cache)
     block_network()
     returns, ivs = load()
     noise = pd.Series(np.random.default_rng(0).standard_normal(len(returns)), index=returns.index)
