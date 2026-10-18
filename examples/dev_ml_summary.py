@@ -1,5 +1,6 @@
 """Summary note for the S8 development continuation (stage S8 e): what ran, the three decisive tables in
-counts, and the protocol's findings with a descriptive follow-up.
+counts, and the protocol's findings with a descriptive follow-up, the reading against claim B and what it
+would need to become a claim.
 
 development data only (S&P 500, 2005-2023), no holdout, not a claim.
 
@@ -100,6 +101,82 @@ def status() -> pd.DataFrame:
     ])
 
 
+def n_verdict(df: pd.DataFrame | None, verdict: str) -> tuple[int, int]:
+    """(count of ``verdict`` over both losses, number of comparisons over both losses); (0, 0) if absent."""
+    if df is None or not len(df):
+        return 0, 0
+    return int(sum((df[loss] == verdict).sum() for loss in LOSSES)), 2 * len(df)
+
+
+def weak(t2: pd.DataFrame, r: pd.Series) -> str:
+    """Table (ii) verdict of the same learner, horizon and loss on F0 against HAR + VIX ('n/a' if absent)."""
+    m = t2[(t2["h"] == r["h"]) & (t2["learner"] == r["learner"])]
+    return m.iloc[0][r["loss"]] if len(m) else "n/a"
+
+
+def reading(t1: pd.DataFrame, t2: pd.DataFrame, t3: pd.DataFrame, race_t: pd.DataFrame | None,
+            det_t: pd.DataFrame | None) -> list[str]:
+    """The honest reading against the paper's claim B, and what it would need to become a claim. Every
+    number is counted from the decisive tables passed in; a part that has not run is said to be missing."""
+    f1 = t1[t1["comparison"] == "F1 vs F0"]
+    f1n = t1[t1["comparison"].str.startswith("F1n")]
+    fnd = findings(t1)
+    b1, n1 = n_verdict(f1, "better")
+    w1, _ = n_verdict(f1, "worse")
+    bn, nn = n_verdict(f1n, "better")
+    b2, n2 = n_verdict(t2, "better")
+    w2, _ = n_verdict(t2, "worse")
+    b3, n3 = n_verdict(t3, "better")
+    w3, _ = n_verdict(t3, "worse")
+    better_h = ", ".join(str(h) for h in sorted(set(t3.loc[(t3[list(LOSSES)] == "better").any(axis=1), "h"])))
+    out = ["## Reading against the paper's claims\n",
+           f"Class: {CLASS}. Counts over both losses, from the tables above.\n",
+           f"- Claim B (the regime probability adds nothing once the VIX is in) against the objection \"you only "
+           f"tested a linear nest\": with the HMM probability, a flexible learner was 'better' than the same learner "
+           f"without it in {b1} of {n1} comparisons and 'worse' in {w1}; the pure-noise regressor was 'better' in "
+           f"{bn} of {nn}. The protocol reading (F1 better while F1n is not) holds in {len(fnd)} of {n1}"
+           + "".join(f"; {r['learner']} at h = {int(r['h'])} ({r['loss']}) on F0 against HAR + VIX is "
+                     f"'{weak(t2, r)}'" for _, r in fnd.iterrows()) + ". "
+           + ("On development data the objection does not overturn claim B: every protocol finding is in a "
+              "learner that is itself worse than HAR + VIX at that horizon and loss.\n"
+              if all(weak(t2, r) == "worse" for _, r in fnd.iterrows()) else
+              "At least one protocol finding is in a learner that is not worse than HAR + VIX; claim B needs "
+              "the closer look in the follow-up.\n"),
+           (f"- No learner on F0 beats HAR + VIX: 'better' in {b2} of {n2} comparisons, 'worse' in {w2}.\n"
+            if b2 == 0 else
+            f"- Learners on F0 against HAR + VIX: 'better' in {b2} of {n2} comparisons, 'worse' in {w2}.\n"),
+           f"- More lags and the VIX term structure (F2 vs F0): 'better' in {b3} of {n3}, 'worse' in {w3}; 'better' "
+           f"at h = {better_h or 'none'} (table (iii)).\n"]
+    rnn = race_t[race_t["forecast"].str.match(r"(lstm|gru) ")] if race_t is not None else None
+    if rnn is not None and len(rnn):
+        br, nr = n_verdict(rnn, "better")
+        wr, _ = n_verdict(rnn, "worse")
+        out.append(f"- The race (c): an LSTM or GRU forecast was 'better' than HAR + VIX in {br} of {nr} "
+                   f"comparisons and 'worse' in {wr}.\n")
+    else:
+        out.append("- The race (c): not scored when this file was written; no reading.\n")
+    if det_t is not None and len(det_t):
+        alt = det_t[~det_t["set"].isin(["F0", "F1", "F1n"])]
+        bd, nd = n_verdict(alt, "better")
+        wd, _ = n_verdict(alt, "worse")
+        out.append(f"- Other regime detectors (d) in place of the HMM probability: 'better' than F0 in {bd} of {nd} "
+                   f"comparisons, 'worse' in {wd}." + (" The null is not specific to the HMM." if bd == 0 else "") + "\n")
+    else:
+        out.append("- The detectors (d): not scored when this file was written; no reading.\n")
+    out.append("Multiplicity: none of these counts is corrected; at a 2.5% one-sided rate per comparison about "
+               f"{0.025 * n1:.1f} 'better' verdicts in {n1} are expected by chance alone, which is what the noise "
+               "row shows.\n")
+    out.append("## What this would need to become a claim\n")
+    out.append("All of the above is one series (the S&P 500), development years the paper already used to choose "
+               "its models, and an uncorrected count over many learners, horizons and losses. To become a claim "
+               "it would need: (1) a protocol frozen and committed before any new data is opened, naming one "
+               "learner, one feature set, one horizon and one loss as primary, with its family of secondary "
+               "comparisons and their correction; (2) the January 2027 holdout (Thomas's decision) on data no "
+               "S8 fit has seen; (3) the run reproduced byte for byte from the frozen script. Until then it is a "
+               "development note: it answers a referee's objection, it adds no evidence of its own.\n")
+    return out
+
+
 def main() -> None:
     import argparse
     parser = argparse.ArgumentParser()
@@ -160,6 +237,8 @@ def main() -> None:
         out.append(md_table(verdict_counts(t, "set")) + "\n")
     else:
         out.append("Not yet scored (`examples/dev_regime_detectors.py --markdown-only` writes the table this reads).\n")
+    if (p / "decisive_i.csv").exists():
+        out += reading(t1, t2, t3, pd.read_csv(rc) if rc.exists() else None, pd.read_csv(dc) if dc.exists() else None)
     Path(args.out).write_text("\n".join(out) + "\n", encoding="ascii")
     print(f"wrote {args.out}")
 

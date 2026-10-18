@@ -34,3 +34,26 @@ def test_verdict_counts():
     assert c.loc["F1 vs F0", "comparisons"] == 3
     assert c.loc["F1 vs F0", "RMSE better / no diff. / worse"] == "2 / 1 / 0"
     assert c.loc["F1n vs F0 (noise control)", "QLIKE better / no diff. / worse"] == "2 / 1 / 0"
+
+
+def test_reading_counts_and_missing_parts():
+    t1 = _table()
+    t2 = pd.DataFrame({"h": [126, 63], "learner": ["lightgbm", "mlp"], "RMSE": ["worse", "no difference"], "QLIKE": ["no difference"] * 2})
+    t3 = pd.DataFrame({"h": [5], "RMSE": ["better"], "QLIKE": ["worse"]})
+    race_t = pd.DataFrame({"forecast": ["lstm F0", "gru F1", "ridge F0"], "RMSE": ["better", "worse", "better"],
+                           "QLIKE": ["no difference"] * 3})
+    det_t = pd.DataFrame({"set": ["F0", "F1", "F1n", "F1[kmeans 2]"], "RMSE": ["x", "better", "better", "worse"],
+                          "QLIKE": ["x", "no difference", "no difference", "no difference"]})
+    text = "\n".join(s.reading(t1, t2, t3, race_t, det_t))
+    assert "'better' than the same learner without it in 3 of 6 comparisons" in text
+    assert "The protocol reading (F1 better while F1n is not) holds in 2 of 6" in text
+    assert "'better' in 0 of 4 comparisons, 'worse' in 1" in text
+    assert "lightgbm at h = 126 (RMSE) on F0 against HAR + VIX is 'worse'" in text
+    assert "mlp at h = 63 (QLIKE) on F0 against HAR + VIX is 'no difference'" in text
+    assert "'better' than HAR + VIX in 1 of 4 comparisons and 'worse' in 1" in text  # ridge row not counted
+    assert "'better' than F0 in 0 of 2 comparisons, 'worse' in 1" in text  # F0, F1, F1n not counted
+    missing = "\n".join(s.reading(t1, t2, t3, None, None))
+    assert "The race (c): not scored" in missing and "The detectors (d): not scored" in missing
+    assert "'better' at h = 5 (table (iii))" in text
+    assert "claim B needs the closer look" in text  # mlp finding is not in a worse learner
+    assert text.isascii()

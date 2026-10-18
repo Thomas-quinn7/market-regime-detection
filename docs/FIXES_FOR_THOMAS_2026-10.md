@@ -787,3 +787,27 @@ committed text (the four stock-bond intervals are read from its reproduced stdou
   printed 3-decimal intervals (no stock-bond forecasts were saved), and the DM and bootstrap p-values
   disagree on some rows (2024-2026 A: bootstrap 0.036, DM 0.215), so the DM column is the stricter
   reading.
+
+## S8 pass: the machine-learning continuation
+
+Written 2026-10-18 (stage S8 e). Rule 8 as amended for S8: nothing from S8 enters a claim sentence; this
+is the one proposal sentence naming the continuation. Not applied.
+
+### P19. One sentence naming the development-only ML continuation (new; WRITEUP, after P32's sentence at line 829)
+
+- Proposed (WRITEUP, after the sentence P32 adds at line 829): "A development-only continuation
+  (docs/DEV_ML_2026-10.md; S&P 500 2005-2023, no holdout, not a claim) asked whether a flexible learner
+  finds regime information the linear nest misses: across ridge, LASSO, random forest, LightGBM and an MLP
+  at 5 to 126 days, adding the HMM probability was 'better' in 1 of 46 comparisons (RMSE and QLIKE), in a
+  learner that is itself worse than HAR + VIX there, and no learner on HAR + VIX inputs beat HAR + VIX."
+- Why: scope S8 (e); answers the referee objection "you only tested a linear nest" against claim B
+  (protocol `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit).
+- Evidence (development data only; `examples/dev_ml_summary.py` printing from the tables of
+  `examples/dev_ml_regime.py`, 2,000 bootstrap draws): table (i) F1 vs F0: 1 'better' (LightGBM h = 126,
+  RMSE, -0.062 to -0.010; noise row -0.008 to +0.000), 1 'worse', 44 no difference; noise row 'better' in 2
+  of 46; LightGBM F0 vs HAR + VIX at h = 126 'worse' (RMSE +0.007 to +0.084). Table (ii): 0 'better' of 38,
+  18 'worse'. Detectors (`examples/dev_regime_detectors.py`, OLS, h 5/21/63): k-means, GMM, change-point and
+  spectral inputs 'better' than HAR + VIX in 0 of 36, 'worse' in 4. Uncorrected counts: about 1.2 'better'
+  in 46 are expected by chance at 2.5% one-sided.
+- Open: the LSTM/GRU race (S8 c) was running when this was written; if it scores any recurrent forecast
+  'better' than HAR + VIX, the sentence's last clause needs that count (DEV_ML_2026-10.md, "Reading").
