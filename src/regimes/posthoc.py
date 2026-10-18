@@ -139,3 +139,82 @@ def mcs(losses: np.ndarray, *, alpha: float = 0.10, block: int = 63, n_boot: int
     p_values[alive[0]] = 1.0
     order[alive[0]] = m
     return {"p_value": p_values, "elimination_rank": order, "in_set": p_values >= alpha}
+
+
+def _bartlett_lrv(u: np.ndarray, lag: int) -> float:
+    """Long-run variance of a mean-zero series with the Bartlett kernel (Newey-West), per observation."""
+    n = len(u)
+    lrv = u @ u / n
+    for k in range(1, min(lag, n - 1) + 1):
+        lrv += 2.0 * (1.0 - k / (lag + 1)) * (u[k:] @ u[:-k]) / n
+    return float(max(lrv, 0.0))
+
+
+def mincer_zarnowitz(forecast: np.ndarray, realised: np.ndarray, *, lag: int = 20) -> dict[str, float]:
+    """Mincer-Zarnowitz regression ``realised = a + b * forecast`` by OLS with HAC standard errors.
+
+    Returns the intercept and slope, their Bartlett-kernel HAC standard errors (``lag`` autocovariances,
+    20 for 21-day overlapping targets), the R-squared, the Wald statistic for the joint hypothesis
+    a = 0, b = 1 (chi-squared with two degrees of freedom under the null) and its p-value. A slope of
+    one with a zero intercept means the forecast is unbiased at every level; a slope below one means
+    high forecasts overshoot and low ones undershoot.
+    """
+    f = np.asarray(forecast, dtype=float)
+    y = np.asarray(realised, dtype=float)
+    n = len(f)
+    if n < 3 or len(y) != n:
+        raise ValueError("need at least three paired observations")
+    x = np.column_stack([np.ones(n), f])
+    xtx_inv = np.linalg.inv(x.T @ x)
+    beta = xtx_inv @ x.T @ y
+    resid = y - x @ beta
+    # HAC covariance of beta: (X'X)^-1 S (X'X)^-1 with S the Bartlett long-run covariance of x_t u_t.
+    g = x * resid[:, None]
+    s = g.T @ g
+    for k in range(1, min(lag, n - 1) + 1):
+        gamma = g[k:].T @ g[:-k]
+        s += (1.0 - k / (lag + 1)) * (gamma + gamma.T)
+    cov = xtx_inv @ s @ xtx_inv
+    se = np.sqrt(np.clip(np.diag(cov), 0.0, None))
+    r2 = 1.0 - resid @ resid / (((y - y.mean()) ** 2).sum() or np.nan)
+    d = beta - np.array([0.0, 1.0])
+    try:
+        wald = float(d @ np.linalg.solve(cov, d))
+    except np.linalg.LinAlgError:
+        wald = float("nan")
+    p = math.exp(-wald / 2.0) if math.isfinite(wald) else float("nan")  # chi2(2) survival function
+    return {"intercept": float(beta[0]), "slope": float(beta[1]), "se_intercept": float(se[0]),
+            "se_slope": float(se[1]), "r2": float(r2), "wald_a0_b1": wald, "p_a0_b1": float(p), "n": n}
+
+
+def variance_swap_sign_test(forecast: np.ndarray, realised: np.ndarray, strike_vol: np.ndarray) -> dict[str, float]:
+    """A forecast's content as a variance-swap signal, in the units of the inputs (daily percent vol).
+
+    The strike is ``strike_vol ** 2`` (the implied variance, e.g. the raw VIX in daily-percent units),
+    the swap pays ``realised ** 2 - strike`` to the long side, and the forecast says long when its own
+    variance ``forecast ** 2`` is above the strike, short otherwise. Returns the share of days the
+    forecast is long, the mean payoff and hit rate of trading its sign, the same for always-short
+    (which the market's variance risk premium rewards on average), the mean payoff and hit rate on the
+    long days alone, and the HAC-DM p-value (lag 20) of the forecast's payoff against always-short.
+    A forecast that is never long has exactly the always-short P&L and so no content beyond selling
+    the premium.
+    """
+    f = np.asarray(forecast, dtype=float)
+    y = np.asarray(realised, dtype=float)
+    k = np.asarray(strike_vol, dtype=float) ** 2
+    if not (len(f) == len(y) == len(k)):
+        raise ValueError("forecast, realised and strike must have the same length")
+    payoff = y ** 2 - k
+    long = f ** 2 > k
+    sign = np.where(long, 1.0, -1.0)
+    pnl = sign * payoff
+    short_pnl = -payoff
+    out = {
+        "n": int(len(f)), "share_long": float(long.mean()),
+        "mean_pnl": float(pnl.mean()), "hit_rate": float((pnl > 0).mean()),
+        "short_mean_pnl": float(short_pnl.mean()), "short_hit_rate": float((short_pnl > 0).mean()),
+        "long_days_mean_payoff": float(payoff[long].mean()) if long.any() else float("nan"),
+        "long_days_hit_rate": float((payoff[long] > 0).mean()) if long.any() else float("nan"),
+    }
+    out["p_vs_short"] = hac_dm(-pnl, -short_pnl, lag=20)["p"] if long.any() and not long.all() else float("nan")
+    return out

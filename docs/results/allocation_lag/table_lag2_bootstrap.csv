@@ -1,0 +1,8 @@
+strategy,Sharpe L2,Sharpe 95% interval (L2),minus Regime switch equity/cash (L2),"minus 60/40 monthly, 5 bps"
+Regime switch equity/cash,0.4353536133086445,-0.06 to +0.94,,-0.67 to +0.27
+Regime switch equity/bonds,0.47503301105239953,-0.02 to +0.98,-0.13 to +0.23,-0.69 to +0.40
+21d vol > 20% equity/cash,0.5801870198198333,+0.12 to +1.04,-0.14 to +0.41,-0.49 to +0.36
+EWMA vol > 20% equity/cash,0.5871689120083834,+0.13 to +1.07,-0.14 to +0.43,-0.45 to +0.37
+EWMA vol target 10%,0.6383579017330353,+0.22 to +1.07,-0.12 to +0.50,-0.28 to +0.27
+Static 100% equity,0.5357481219750715,+0.13 to +1.04,-0.36 to +0.56,-0.22 to +0.04
+Static 60/40 equity/bonds,0.6398275868377042,+0.23 to +1.17,-0.25 to +0.68,+0.00 to +0.03

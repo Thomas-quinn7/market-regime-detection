@@ -1,0 +1,5 @@
+benchmark,ann ret,ann vol,Sharpe,max DD,Calmar,turnover / yr
+"Static 60/40, daily rebalance, zero turnover (published)",0.0787253,0.11608,0.639828,-0.307903,0.255682,0
+"60/40 drifting, rebalanced at month end, 0 bps",0.0757576,0.113194,0.629066,-0.318625,0.237764,0.229244
+"60/40 drifting, rebalanced at month end, 5 bps",0.0756342,0.113195,0.628055,-0.318752,0.237283,0.229244
+"60/40 drifting, rebalanced at month end, 10 bps",0.0755109,0.113195,0.627044,-0.318878,0.236802,0.229244

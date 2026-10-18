@@ -1,0 +1,7 @@
+signal,share of days on,changes / yr
+HMM prob >= 0.5,0.283276,10.6075
+21d vol > 20%,0.22829,4.87372
+EWMA vol > 20%,0.224877,4.30034
+turbulence > wf p90,0.0982177,29.7201
+turbulence 21d mean > wf p90,0.081532,2.96246
+stock-bond corr63 > 0,0.0633295,1.52901

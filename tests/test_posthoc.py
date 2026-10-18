@@ -112,3 +112,46 @@ def test_mcs_deterministic_and_shape():
     b = mcs(losses, block=21, n_boot=100, seed=3)
     assert np.array_equal(a["p_value"], b["p_value"]) and a["p_value"].shape == (4,)
     assert sorted(a["elimination_rank"]) == [1, 2, 3, 4]
+
+
+def test_mincer_zarnowitz_recovers_a_known_line_and_hac_se():
+    from regimes.posthoc import mincer_zarnowitz
+
+    rng = np.random.default_rng(5)
+    f = rng.uniform(0.5, 2.0, 400)
+    y = 0.3 + 0.8 * f  # exact line: slope and intercept recovered, R2 = 1, Wald rejects (0, 1)
+    mz = mincer_zarnowitz(f, y, lag=20)
+    assert abs(mz["slope"] - 0.8) < 1e-10 and abs(mz["intercept"] - 0.3) < 1e-10
+    assert abs(mz["r2"] - 1.0) < 1e-10 and mz["n"] == 400
+    # With noise the lag-0 HAC standard error is the classical White standard error.
+    y2 = y + rng.normal(0, 0.1, 400)
+    mz0 = mincer_zarnowitz(f, y2, lag=0)
+    x = np.column_stack([np.ones(400), f])
+    beta = np.linalg.lstsq(x, y2, rcond=None)[0]
+    u = y2 - x @ beta
+    xtx_inv = np.linalg.inv(x.T @ x)
+    white = xtx_inv @ (x * u[:, None]).T @ (x * u[:, None]) @ xtx_inv
+    assert abs(mz0["se_slope"] - math.sqrt(white[1, 1])) < 1e-12
+    assert abs(mz0["slope"] - beta[1]) < 1e-12
+    # An unbiased forecast (y = f + noise) does not reject a = 0, b = 1.
+    y3 = f + rng.normal(0, 0.05, 400)
+    assert mincer_zarnowitz(f, y3, lag=20)["p_a0_b1"] > 0.01
+
+
+def test_variance_swap_sign_test_hand_built():
+    from regimes.posthoc import variance_swap_sign_test
+
+    strike = np.array([1.0, 1.0, 1.0, 1.0])          # strike variance 1
+    realised = np.array([2.0, 0.5, 1.5, 0.5])        # payoff to long: 3, -0.75, 1.25, -0.75
+    forecast = np.array([1.5, 1.5, 0.5, 0.5])        # long, long, short, short
+    r = variance_swap_sign_test(forecast, realised, strike)
+    assert r["n"] == 4 and abs(r["share_long"] - 0.5) < 1e-12
+    # pnl = [3, -0.75, -1.25, 0.75]: mean 0.4375, two of four positive
+    assert abs(r["mean_pnl"] - 0.4375) < 1e-12 and abs(r["hit_rate"] - 0.5) < 1e-12
+    # always short: pnl = [-3, 0.75, -1.25, 0.75]: mean -0.6875, hit 0.5
+    assert abs(r["short_mean_pnl"] + 0.6875) < 1e-12 and abs(r["short_hit_rate"] - 0.5) < 1e-12
+    assert abs(r["long_days_mean_payoff"] - 1.125) < 1e-12 and abs(r["long_days_hit_rate"] - 0.5) < 1e-12
+    # A forecast that is never long has the always-short P&L exactly and no p-value.
+    never = variance_swap_sign_test(np.full(4, 0.5), realised, strike)
+    assert never["share_long"] == 0.0 and never["mean_pnl"] == never["short_mean_pnl"]
+    assert math.isnan(never["p_vs_short"]) and math.isnan(never["long_days_mean_payoff"])

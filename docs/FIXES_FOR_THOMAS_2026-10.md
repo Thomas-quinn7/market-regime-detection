@@ -200,8 +200,84 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
 - Evidence: `docs/POSTHOC_2026-10.md`, S&P 500 1996-2004 and 2024-2026 sections, "Claim outcomes under
   each loss" tables, (e) and (g) (post hoc).
 
+### P11. WRITEUP.md lines 298-300: the execution assumption and the cost per switch
+
+- Old (WRITEUP.md:298-300): "The rules are deliberately strict on look-ahead: the regime probability is the
+  **walk-forward out-of-sample** one (parameters estimated only on past data), the position for each day
+  is decided from the prior day's information, and turnover is charged 5 basis points."
+- Proposed: "The rules are deliberately strict on look-ahead: the regime probability is the **walk-forward
+  out-of-sample** one (parameters estimated only on past data), the position for each day is decided from
+  the prior day's close and filled at that same close, and turnover is charged 5 basis points per leg (a
+  full switch is 10 basis points). Filling at the close that produced the signal is the most favourable
+  execution a closing-price signal can have. With one more day of lag (signal at the close of t-2, filled
+  at the close of t-1) the regime switch goes from Sharpe 0.66 and max drawdown -15% to 0.44 and -26%, and
+  the 21-day trailing-vol rule from 0.75 and -18% to 0.58 and -23%; the EWMA rule and vol targeting do
+  not move. The regime switch trades about 15 full switches a year, 1.55% a year of brokerage at 5 basis
+  points per leg, against about 0.5% for the trailing-vol rules."
+- Why: the backtest trades at the print that produced the signal and the text does not say so; the lag
+  moves the regime switch by more than its reported edge over 60/40 (desk, trader section 4, HIGH;
+  synthesis finding 4; the HMM row is the run the desk could not afford).
+- Evidence: `docs/ALLOCATION_LAG_2026-10.md` sections 1, 3 and 4 (development data only), written by
+  `examples/allocation_lag.py`; `regimes.allocation.backtest(execution_lag=...)`, default 1 reproduces the
+  published table (section 2).
+
+### P12. WRITEUP.md lines 363-365: "The drawdown reduction is the more robust part of the result"
+
+- Old (WRITEUP.md:363-365): "The drawdown reduction is the more robust part of the result, since every
+  switching and vol-targeting rule cuts the maximum drawdown sharply (-12% to -25%, against -52% for
+  equity), though as a single-path statistic it has no interval here either."
+- Proposed: "Every switching and vol-targeting rule cuts the maximum drawdown on this path (-12% to -25%,
+  against -51% for equity), but the drawdown is the statistic most exposed to execution timing: with one
+  more day of lag the regime switch's drawdown is -26%, against -31% for the 60/40, while the
+  vol-targeting rule's is unchanged at -18%. As a single-path statistic it has no interval here either."
+- Why: the sentence a desk would challenge (desk, trader section 4); the lag run measures it.
+- Evidence: `docs/ALLOCATION_LAG_2026-10.md` section 3 (development data only).
+
+### P13. WRITEUP.md lines 370-371: "the ~2.3% of annual return given up is a real cost of the insurance"
+
+- Old (WRITEUP.md:370-371): "The binary switch is crude, the ~2.3% of annual return given up is a real cost
+  of the insurance, and none of this is a live trading system."
+- Proposed: "The binary switch is crude; of the 2.4 percentage points of annual return given up against
+  buy-and-hold equity, 1.55 points a year are brokerage at 5 basis points per leg (turnover of 31 a year,
+  about 15 full switches) and 0.7 points are the cost of being out of the market (the give-up at zero
+  cost); and none of this is a live trading system."
+- Why: more than half of the "insurance cost" is whipsaw brokerage and the paper never says so (desk,
+  trader section 4, MEDIUM; synthesis finding 4 companion).
+- Evidence: `docs/ALLOCATION_LAG_2026-10.md` section 4, regime switch equity/cash, lag 1 (development data
+  only): turnover 30.95 a year, drag 1.55 pp at 5 bps, give-up 2.40 pp of which 0.72 gross.
+
+### P14. "-52%" for the static-equity drawdown is -51% (factual; four places; not applied on your "all as proposals")
+
+- Old: "-52%" at README.md:41, WRITEUP.md:316 (table), :324 and :364.
+- Proposed: "-51%" in all four.
+- Why: the exact maximum drawdown of the static 100% equity line on the published window is -51.48%; the
+  script prints -51.5% to one decimal and the hand rounding to whole percent went to -52%. Rule 7 allows
+  this as a factual correction; left for you because the 00:00 pointer said all as proposals.
+- Evidence: `docs/ALLOCATION_LAG_2026-10.md` section 2 note (development data only).
+
+### P15. WRITEUP.md line 302: the 60/40 is rebalanced daily at no cost
+
+- Old (WRITEUP.md:302): "Benchmarks are static 100% equity, a static 60/40, and the baseline from earlier:"
+- Proposed: "Benchmarks are static 100% equity, a static 60/40 (constant weights, which is a daily rebalance
+  that trades nothing; a 60/40 that drifts and is reset at each month end, paying the same 5 basis points,
+  earns 7.6% at Sharpe 0.63 with a -32% drawdown against 7.9%, 0.64 and -31%), and the baseline from
+  earlier:"
+- Why: desk, trader section 4 (LOW): the benchmark is flattered by a few basis points; negligible, and a
+  reviewer will notice.
+- Evidence: `docs/ALLOCATION_LAG_2026-10.md` section 5 (development data only);
+  `regimes.allocation.rebalanced_backtest`.
+
+### P16. README.md line 41: the allocation row
+
+- Old (README.md:41, end of the row): "... and a block bootstrap cannot tell any of the Sharpe ratios apart:
+  loss avoidance, not alpha (out-of-sample, after costs)"
+- Proposed: "... and a block bootstrap cannot tell any of the Sharpe ratios apart; with one more day of
+  execution lag the regime switch is Sharpe 0.44 with a -26% drawdown: loss avoidance, not alpha
+  (out-of-sample, after costs, filled at the signal's close)"
+- Why: as P11; the README row is where a reader meets the -15% first.
+- Evidence: `docs/ALLOCATION_LAG_2026-10.md` section 3 (development data only).
+
 ### Still to come in S6
 
-Every other sentence the desk synthesis and the panel flagged (allocation section wording after S5,
-the "every holdout re-derives" line, DATA_QUALITY paragraph for the partial YM sessions and the 2014 gap,
+Every other sentence the desk synthesis and the panel flagged (the "every holdout re-derives" line, DATA_QUALITY paragraph for the partial YM sessions and the 2014 gap,
 the panel D items not listed above), each with line, old text, proposed text and whether applied.

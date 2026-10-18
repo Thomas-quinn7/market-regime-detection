@@ -1,0 +1,7 @@
+{
+ "n_refits": 60,
+ "n_skipped": 0,
+ "seconds": 18.9,
+ "first_oos": "2003-01-09",
+ "refits_converged": 60
+}

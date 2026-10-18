@@ -1,0 +1,7 @@
+overlay,C1 Sharpe: better / worse (of 5),"C2 drawdown cut >= 5 pp (point, of 5)",C2 drawdown interval: better / worse (of 5)
+HMM prob >= 0.5,0 / 0,5,0 / 0
+21d vol > 20%,0 / 0,5,0 / 0
+EWMA vol > 20%,0 / 0,5,0 / 0
+turbulence > wf p90,0 / 0,3,0 / 0
+turbulence 21d mean > wf p90,0 / 0,3,0 / 0
+stock-bond corr63 > 0,0 / 0,0,0 / 0
