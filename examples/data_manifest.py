@@ -3,6 +3,7 @@
 Run from the repo root:
 
     python examples/data_manifest.py
+    python examples/data_manifest.py --check [--holdout etf]   # verify local files against the manifest
 
 Every file under ``data/`` is listed, including the walk-forward checkpoints in
 ``data/checkpoints/msgarch_credit/``. The holdout column comes from the reproductions: each
@@ -67,7 +68,44 @@ def rows() -> list[dict]:
     return result
 
 
+def read_manifest(path: Path) -> list[dict]:
+    """The rows of a written MANIFEST.md: path, sha256, bytes, holdouts."""
+    out = []
+    for line in path.read_text().splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) == 7 and cells[0].startswith("`data/"):
+            out.append({"path": cells[0].strip("`"), "sha256": cells[1].strip("`"), "bytes": int(cells[2]),
+                        "holdouts": cells[4]})
+    return out
+
+
+def check(manifest: Path, root: Path, holdout: str | None = None) -> dict[str, list[str]]:
+    """Compare the files under ``root`` with a manifest. Returns {"ok", "differ", "missing"} lists of
+    repo-relative paths; with ``holdout`` only the files that holdout read are checked."""
+    res: dict[str, list[str]] = {"ok": [], "differ": [], "missing": []}
+    for r in read_manifest(manifest):
+        if holdout and holdout not in r["holdouts"]:
+            continue
+        f = root / r["path"]
+        if not f.is_file():
+            res["missing"].append(r["path"])
+        elif sha256(f) != r["sha256"]:
+            res["differ"].append(r["path"])
+        else:
+            res["ok"].append(r["path"])
+    return res
+
+
 def main() -> None:
+    if "--check" in sys.argv:
+        holdout = sys.argv[sys.argv.index("--holdout") + 1] if "--holdout" in sys.argv else None
+        res = check(DATA / "MANIFEST.md", REPO, holdout)
+        for key in ("differ", "missing"):
+            for p in res[key]:
+                print(f"{key.upper()}: {p}")
+        print(f"manifest check{' (' + holdout + ')' if holdout else ''}: {len(res['ok'])} equal, "
+              f"{len(res['differ'])} differ, {len(res['missing'])} missing")
+        sys.exit(1 if res["differ"] or res["missing"] else 0)
     table = rows()
     head = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO, capture_output=True,
                           text=True).stdout.strip()

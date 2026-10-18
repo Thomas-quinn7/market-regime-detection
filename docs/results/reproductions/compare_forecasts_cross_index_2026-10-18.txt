@@ -1,0 +1,15 @@
+Class: reproduction (examples/compare_forecasts.py).
+reference: docs/results/cross_index_holdout_2026-10-14.txt
+candidate: docs/results/reproductions/cross_index/stdout.txt
+
+lines compared 104 vs 104; lines with numeric differences 3; largest absolute difference 0.003; structural differences 0; verdict words moved 0
+  line 5: max |diff| 0.003
+    - last MSM fit: m0 1.504, sigma 1.786, b 3.798, gamma_k 0.054
+    + last MSM fit: m0 1.504, sigma 1.786, b 3.795, gamma_k 0.054
+  line 34: max |diff| 0.001
+    - last MSM fit: m0 1.511, sigma 1.929, b 4.558, gamma_k 0.077
+    + last MSM fit: m0 1.511, sigma 1.929, b 4.559, gamma_k 0.077
+  line 63: max |diff| 0.001
+    - last MSM fit: m0 1.424, sigma 2.233, b 3.046, gamma_k 0.032
+    + last MSM fit: m0 1.424, sigma 2.233, b 3.047, gamma_k 0.032
+verdict: within tolerance, no verdict word moves

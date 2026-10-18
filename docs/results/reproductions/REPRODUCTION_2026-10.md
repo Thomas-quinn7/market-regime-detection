@@ -190,3 +190,36 @@ convergence patch; the patch is behaviour-preserving for the stock-bond walk-for
 shadowed package was built from `git archive 7ee241f src/regimes` under `/opt/hmm-agent/out/repro/pin_s1`
 with the data folder symlinked. Nothing in `docs/results/` or the WRITEUP moves: the differences are
 at the 16th digit of unpublished intermediate series and every printed number is identical.
+
+## Tolerance comparison of the two reproductions that are not identical (stage S7 c, 18 Oct 2026)
+
+Class: reproduction. `examples/compare_forecasts.py` (new in S7) measures how far apart two
+reproductions are and whether any verdict moves: in folder mode it compares the saved scored tables
+model by model and recomputes every registered comparison on each side (63-day circular blocks, 2,000
+draws, seed 0); in text mode it lines up a committed result file with a reproduction's stdout and
+compares every printed number. Both runs below were made on pc-lanes on 18 Oct from the folders above;
+the full reports are saved beside this file.
+
+**ETF, full refit against the frozen checkpoints** (`compare_forecasts.py folders etf_frozen_checkpoints
+etf --holdout etf`, report `compare_forecasts_etf_refit_2026-10-18.txt`). The target is identical on
+every asset. The HMM implied vol agrees to 5e-12 or better, GJR-GARCH to 0.005 (oil) and 7e-5 or
+better elsewhere. MS-GARCH and the two HAR + IV + MS-GARCH sets differ most: largest single-day
+forecast difference 0.419 (MS-GARCH, Brazil; daily percent), 0.025 to 0.048 on oil and gold, 0.005 on
+EEM. The largest change in any model's RMSE is 0.0051 (MS-GARCH, Brazil: 0.9308 frozen, 0.9257
+refit) and the largest shift of any registered interval end is 0.0124. Per-asset verdicts moved: 0 of
+36 on RMSE and 0 of 36 on QLIKE; no claim outcome moves on either loss. The text-mode comparison of
+the refit's stdout with the committed result file (`compare_forecasts_etf_refit_text_2026-10-18.txt`)
+finds 24 lines with numeric differences, the largest 0.1 (the printed MS-GARCH Student-t `nu`, 14.8
+against 14.9), one structural difference (the two-line header added by hand to the committed file),
+and no verdict word moved.
+
+**Cross-index, wrapper against the committed result** (`compare_forecasts.py text
+docs/results/cross_index_holdout_2026-10-14.txt cross_index/stdout.txt`, report
+`compare_forecasts_cross_index_2026-10-18.txt`). 104 lines on each side; 3 lines differ, all the
+printed last MSM fit, parameter `b` only, by 0.003 (Nasdaq-100), 0.001 (Dow) and 0.001 (Russell
+2000); no structural difference; no verdict word moves. The frozen run saved no forecasts, so a
+forecast-level comparison is possible only after a laptop rerun (see `LAPTOP_RERUN.md`).
+
+Reading. Both are "within tolerance, verdicts unchanged". Neither is "identical", and the ETF refit
+is not a reproduction of the frozen MS-GARCH fits: it is a second set of fits that lands on the same
+verdicts. The tolerance is not one fixed in advance; it is what was measured, stated above.

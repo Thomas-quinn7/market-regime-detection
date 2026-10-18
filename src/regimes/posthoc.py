@@ -10,6 +10,9 @@ a registered verdict.
   of Politis and Romano (1994). With ``scheme="circular"`` and the holdouts' settings it reproduces
   ``regimes.forecast.paired_rmse_diff_interval`` and ``paired_mean_diff_interval`` exactly.
 - ``excluded_change_pct``: the equivalence reading of an interval, in percent of the reference loss.
+- ``paired_draws`` and ``bootstrap_p_value`` (stage S7): the bootstrap draws behind ``paired_interval``
+  (same seed, same draws) and the two-sided p-value got by inverting the percentile interval.
+- ``holm``: Holm's (1979) step-down adjustment of a family of p-values.
 """
 from __future__ import annotations
 
@@ -218,3 +221,62 @@ def variance_swap_sign_test(forecast: np.ndarray, realised: np.ndarray, strike_v
     }
     out["p_vs_short"] = hac_dm(-pnl, -short_pnl, lag=20)["p"] if long.any() and not long.all() else float("nan")
     return out
+
+
+def paired_draws(a: np.ndarray, b: np.ndarray, *, statistic: str = "rmse", scheme: str = "circular",
+                 block: float = 63, n_boot: int = 2000, seed: int = 0) -> np.ndarray:
+    """The ``n_boot`` bootstrap draws of the difference that ``paired_interval`` takes percentiles of,
+    with the same seed and the same resamples, so that ``np.percentile(draws, [2.5, 97.5])`` equals
+    ``paired_interval`` with the same arguments."""
+    a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
+    n = len(a)
+    rng = np.random.default_rng(seed)
+    out = np.empty(n_boot)
+    d = a - b
+    for i in range(n_boot):
+        if scheme == "circular":
+            idx = _circular_indices(rng, n, int(block))
+        elif scheme == "stationary":
+            idx = stationary_indices(rng, n, block)
+        else:
+            raise ValueError(f"unknown scheme {scheme!r}")
+        if statistic == "rmse":
+            out[i] = np.sqrt((a[idx] ** 2).mean()) - np.sqrt((b[idx] ** 2).mean())
+        elif statistic == "mean":
+            out[i] = d[idx].mean()
+        else:
+            raise ValueError(f"unknown statistic {statistic!r}")
+    return out
+
+
+def bootstrap_p_value(draws: np.ndarray) -> float:
+    """Two-sided p-value for "the difference is zero" from bootstrap draws of the difference, by
+    inverting the percentile interval: 2 * min(share of draws <= 0, share >= 0), counted with the
+    usual +1 so it is never 0 (smallest value 2 / (n_boot + 1)). A 95% percentile interval that
+    excludes zero corresponds to a p-value of about 0.05 or less."""
+    draws = np.asarray(draws, dtype=float)
+    n = len(draws)
+    lo = (np.sum(draws <= 0) + 1) / (n + 1)
+    hi = (np.sum(draws >= 0) + 1) / (n + 1)
+    return float(min(1.0, 2.0 * min(lo, hi)))
+
+
+def holm(pvalues, alpha: float = 0.05) -> dict[str, np.ndarray]:
+    """Holm's step-down procedure on one family.
+
+    Returns ``adjusted`` (Holm-adjusted p-values, monotone, capped at 1, in the input order) and
+    ``reject`` (adjusted < = alpha). NaN p-values are left out of the family and come back as NaN /
+    False.
+    """
+    p = np.asarray(pvalues, dtype=float)
+    ok = ~np.isnan(p)
+    adjusted = np.full(p.shape, np.nan)
+    pv = p[ok]
+    m = len(pv)
+    if m:
+        order = np.argsort(pv, kind="mergesort")
+        adj_sorted = np.maximum.accumulate((m - np.arange(m)) * pv[order])
+        adj = np.empty(m)
+        adj[order] = np.minimum(adj_sorted, 1.0)
+        adjusted[ok] = adj
+    return {"adjusted": adjusted, "reject": np.where(ok, adjusted <= alpha, False)}

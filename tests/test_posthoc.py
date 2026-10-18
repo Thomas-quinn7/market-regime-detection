@@ -155,3 +155,44 @@ def test_variance_swap_sign_test_hand_built():
     never = variance_swap_sign_test(np.full(4, 0.5), realised, strike)
     assert never["share_long"] == 0.0 and never["mean_pnl"] == never["short_mean_pnl"]
     assert math.isnan(never["p_vs_short"]) and math.isnan(never["long_days_mean_payoff"])
+
+
+def test_paired_draws_are_the_draws_behind_paired_interval():
+    from regimes.posthoc import paired_draws, paired_interval
+    rng = np.random.default_rng(3)
+    a, b = rng.normal(size=400), rng.normal(size=400) * 1.1
+    for stat, scheme in (("rmse", "circular"), ("mean", "circular"), ("mean", "stationary")):
+        draws = paired_draws(a, b, statistic=stat, scheme=scheme, block=21, n_boot=300, seed=5)
+        lo, hi = paired_interval(a, b, statistic=stat, scheme=scheme, block=21, n_boot=300, seed=5)
+        assert np.allclose(np.percentile(draws, [2.5, 97.5]), [lo, hi], rtol=0, atol=0)
+
+
+def test_bootstrap_p_value_hand_built_and_consistent_with_the_interval():
+    from regimes.posthoc import bootstrap_p_value, paired_draws, paired_interval
+    # hand-built draws: 3 of 9 at or below zero -> 2 * (3 + 1) / 10 = 0.8
+    assert bootstrap_p_value(np.array([-2, -1, 0, 1, 2, 3, 4, 5, 6.0])) == pytest.approx(0.8)
+    assert bootstrap_p_value(np.ones(99)) == pytest.approx(2 / 100)
+    # an interval that excludes zero has p at or below about 0.05, one that spans zero above it
+    rng = np.random.default_rng(0)
+    seen = set()
+    for shift in (0.0, 0.05, 0.1, 0.2, 0.4, 0.0, 0.1):
+        y = rng.normal(size=600)
+        a = y + rng.normal(scale=0.5, size=600) + shift
+        b = y + rng.normal(scale=0.5, size=600)
+        lo, hi = paired_interval(a - y, b - y, statistic="rmse", block=21, n_boot=1000)
+        p = bootstrap_p_value(paired_draws(a - y, b - y, statistic="rmse", block=21, n_boot=1000))
+        excl = lo > 0 or hi < 0
+        seen.add(excl)
+        assert p <= 0.052 if excl else p >= 0.048
+    assert seen == {True, False}
+
+
+def test_holm_matches_the_textbook_example_and_handles_nan():
+    from regimes.posthoc import holm
+    p = [0.01, 0.04, 0.03, 0.005, np.nan]
+    out = holm(p, alpha=0.05)
+    # sorted 0.005, 0.01, 0.03, 0.04 times 4, 3, 2, 1 -> 0.02, 0.03, 0.06, 0.04 -> monotone 0.02, 0.03, 0.06, 0.06
+    assert np.allclose(out["adjusted"][:4], [0.03, 0.06, 0.06, 0.02])
+    assert np.isnan(out["adjusted"][4])
+    assert out["reject"].tolist() == [True, False, False, True, False]
+    assert holm([0.9, 0.8])["adjusted"].tolist() == [1.0, 1.0]

@@ -1,0 +1,106 @@
+Class: reproduction (examples/compare_forecasts.py).
+reference: docs/results/reproductions/etf_frozen_checkpoints
+candidate: docs/results/reproductions/etf
+
+1. forecasts, per asset and model (common days)
+  Crude oil (USO)                HAR                            max |diff| 0.00e+00  RMSE 0.9325 vs 0.9325  QLIKE 0.3330 vs 0.3330
+  Crude oil (USO)                HAR + IV                       max |diff| 0.00e+00  RMSE 0.8589 vs 0.8589  QLIKE 0.2472 vs 0.2472
+  Crude oil (USO)                HAR + credit                   max |diff| 0.00e+00  RMSE 0.9343 vs 0.9343  QLIKE 0.3415 vs 0.3415
+  Crude oil (USO)                HAR + IV + credit              max |diff| 0.00e+00  RMSE 0.8721 vs 0.8721  QLIKE 0.2359 vs 0.2359
+  Crude oil (USO)                GJR-GARCH                      max |diff| 5.00e-03  RMSE 0.9713 vs 0.9712  QLIKE 0.3517 vs 0.3518
+  Crude oil (USO)                Two-state HMM implied vol      max |diff| 5.16e-12  RMSE 1.0812 vs 1.0812  QLIKE 0.4669 vs 0.4669
+  Crude oil (USO)                MS-GARCH                       max |diff| 2.55e-02  RMSE 0.9876 vs 0.9881  QLIKE 0.3448 vs 0.3455
+  Crude oil (USO)                HAR + IV + MS-GARCH            max |diff| 3.16e-02  RMSE 0.8683 vs 0.8677  QLIKE 0.2515 vs 0.2512
+  Crude oil (USO)                HAR + IV + MS-GARCH prob       max |diff| 1.25e-02  RMSE 0.8600 vs 0.8600  QLIKE 0.2475 vs 0.2475
+  Crude oil (USO)                target                         max |diff| 0.00e+00
+  Gold (GLD)                     HAR                            max |diff| 0.00e+00  RMSE 0.3797 vs 0.3797  QLIKE 0.2583 vs 0.2583
+  Gold (GLD)                     HAR + IV                       max |diff| 0.00e+00  RMSE 0.3441 vs 0.3441  QLIKE 0.2233 vs 0.2233
+  Gold (GLD)                     HAR + credit                   max |diff| 0.00e+00  RMSE 0.3813 vs 0.3813  QLIKE 0.2756 vs 0.2756
+  Gold (GLD)                     HAR + IV + credit              max |diff| 0.00e+00  RMSE 0.3423 vs 0.3423  QLIKE 0.2284 vs 0.2284
+  Gold (GLD)                     GJR-GARCH                      max |diff| 4.26e-06  RMSE 0.3677 vs 0.3677  QLIKE 0.2514 vs 0.2514
+  Gold (GLD)                     Two-state HMM implied vol      max |diff| 8.25e-13  RMSE 0.3924 vs 0.3924  QLIKE 0.2773 vs 0.2773
+  Gold (GLD)                     MS-GARCH                       max |diff| 1.55e-02  RMSE 0.3705 vs 0.3707  QLIKE 0.2515 vs 0.2506
+  Gold (GLD)                     HAR + IV + MS-GARCH            max |diff| 4.79e-02  RMSE 0.3447 vs 0.3446  QLIKE 0.2245 vs 0.2246
+  Gold (GLD)                     HAR + IV + MS-GARCH prob       max |diff| 2.78e-02  RMSE 0.3489 vs 0.3488  QLIKE 0.2306 vs 0.2305
+  Gold (GLD)                     target                         max |diff| 0.00e+00
+  Emerging markets (EEM)         HAR                            max |diff| 0.00e+00  RMSE 0.4981 vs 0.4981  QLIKE 0.2569 vs 0.2569
+  Emerging markets (EEM)         HAR + IV                       max |diff| 0.00e+00  RMSE 0.4714 vs 0.4714  QLIKE 0.2532 vs 0.2532
+  Emerging markets (EEM)         HAR + credit                   max |diff| 0.00e+00  RMSE 0.5040 vs 0.5040  QLIKE 0.2937 vs 0.2937
+  Emerging markets (EEM)         HAR + IV + credit              max |diff| 0.00e+00  RMSE 0.4753 vs 0.4753  QLIKE 0.2624 vs 0.2624
+  Emerging markets (EEM)         GJR-GARCH                      max |diff| 1.92e-05  RMSE 0.5039 vs 0.5039  QLIKE 0.2706 vs 0.2706
+  Emerging markets (EEM)         Two-state HMM implied vol      max |diff| 1.04e-13  RMSE 0.5322 vs 0.5322  QLIKE 0.3328 vs 0.3328
+  Emerging markets (EEM)         MS-GARCH                       max |diff| 5.05e-03  RMSE 0.4941 vs 0.4940  QLIKE 0.2806 vs 0.2806
+  Emerging markets (EEM)         HAR + IV + MS-GARCH            max |diff| 2.02e-03  RMSE 0.4724 vs 0.4725  QLIKE 0.2539 vs 0.2540
+  Emerging markets (EEM)         HAR + IV + MS-GARCH prob       max |diff| 1.65e-03  RMSE 0.4728 vs 0.4728  QLIKE 0.2549 vs 0.2549
+  Emerging markets (EEM)         target                         max |diff| 0.00e+00
+  Brazil (EWZ)                   HAR                            max |diff| 0.00e+00  RMSE 0.8922 vs 0.8922  QLIKE 0.3166 vs 0.3166
+  Brazil (EWZ)                   HAR + IV                       max |diff| 0.00e+00  RMSE 0.8678 vs 0.8678  QLIKE 0.3157 vs 0.3157
+  Brazil (EWZ)                   HAR + credit                   max |diff| 0.00e+00  RMSE 0.8950 vs 0.8950  QLIKE 0.3231 vs 0.3231
+  Brazil (EWZ)                   HAR + IV + credit              max |diff| 0.00e+00  RMSE 0.8722 vs 0.8722  QLIKE 0.3107 vs 0.3107
+  Brazil (EWZ)                   GJR-GARCH                      max |diff| 6.49e-05  RMSE 0.9168 vs 0.9168  QLIKE 0.3355 vs 0.3355
+  Brazil (EWZ)                   Two-state HMM implied vol      max |diff| 1.74e-12  RMSE 0.9529 vs 0.9529  QLIKE 0.4020 vs 0.4020
+  Brazil (EWZ)                   MS-GARCH                       max |diff| 4.19e-01  RMSE 0.9308 vs 0.9257  QLIKE 0.3606 vs 0.3652
+  Brazil (EWZ)                   HAR + IV + MS-GARCH            max |diff| 3.58e-01  RMSE 0.8703 vs 0.8750  QLIKE 0.3179 vs 0.3198
+  Brazil (EWZ)                   HAR + IV + MS-GARCH prob       max |diff| 1.88e-01  RMSE 0.8605 vs 0.8604  QLIKE 0.3117 vs 0.3122
+  Brazil (EWZ)                   target                         max |diff| 0.00e+00
+
+2. registered comparisons (63-day circular blocks, seed 0), reference vs candidate
+  Crude oil (USO)            M1  RMSE -0.016 to +0.046 no difference | -0.015 to +0.047 no difference  QLIKE no difference | no difference
+  Crude oil (USO)            M2  RMSE +0.000 to +0.024 worse         | +0.000 to +0.022 worse          QLIKE worse | worse
+  Crude oil (USO)            M3  RMSE -0.277 to +0.122 no difference | -0.277 to +0.123 no difference  QLIKE better | better
+  Crude oil (USO)            M4  RMSE -0.003 to +0.005 no difference | -0.003 to +0.005 no difference  QLIKE no difference | no difference
+  Crude oil (USO)            M5  RMSE +0.038 to +0.240 worse         | +0.039 to +0.240 worse          QLIKE worse | worse
+  Crude oil (USO)            C1  RMSE -0.008 to +0.042 no difference | -0.008 to +0.042 no difference  QLIKE no difference | no difference
+  Crude oil (USO)            C2  RMSE -0.003 to +0.007 no difference | -0.003 to +0.007 no difference  QLIKE worse | worse
+  Crude oil (USO)            R1  RMSE -0.127 to -0.010 better        | -0.127 to -0.010 better         QLIKE better | better
+  Crude oil (USO)            R2  RMSE +0.043 to +0.204 worse         | +0.043 to +0.204 worse          QLIKE worse | worse
+  Gold (GLD)                 M1  RMSE -0.007 to +0.011 no difference | -0.006 to +0.011 no difference  QLIKE no difference | no difference
+  Gold (GLD)                 M2  RMSE -0.000 to +0.001 no difference | -0.001 to +0.002 no difference  QLIKE no difference | no difference
+  Gold (GLD)                 M3  RMSE -0.044 to -0.002 better        | -0.043 to -0.002 better         QLIKE no difference | no difference
+  Gold (GLD)                 M4  RMSE -0.001 to +0.011 no difference | -0.001 to +0.010 no difference  QLIKE no difference | no difference
+  Gold (GLD)                 M5  RMSE +0.013 to +0.038 worse         | +0.013 to +0.039 worse          QLIKE no difference | no difference
+  Gold (GLD)                 C1  RMSE -0.008 to +0.005 no difference | -0.008 to +0.005 no difference  QLIKE no difference | no difference
+  Gold (GLD)                 C2  RMSE -0.012 to +0.015 no difference | -0.012 to +0.015 no difference  QLIKE no difference | no difference
+  Gold (GLD)                 R1  RMSE -0.051 to -0.022 better        | -0.051 to -0.022 better         QLIKE no difference | no difference
+  Gold (GLD)                 R2  RMSE +0.010 to +0.037 worse         | +0.010 to +0.037 worse          QLIKE no difference | no difference
+  Emerging markets (EEM)     M1  RMSE -0.029 to +0.006 no difference | -0.029 to +0.006 no difference  QLIKE no difference | no difference
+  Emerging markets (EEM)     M2  RMSE -0.003 to +0.004 no difference | -0.003 to +0.004 no difference  QLIKE no difference | no difference
+  Emerging markets (EEM)     M3  RMSE -0.058 to -0.017 better        | -0.058 to -0.017 better         QLIKE no difference | no difference
+  Emerging markets (EEM)     M4  RMSE -0.003 to +0.006 no difference | -0.003 to +0.006 no difference  QLIKE no difference | no difference
+  Emerging markets (EEM)     M5  RMSE +0.005 to +0.048 worse         | +0.005 to +0.048 worse          QLIKE no difference | no difference
+  Emerging markets (EEM)     C1  RMSE -0.001 to +0.013 no difference | -0.001 to +0.013 no difference  QLIKE no difference | no difference
+  Emerging markets (EEM)     C2  RMSE -0.011 to +0.019 no difference | -0.011 to +0.019 no difference  QLIKE no difference | no difference
+  Emerging markets (EEM)     R1  RMSE -0.049 to -0.009 better        | -0.049 to -0.009 better         QLIKE no difference | no difference
+  Emerging markets (EEM)     R2  RMSE +0.009 to +0.061 worse         | +0.009 to +0.061 worse          QLIKE no difference | no difference
+  Brazil (EWZ)               M1  RMSE -0.061 to +0.063 no difference | -0.058 to +0.051 no difference  QLIKE no difference | no difference
+  Brazil (EWZ)               M2  RMSE +0.001 to +0.006 worse         | +0.003 to +0.015 worse          QLIKE no difference | no difference
+  Brazil (EWZ)               M3  RMSE -0.053 to +0.021 no difference | -0.063 to +0.019 no difference  QLIKE better | better
+  Brazil (EWZ)               M4  RMSE -0.026 to +0.005 no difference | -0.028 to +0.005 no difference  QLIKE no difference | no difference
+  Brazil (EWZ)               M5  RMSE +0.026 to +0.122 worse         | +0.023 to +0.116 worse          QLIKE no difference | no difference
+  Brazil (EWZ)               C1  RMSE -0.003 to +0.020 no difference | -0.003 to +0.020 no difference  QLIKE no difference | no difference
+  Brazil (EWZ)               C2  RMSE -0.001 to +0.008 no difference | -0.001 to +0.008 no difference  QLIKE worse | worse
+  Brazil (EWZ)               R1  RMSE -0.072 to +0.001 no difference | -0.072 to +0.001 no difference  QLIKE no difference | no difference
+  Brazil (EWZ)               R2  RMSE -0.006 to +0.157 no difference | -0.006 to +0.157 no difference  QLIKE no difference | no difference
+
+3. claim outcomes, reference vs candidate
+  RMSE  M1: rejected | rejected
+  RMSE  M2: rejected | rejected
+  RMSE  M3: confirmed | confirmed
+  RMSE  M4: rejected | rejected
+  RMSE  M5: rejected | rejected
+  RMSE  C1: holds | holds
+  RMSE  C2: rejected | rejected
+  RMSE  R1: confirmed | confirmed
+  RMSE  R2: holds | holds
+  QLIKE M1: rejected | rejected
+  QLIKE M2: rejected | rejected
+  QLIKE M3: confirmed | confirmed
+  QLIKE M4: rejected | rejected
+  QLIKE M5: rejected | rejected
+  QLIKE C1: holds | holds
+  QLIKE C2: rejected | rejected
+  QLIKE R1: mixed | mixed
+  QLIKE R2: holds | holds
+
+summary: largest forecast difference 4.19e-01 (MS-GARCH, Brazil (EWZ)); largest RMSE change 0.0051; largest interval-end shift 0.0124; per-asset verdicts moved: RMSE 0 of 36, QLIKE 0 of 36; claim outcomes moved: none
+verdict: within tolerance, no verdict or claim outcome moves

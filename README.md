@@ -38,7 +38,7 @@ caveats for every result below.
 | Cross-asset concordance | stress is systemic: the nine per-sector regimes agree at 0.67 mean pairwise correlation, out-of-sample |
 | Multivariate turbulence | a genuinely different signal from single-asset vol (74% label agreement); correlates 0.39 with next-month realised vol vs the single-asset model's 0.55 on its home turf, which is expected since its value is correlation-break detection |
 | Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4 to 1.8x), but **76 to 92% of alerts are false**, measured here alongside the recall the literature emphasises |
-| Regime allocation | max drawdown -15% vs -52% for equities and -31% for 60/40, but Sharpe 0.66 vs 0.64 for 60/40, and a plain trailing-vol switch or vol targeting does about as well (Sharpe 0.55 to 0.74), and a block bootstrap cannot tell any of the Sharpe ratios apart: loss avoidance, not alpha (out-of-sample, after costs) |
+| Regime allocation | max drawdown -15% vs -51% for equities and -31% for 60/40, but Sharpe 0.66 vs 0.64 for 60/40, and a plain trailing-vol switch or vol targeting does about as well (Sharpe 0.55 to 0.74), and a block bootstrap cannot tell any of the Sharpe ratios apart: loss avoidance, not alpha (out-of-sample, after costs) |
 | Macro quadrants | does **not** beat a static 60/40. An honest null result, kept for the point-in-time data discipline it demonstrates |
 | Stock-bond correlation regimes | an HMM aimed at a state that is genuinely hidden, tested on a 1962-2004 holdout whose rules were committed first: **worse** than trailing correlation at forecasting it and no better at spotting flips; plain EWMA correlation won on both periods |
 | Adding the VIX | every signal scored as a forecast against HAR-RV, with two holdouts committed first (1996-2004, 2024-2026): adding the VIX cuts forecast error on both (about 9% on 1996-2004); a regime probability adds nothing once the VIX is in; the HMM's own forecast loses to HAR on 1996-2004 and draws on 2024-2026 |
@@ -152,7 +152,9 @@ Every forecasting holdout was run once, under a protocol committed before the ho
 opened. The commits below are the evidence. Each one can be checked on GitHub (its page shows the
 commit date and the files it added) or locally with `git show --stat <hash>`. The results commits
 came after the freeze commits in every case, the protocol files were not edited between freeze and
-results except to add the freeze hash, and the result files under `docs/results/` have not been
+results except to add the freeze hash (the results commits then changed the status line of the
+cross-index and MS-GARCH protocols and appended a results section, 51 and 61 lines; no rule was
+edited), and the result files under `docs/results/` have not been
 changed since. One caveat: the stock-bond freeze (53b50c6) was pushed in the same push as its
 results, so for that holdout the commit order is local evidence only. The three later freezes were
 public on GitHub before their results were pushed.

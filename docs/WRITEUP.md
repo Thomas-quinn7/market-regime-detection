@@ -313,7 +313,7 @@ cash. Window: 2008-2023 (where the OOS signal exists).
 | 21-day vol > 20%, equity / cash | 9.1% | 11.6% | **0.74** | -18% | **0.51** |
 | EWMA vol > 20%, equity / cash | 6.7% | 11.6% | 0.55 | -20% | 0.33 |
 | EWMA vol target 10%, equity / cash | 7.0% | 10.0% | 0.65 | -19% | 0.37 |
-| Static 100% equity | **10.0%** | 20.4% | 0.53 | -52% | 0.19 |
+| Static 100% equity | **10.0%** | 20.4% | 0.53 | -51% | 0.19 |
 | Static 60/40 equity / bonds | 7.8% | 11.6% | 0.64 | -31% | 0.25 |
 
 ![Regime-conditional allocation vs benchmarks](figures/regime_allocation.png)
@@ -321,7 +321,7 @@ cash. Window: 2008-2023 (where the OOS signal exists).
 The honest reading, and it is exactly what the literature predicts. Regime switching **does not make
 more money** than buy-and-hold equity - it earns less (7.7% vs 10.0%), because sitting out flagged
 periods means missing some of the rebounds. What it does is earn a similar amount with **half the
-volatility and a third of the drawdown**: max drawdown falls from -52% to -15%, and risk-adjusted
+volatility and a third of the drawdown**: max drawdown falls from -51% to -15%, and risk-adjusted
 return improves clearly (Sharpe 0.66 vs 0.53, Calmar 0.51 vs 0.19). The chart shows where it comes
 from: the regime strategies sidestep almost all of 2008 and most of 2020, and give the ground back
 slowly during the long bull run. This is loss avoidance, not alpha, and it is the value Ang & Bekaert
@@ -361,7 +361,7 @@ Every difference interval contains zero, including the one against plain buy-and
 of daily data pins a single Sharpe ratio down only to about plus or minus 0.4, while the gaps in the
 table are under 0.2, so the Sharpe column above should be read as a description of one path rather
 than a ranking. The drawdown reduction is the more robust part of the result, since every switching
-and vol-targeting rule cuts the maximum drawdown sharply (-12% to -25%, against -52% for equity),
+and vol-targeting rule cuts the maximum drawdown sharply (-12% to -25%, against -51% for equity),
 though as a single-path statistic it has no interval here either.
 
 Caveats, because this is the result most easily oversold. It is a single out-of-sample path on one
@@ -535,7 +535,7 @@ One change was made after seeing a result, and it applies to every signal alike.
 first fitted in levels on one year of history and blew up, because the joint HMM's probability sat at
 exactly 1 through 2008-09 and became collinear with the intercept, so it now uses log scale and three
 years of history. Because of that change, and because the seven comparisons were chosen while looking
-at 2005-2023, the rules for two holdouts were committed and pushed before their data was downloaded
+at 2005-2023, the rules for two holdouts were committed and pushed before their data was opened
 ([VIX_HOLDOUT_PROTOCOL.md](VIX_HOLDOUT_PROTOCOL.md), commit `3fea6a7`), and each was run once: 1990-2004,
 fitted and scored with no later data, and January 2024 to September 2026, scored on those days only.
 The warm-ups (three years for the HMM, three more for the calibration) mean the development scores
@@ -698,7 +698,7 @@ vol, which is built from exactly the same returns.
    go above the stressed one or below the calm one. Its highest forecast in 16 years was 2.37 daily
    percent, against a realised high of 6.15 in March 2020, and at the start of that worst month it
    forecast 1.66 where EWMA said 2.24. At the other end its median forecast was 1.02 against a median
-   realised 0.86, because the calm state also has to absorb ordinary medium-vol days. Calm 2019 sat at
+   realised 0.86, because the calm state also has to absorb ordinary medium-vol days. Calm late 2019 sat at
    about 0.9 in the forecast against 0.4 in reality (panel 4).
 5. **Whipsaw.** There were 107 high-state episodes, 13.3 switches a year, and 59% of the episodes
    lasted five days or less. A single big return moves the probability far more than it moves a
@@ -947,7 +947,7 @@ python examples/why_hmm_loses.py       # why the HMM loses to EWMA vol, plus the
 python examples/intraday_rv.py         # intraday realised vol (needs Databento ES bars, see below)
 python examples/better_vol_models.py   # HARQ, SHAR, GJR-GARCH, MSM vs HAR-RV + VIX, S&P 500 development
 python examples/harq_short_horizon.py  # HARQ and SHAR at 1-day and 5-day horizons, development
-python examples/cross_index_holdout.py # the frozen Nasdaq-100, Dow and Russell 2000 holdout (about 1.5 hours)
+python examples/cross_index_holdout.py # the frozen Nasdaq-100, Dow and Russell 2000 holdout (about 20 minutes once the 5-minute RV caches exist; freeze 963cb5e 09:31, results 6f4a3d4 09:49 on 2026-10-14)
 python examples/msgarch_credit.py      # MS-GARCH and credit vs HAR + VIX, S&P 500 development
 python examples/msgarch_credit_holdout.py  # the frozen oil, gold, EM and Brazil holdout
 ```

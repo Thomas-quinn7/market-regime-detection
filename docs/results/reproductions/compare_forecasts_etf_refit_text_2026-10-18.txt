@@ -1,0 +1,81 @@
+Class: reproduction (examples/compare_forecasts.py).
+reference: docs/results/msgarch_credit_holdout_2026-10-14.txt
+candidate: docs/results/reproductions/etf/stdout.txt
+
+lines compared 136 vs 134; lines with numeric differences 24; largest absolute difference 0.1; structural differences 1; verdict words moved 0
+  line 18: max |diff| 0.001
+    - MS-GARCH                   0.988  0.345    0.575
+    + MS-GARCH                   0.988  0.346    0.574
+  line 19: max |diff| 0.001
+    - HAR + IV + MS-GARCH        0.868  0.251    0.682
+    + HAR + IV + MS-GARCH        0.868  0.251    0.683
+  line 23: max |diff| 0.001
+    - M1                 MS-GARCH                 GJR-GARCH     better -0.016 to +0.046 no difference -0.022 to +0.007 no difference
+    + M1                 MS-GARCH                 GJR-GARCH     better -0.015 to +0.047 no difference -0.021 to +0.008 no difference
+  line 24: max |diff| 0.002
+    - M2      HAR + IV + MS-GARCH                  HAR + IV     better +0.000 to +0.024         worse +0.001 to +0.010         worse
+    + M2      HAR + IV + MS-GARCH                  HAR + IV     better +0.000 to +0.022         worse +0.001 to +0.009         worse
+  line 25: max |diff| 0.001
+    - M3                 MS-GARCH Two-state HMM implied vol     better -0.277 to +0.122 no difference -0.323 to -0.004        better
+    + M3                 MS-GARCH Two-state HMM implied vol     better -0.277 to +0.123 no difference -0.322 to -0.003        better
+  line 27: max |diff| 0.001
+    - M5                 MS-GARCH                  HAR + IV     better +0.038 to +0.240         worse +0.034 to +0.181         worse
+    + M5                 MS-GARCH                  HAR + IV     better +0.039 to +0.240         worse +0.034 to +0.182         worse
+  line 47: max |diff| 0.001
+    - MS-GARCH                   0.370  0.251    0.540
+    + MS-GARCH                   0.371  0.251    0.540
+  line 48: max |diff| 0.001
+    - HAR + IV + MS-GARCH        0.345  0.224    0.623
+    + HAR + IV + MS-GARCH        0.345  0.225    0.624
+  line 49: max |diff| 0.001
+    - HAR + IV + MS-GARCH prob   0.349  0.231    0.614
+    + HAR + IV + MS-GARCH prob   0.349  0.230    0.615
+  line 52: max |diff| 0.002
+    - M1                 MS-GARCH                 GJR-GARCH     better -0.007 to +0.011 no difference -0.013 to +0.015 no difference
+    + M1                 MS-GARCH                 GJR-GARCH     better -0.006 to +0.011 no difference -0.014 to +0.013 no difference
+  line 53: max |diff| 0.001
+    - M2      HAR + IV + MS-GARCH                  HAR + IV     better -0.000 to +0.001 no difference -0.000 to +0.003 no difference
+    + M2      HAR + IV + MS-GARCH                  HAR + IV     better -0.001 to +0.002 no difference -0.001 to +0.003 no difference
+  line 54: max |diff| 0.003
+    - M3                 MS-GARCH Two-state HMM implied vol     better -0.044 to -0.002        better -0.064 to +0.024 no difference
+    + M3                 MS-GARCH Two-state HMM implied vol     better -0.043 to -0.002        better -0.064 to +0.021 no difference
+  line 55: max |diff| 0.001
+    - M4 HAR + IV + MS-GARCH prob                  HAR + IV     better -0.001 to +0.011 no difference -0.001 to +0.018 no difference
+    + M4 HAR + IV + MS-GARCH prob                  HAR + IV     better -0.001 to +0.010 no difference -0.001 to +0.018 no difference
+  line 56: max |diff| 0.002
+    - M5                 MS-GARCH                  HAR + IV     better +0.013 to +0.038         worse -0.009 to +0.060 no difference
+    + M5                 MS-GARCH                  HAR + IV     better +0.013 to +0.039         worse -0.011 to +0.059 no difference
+  line 66: max |diff| 0.1
+    - MS-GARCH: last fit p00 0.9950, p11 0.9964, nu 14.8 / 9.8, loglik -9939.0
+    + MS-GARCH: last fit p00 0.9950, p11 0.9964, nu 14.9 / 9.8, loglik -9939.0
+  line 81: max |diff| 0.001
+    - M1                 MS-GARCH                 GJR-GARCH     better -0.029 to +0.006 no difference -0.005 to +0.029 no difference
+    + M1                 MS-GARCH                 GJR-GARCH     better -0.029 to +0.006 no difference -0.006 to +0.029 no difference
+  line 95: max |diff| 0.0001
+    - MS-GARCH: last fit p00 0.9933, p11 0.9877, nu 28.3 / 6.1, loglik -13834.5
+    + MS-GARCH: last fit p00 0.9932, p11 0.9876, nu 28.3 / 6.1, loglik -13834.5
+  line 105: max |diff| 0.018
+    - MS-GARCH                   0.931  0.361    0.348
+    + MS-GARCH                   0.926  0.365    0.366
+  line 106: max |diff| 0.005
+    - HAR + IV + MS-GARCH        0.870  0.318    0.481
+    + HAR + IV + MS-GARCH        0.875  0.320    0.477
+  line 110: max |diff| 0.012
+    - M1                 MS-GARCH                 GJR-GARCH     better -0.061 to +0.063 no difference -0.022 to +0.089 no difference
+    + M1                 MS-GARCH                 GJR-GARCH     better -0.058 to +0.051 no difference -0.015 to +0.093 no difference
+  line 111: max |diff| 0.009
+    - M2      HAR + IV + MS-GARCH                  HAR + IV     better +0.001 to +0.006         worse -0.001 to +0.005 no difference
+    + M2      HAR + IV + MS-GARCH                  HAR + IV     better +0.003 to +0.015         worse -0.002 to +0.011 no difference
+  line 112: max |diff| 0.01
+    - M3                 MS-GARCH Two-state HMM implied vol     better -0.053 to +0.021 no difference -0.079 to -0.010        better
+    + M3                 MS-GARCH Two-state HMM implied vol     better -0.063 to +0.019 no difference -0.074 to -0.003        better
+  line 113: max |diff| 0.002
+    - M4 HAR + IV + MS-GARCH prob                  HAR + IV     better -0.026 to +0.005 no difference -0.025 to +0.014 no difference
+    + M4 HAR + IV + MS-GARCH prob                  HAR + IV     better -0.028 to +0.005 no difference -0.023 to +0.014 no difference
+  line 114: max |diff| 0.008
+    - M5                 MS-GARCH                  HAR + IV     better +0.026 to +0.122         worse -0.011 to +0.093 no difference
+    + M5                 MS-GARCH                  HAR + IV     better +0.023 to +0.116         worse -0.003 to +0.094 no difference
+  delete reference 1-2, candidate 1-0
+    - # python -u examples/msgarch_credit_holdout.py, run once on 2026-10-14 at the freeze commit da0cf0f (repo at 324dfe3,
+    - # which only adds the hash line to the protocol). Derived statistics only. See docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md.
+verdict: within tolerance, no verdict word moves
