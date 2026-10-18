@@ -69,3 +69,11 @@ def test_reading_counts_schedule_moves():
     text = "\n".join(s.reading(t1, t2, t3, None, det_t))
     assert "move 1 of 3 verdicts against S8 (b); F1n vs F0 (noise control), ridge at h = 21." in text
     assert "HMM rows that move: 0 of 2" in text
+
+
+def test_coverage_groups_learners_by_horizons():
+    df = pd.DataFrame({"h": [5, 21, 126, 5, 21, 126, 5, 21], "learner": ["ols"] * 3 + ["lasso"] * 3 + ["mlp"] * 2})
+    assert s.coverage(df) == "lasso and ols at h = 5, 21, 126; mlp at h = 5, 21"
+    text = "\n".join(s.reading(_table(), pd.DataFrame({"h": [], "learner": [], "RMSE": [], "QLIKE": []}),
+                               pd.DataFrame({"h": [], "RMSE": [], "QLIKE": []}), None, None))
+    assert "(3 learner-horizon pairs, each on both losses: ridge at h = 21; mlp at h = 63; lightgbm at h = 126)" in text

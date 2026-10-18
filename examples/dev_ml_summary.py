@@ -108,6 +108,21 @@ def n_verdict(df: pd.DataFrame | None, verdict: str) -> tuple[int, int]:
     return int(sum((df[loss] == verdict).sum() for loss in LOSSES)), 2 * len(df)
 
 
+def coverage(df: pd.DataFrame) -> str:
+    """Which learners at which horizons a set of comparisons spans, learners with the same horizons grouped,
+    e.g. 'lasso and ols at h = 5, 21, 126; mlp at h = 5, 21'."""
+    hs = df.groupby("learner")["h"].apply(lambda s: tuple(sorted(int(h) for h in set(s))))
+    groups: dict[tuple, list[str]] = {}
+    for learner, h in hs.items():
+        groups.setdefault(h, []).append(learner)
+    parts = []
+    for h, names in sorted(groups.items(), key=lambda kv: (-len(kv[0]), kv[0])):
+        names = sorted(names)
+        who = names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+        parts.append(f"{who} at h = {', '.join(str(x) for x in h)}")
+    return "; ".join(parts)
+
+
 def weak(t2: pd.DataFrame, r: pd.Series) -> str:
     """Table (ii) verdict of the same learner, horizon and loss on F0 against HAR + VIX ('n/a' if absent)."""
     m = t2[(t2["h"] == r["h"]) & (t2["learner"] == r["learner"])]
@@ -133,7 +148,8 @@ def reading(t1: pd.DataFrame, t2: pd.DataFrame, t3: pd.DataFrame, race_t: pd.Dat
            f"Class: {CLASS}. Counts over both losses, from the tables above.\n",
            f"- Claim B (the regime probability adds nothing once the VIX is in) against the objection \"you only "
            f"tested a linear nest\": with the HMM probability, a flexible learner was 'better' than the same learner "
-           f"without it in {b1} of {n1} comparisons and 'worse' in {w1}; the pure-noise regressor was 'better' in "
+           f"without it in {b1} of {n1} comparisons ({len(f1)} learner-horizon pairs, each on both losses: "
+           f"{coverage(f1)}) and 'worse' in {w1}; the pure-noise regressor was 'better' in "
            f"{bn} of {nn}. The protocol reading (F1 better while F1n is not) holds in {len(fnd)} of {n1}"
            + "".join(f"; {r['learner']} at h = {int(r['h'])} ({r['loss']}) on F0 against HAR + VIX is "
                      f"'{weak(t2, r)}'" for _, r in fnd.iterrows()) + ". "

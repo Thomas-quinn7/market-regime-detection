@@ -797,9 +797,14 @@ is the one proposal sentence naming the continuation. Not applied.
 
 - Proposed (WRITEUP, after the sentence P32 adds at line 829): "A development-only continuation
   (docs/DEV_ML_2026-10.md; S&P 500 2005-2023, no holdout, not a claim) asked whether a flexible learner
-  finds regime information the linear nest misses: across ridge, LASSO, random forest, LightGBM and an MLP
-  at 5 to 126 days, adding the HMM probability was 'better' in 1 of 46 comparisons (RMSE and QLIKE), in a
-  learner that is itself worse than HAR + VIX there, and no learner on HAR + VIX inputs beat HAR + VIX."
+  finds regime information the linear nest misses: across OLS, ridge, LASSO, random forest and LightGBM
+  at 5 to 126 days and an MLP at 5 to 63 days, adding the HMM probability was 'better' in 1 of 46
+  comparisons (23 learner-horizon pairs, each on RMSE and QLIKE), in a learner that is itself worse than
+  HAR + VIX there, and no learner on HAR + VIX inputs beat HAR + VIX."
+- Revised 2026-10-18 17:05Z (run 14): the earlier wording ("ridge, LASSO, random forest, LightGBM and an
+  MLP at 5 to 126 days") omitted OLS, which the 46 include, and put the MLP at 126 days, where the
+  protocol does not fit it. The coverage now matches the clause `examples/dev_ml_summary.py` prints in
+  DEV_ML_2026-10.md, "Reading" (no count changed).
 - Why: scope S8 (e); answers the referee objection "you only tested a linear nest" against claim B
   (protocol `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit).
 - Evidence (development data only; `examples/dev_ml_summary.py` printing from the tables of
