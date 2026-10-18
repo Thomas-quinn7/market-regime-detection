@@ -26,3 +26,14 @@ def test_best_learner_waits_for_the_race(monkeypatch):
     monkeypatch.setattr(drd.race, "all_forecasts", lambda h: {"ols F0": s, "ridge F0": s, "lstm F0": s})
     with pytest.raises(RuntimeError, match="gru"):
         drd.best_learner()
+
+
+def test_schedule_shift_on_common_rows():
+    idx = pd.bdate_range("2020-01-01", periods=6)
+    here = pd.Series([1.0, 1.0, 1.5, 1.0, 1.0], index=idx[1:])
+    s8b = pd.Series([0.9, 1.0, 1.0, 1.0, 1.0, 1.05], index=idx)
+    out = drd.schedule_shift(here, s8b)
+    assert out["common days"] == 5 and out["first day here"] == "2020-01-02"
+    assert out["first day S8 (b)"] == "2020-01-01"
+    assert out["max abs diff"] == "0.5000" and out["on"] == "2020-01-06" and out["days diff > 0.1"] == 1
+    assert out["median abs diff"] == "0.0000"

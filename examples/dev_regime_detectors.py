@@ -103,6 +103,17 @@ def best_learner() -> str:
     return min(means, key=means.get)[: -len(" F0")]
 
 
+def schedule_shift(here: pd.Series, s8b: pd.Series) -> dict:
+    """How far an F0 forecast fitted on this script's rows sits from the S8 (b) F0 forecast of the same model on
+    their common rows (the detector rows start later, so the refit dates and the tuned penalty can move)."""
+    j = pd.concat({"here": here, "s8b": s8b}, axis=1, sort=True).dropna()
+    d = (j["here"] - j["s8b"]).abs()
+    return {"common days": len(j), "first day here": str(here.index.min().date()),
+            "first day S8 (b)": str(s8b.index.min().date()), "median abs diff": f"{d.median():.4f}",
+            "99th pct abs diff": f"{d.quantile(0.99):.4f}", "max abs diff": f"{d.max():.4f}",
+            "on": str(d.idxmax().date()), "days diff > 0.1": int((d > 0.1).sum())}
+
+
 def fit(target, X, model: str, h: int) -> pd.Series:
     if model == "ols":
         return dm.fit_one(target, X, "ols", h)[0]
@@ -164,6 +175,20 @@ def markdown(returns, ivs, noise, n_boot: int) -> str:
     out.append(md_table(pd.DataFrame(rows).fillna("")) + "\n" if rows else "Not run.\n")
     if rows:
         pd.DataFrame(rows).to_csv(CACHE / "vs_f0.csv", index=False)
+    shift = []
+    for model in ["ols"] + ([learner] if learner and learner != "ols" else []):
+        here, s8b = cache_path(LEARNER_H, model, "F0"), dm.cache_path(LEARNER_H, model, "F0")
+        if here.exists() and s8b.exists():
+            shift.append({"model": model, **schedule_shift(
+                pd.read_csv(here, index_col=0, parse_dates=True)["forecast"],
+                pd.read_csv(s8b, index_col=0, parse_dates=True)["forecast"])})
+    if shift:
+        out.append("## Refit-schedule sensitivity: F0 here against F0 in S8 (b), h = 21\n")
+        out.append(f"Class: {CLASS}. The detector inputs need warm-up rows, so every set here starts later than in "
+                   "S8 (b) and the refit dates move. Comparisons inside the table above are on one schedule and are "
+                   "unaffected; this table says how much the F0 forecast itself depends on the schedule. A large "
+                   "value means the learner's tuned penalty moved between the two schedules, not an error.\n")
+        out.append(md_table(pd.DataFrame(shift)) + "\n")
     # descriptives on the h = 21 scored rows
     sets, prob = sets_at(returns, ivs, noise, sig, LEARNER_H)
     scored = sets["F0"].index[756 + LEARNER_H:]

@@ -26,3 +26,12 @@ h,model,set,days,windows,RMSE,QLIKE,dRMSE 95%,DM p (MSE),dQLIKE 95%,DM p (QLIKE)
 63,ols,F1[gmm 3],3121,49,no difference,no difference,-0.014 to +0.026,0.680,-0.037 to +0.025,0.688
 63,ols,F1[changepoint],3121,49,no difference,no difference,-0.002 to +0.014,0.064,-0.001 to +0.023,0.032
 63,ols,F1[spectral 2],3121,49,worse,no difference,+0.000 to +0.010,0.007,-0.008 to +0.009,0.684
+21,lasso,F0,3205,152,0.5054,0.4390,,,,
+21,lasso,F1,3205,152,no difference,no difference,-0.029 to +0.011,0.492,-0.015 to +0.050,0.433
+21,lasso,F1n,3205,152,no difference,no difference,-0.026 to +0.000,0.249,-0.014 to +0.012,0.885
+21,lasso,F1[kmeans 2],3205,152,no difference,no difference,-0.029 to +0.002,0.292,-0.014 to +0.022,0.844
+21,lasso,F1[kmeans 3],3205,152,no difference,no difference,-0.007 to +0.025,0.366,-0.022 to +0.028,0.926
+21,lasso,F1[gmm 2],3205,152,no difference,no difference,-0.025 to +0.003,0.253,-0.013 to +0.017,0.909
+21,lasso,F1[gmm 3],3205,152,no difference,no difference,-0.040 to +0.025,0.664,-0.021 to +0.040,0.696
+21,lasso,F1[changepoint],3205,152,no difference,no difference,-0.023 to +0.004,0.344,-0.006 to +0.042,0.374
+21,lasso,F1[spectral 2],3205,152,worse,no difference,+0.001 to +0.010,0.008,-0.004 to +0.022,0.192

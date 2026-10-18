@@ -811,3 +811,8 @@ is the one proposal sentence naming the continuation. Not applied.
   in 46 are expected by chance at 2.5% one-sided.
 - Open: the LSTM/GRU race (S8 c) was running when this was written; if it scores any recurrent forecast
   'better' than HAR + VIX, the sentence's last clause needs that count (DEV_ML_2026-10.md, "Reading").
+  Interim (2026-10-18 15:18Z, 8 of 18 race fits scored, `examples/dev_ml_race.py --markdown-only` then
+  `examples/dev_ml_summary.py`, development data only): LSTM/GRU 'better' than HAR + VIX in 0 of 16
+  comparisons, 'worse' in 13; the clause stands so far. Recheck when the race finishes.
+  Detectors now include the h = 21 learner part (lasso, chosen by the race rule; `examples/dev_regime_detectors.py
+  --part learner`, 2026-10-18 15:29Z): 'better' than F0 in 0 of 48, 'worse' in 5 (was 0 of 36, 4 with OLS only).

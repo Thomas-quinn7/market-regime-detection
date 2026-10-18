@@ -1,0 +1,178 @@
+h,tercile,forecast,days,RMSE of forecast,RMSE HAR + VIX,dRMSE 95%,RMSE,DM p (MSE),dQLIKE 95%,QLIKE,DM p (QLIKE)
+5,low,ols F1,1728,0.2870,0.2872,-0.002 to +0.002,no difference,0.884,-0.012 to +0.006,no difference,0.464
+5,low,ols F1n,1728,0.2874,0.2872,-0.001 to +0.001,no difference,0.670,-0.001 to +0.004,no difference,0.436
+5,low,ridge F0,1728,0.2878,0.2872,-0.000 to +0.002,no difference,0.321,-0.006 to +0.005,no difference,0.877
+5,low,ridge F1,1728,0.2875,0.2872,-0.001 to +0.002,no difference,0.756,-0.012 to +0.005,no difference,0.442
+5,low,ridge F1n,1728,0.2879,0.2872,-0.000 to +0.002,no difference,0.285,-0.006 to +0.006,no difference,0.939
+5,low,lasso F0,1728,0.2897,0.2872,-0.001 to +0.006,no difference,0.193,-0.017 to +0.008,no difference,0.501
+5,low,lasso F1,1728,0.2898,0.2872,-0.001 to +0.007,no difference,0.216,-0.021 to +0.005,no difference,0.306
+5,low,lasso F1n,1728,0.2895,0.2872,-0.001 to +0.006,no difference,0.231,-0.019 to +0.007,no difference,0.390
+5,low,random forest F0,1728,0.2956,0.2872,-0.000 to +0.018,no difference,0.032,-0.039 to +0.039,no difference,0.866
+5,low,random forest F1,1728,0.2960,0.2872,-0.001 to +0.019,no difference,0.048,-0.033 to +0.055,no difference,0.551
+5,low,random forest F1n,1728,0.2950,0.2872,-0.001 to +0.017,no difference,0.045,-0.041 to +0.035,no difference,0.993
+5,low,lightgbm F0,1728,0.2990,0.2872,+0.001 to +0.024,worse,0.011,-0.029 to +0.050,no difference,0.558
+5,low,lightgbm F1,1728,0.2993,0.2872,+0.002 to +0.023,worse,0.015,-0.024 to +0.068,no difference,0.276
+5,low,lightgbm F1n,1728,0.2972,0.2872,+0.001 to +0.020,worse,0.014,-0.028 to +0.040,no difference,0.726
+5,low,mlp F0,1728,0.2943,0.2872,+0.002 to +0.012,worse,0.011,-0.012 to +0.033,no difference,0.434
+5,low,mlp F1,1728,0.2953,0.2872,+0.001 to +0.016,worse,0.018,-0.013 to +0.045,no difference,0.262
+5,low,mlp F1n,1728,0.2956,0.2872,+0.001 to +0.016,worse,0.013,-0.010 to +0.041,no difference,0.248
+5,low,lstm F0,1728,0.3160,0.2872,+0.014 to +0.047,worse,0.001,-0.014 to +0.090,no difference,0.192
+5,low,lstm F1,1728,0.3154,0.2872,+0.015 to +0.045,worse,0.000,+0.018 to +0.102,worse,0.011
+5,middle,ols F1,793,0.4456,0.4458,-0.005 to +0.005,no difference,0.933,-0.013 to +0.018,no difference,0.672
+5,middle,ols F1n,793,0.4452,0.4458,-0.002 to +0.000,no difference,0.353,-0.007 to +0.002,no difference,0.357
+5,middle,ridge F0,793,0.4464,0.4458,-0.003 to +0.005,no difference,0.815,-0.012 to +0.025,no difference,0.538
+5,middle,ridge F1,793,0.4466,0.4458,-0.008 to +0.009,no difference,0.829,-0.019 to +0.037,no difference,0.399
+5,middle,ridge F1n,793,0.4457,0.4458,-0.004 to +0.005,no difference,0.950,-0.015 to +0.023,no difference,0.719
+5,middle,lasso F0,793,0.4465,0.4458,-0.003 to +0.005,no difference,0.744,-0.012 to +0.014,no difference,0.897
+5,middle,lasso F1,793,0.4475,0.4458,-0.004 to +0.009,no difference,0.567,-0.009 to +0.027,no difference,0.319
+5,middle,lasso F1n,793,0.4462,0.4458,-0.004 to +0.005,no difference,0.873,-0.013 to +0.014,no difference,0.842
+5,middle,random forest F0,793,0.4560,0.4458,+0.004 to +0.016,worse,0.009,+0.006 to +0.055,worse,0.046
+5,middle,random forest F1,793,0.4542,0.4458,+0.001 to +0.015,worse,0.048,-0.002 to +0.057,no difference,0.106
+5,middle,random forest F1n,793,0.4572,0.4458,+0.006 to +0.017,worse,0.002,+0.012 to +0.065,worse,0.013
+5,middle,lightgbm F0,793,0.4537,0.4458,+0.001 to +0.014,worse,0.044,-0.009 to +0.047,no difference,0.159
+5,middle,lightgbm F1,793,0.4514,0.4458,-0.003 to +0.014,no difference,0.226,-0.024 to +0.054,no difference,0.430
+5,middle,lightgbm F1n,793,0.4576,0.4458,+0.004 to +0.019,worse,0.007,-0.000 to +0.058,no difference,0.060
+5,middle,mlp F0,793,0.4493,0.4458,-0.003 to +0.012,no difference,0.391,-0.021 to +0.027,no difference,0.732
+5,middle,mlp F1,793,0.4507,0.4458,-0.007 to +0.015,no difference,0.361,-0.028 to +0.057,no difference,0.435
+5,middle,mlp F1n,793,0.4518,0.4458,-0.002 to +0.014,no difference,0.128,-0.031 to +0.034,no difference,0.897
+5,middle,lstm F0,793,0.4692,0.4458,-0.000 to +0.044,no difference,0.047,-0.012 to +0.194,no difference,0.086
+5,middle,lstm F1,793,0.4604,0.4458,-0.001 to +0.032,no difference,0.074,+0.005 to +0.110,worse,0.027
+5,high,ols F1,737,0.8014,0.7955,-0.002 to +0.016,no difference,0.233,-0.017 to +0.006,no difference,0.387
+5,high,ols F1n,737,0.7970,0.7955,-0.001 to +0.004,no difference,0.221,-0.002 to +0.002,no difference,0.795
+5,high,ridge F0,737,0.7998,0.7955,-0.004 to +0.010,no difference,0.287,-0.004 to +0.012,no difference,0.392
+5,high,ridge F1,737,0.8072,0.7955,+0.001 to +0.022,worse,0.112,-0.013 to +0.010,no difference,0.805
+5,high,ridge F1n,737,0.8017,0.7955,-0.003 to +0.013,no difference,0.207,-0.005 to +0.012,no difference,0.459
+5,high,lasso F0,737,0.7994,0.7955,-0.004 to +0.010,no difference,0.347,-0.004 to +0.013,no difference,0.357
+5,high,lasso F1,737,0.8043,0.7955,-0.002 to +0.019,no difference,0.225,-0.011 to +0.008,no difference,0.690
+5,high,lasso F1n,737,0.8012,0.7955,-0.004 to +0.013,no difference,0.261,-0.005 to +0.012,no difference,0.431
+5,high,random forest F0,737,0.9169,0.7955,+0.009 to +0.237,worse,0.172,-0.003 to +0.193,no difference,0.162
+5,high,random forest F1,737,0.9144,0.7955,+0.004 to +0.237,worse,0.184,-0.015 to +0.187,no difference,0.227
+5,high,random forest F1n,737,0.9164,0.7955,+0.008 to +0.237,worse,0.173,-0.007 to +0.188,no difference,0.187
+5,high,lightgbm F0,737,0.8239,0.7955,-0.018 to +0.068,no difference,0.312,-0.023 to +0.029,no difference,0.777
+5,high,lightgbm F1,737,0.8289,0.7955,-0.011 to +0.073,no difference,0.221,-0.014 to +0.037,no difference,0.416
+5,high,lightgbm F1n,737,0.8297,0.7955,-0.014 to +0.075,no difference,0.233,-0.020 to +0.035,no difference,0.627
+5,high,mlp F0,737,0.8035,0.7955,-0.009 to +0.031,no difference,0.498,-0.017 to +0.027,no difference,0.698
+5,high,mlp F1,737,0.8172,0.7955,-0.018 to +0.055,no difference,0.284,-0.010 to +0.033,no difference,0.406
+5,high,mlp F1n,737,0.8379,0.7955,+0.003 to +0.076,worse,0.077,-0.001 to +0.065,no difference,0.101
+5,high,lstm F0,737,0.7841,0.7955,-0.069 to +0.071,no difference,0.730,-0.056 to +0.161,no difference,0.437
+5,high,lstm F1,737,0.7831,0.7955,-0.056 to +0.032,no difference,0.489,-0.022 to +0.138,no difference,0.202
+21,low,ols F1,1698,0.3626,0.3613,-0.008 to +0.012,no difference,0.779,-0.017 to +0.051,no difference,0.551
+21,low,ols F1n,1698,0.3612,0.3613,-0.001 to +0.000,no difference,0.743,-0.004 to +0.001,no difference,0.221
+21,low,ridge F0,1698,0.3625,0.3613,-0.001 to +0.004,no difference,0.248,-0.007 to +0.016,no difference,0.497
+21,low,ridge F1,1698,0.3635,0.3613,-0.006 to +0.012,no difference,0.613,-0.011 to +0.049,no difference,0.390
+21,low,ridge F1n,1698,0.3624,0.3613,-0.001 to +0.004,no difference,0.279,-0.009 to +0.014,no difference,0.729
+21,low,lasso F0,1698,0.3618,0.3613,-0.004 to +0.006,no difference,0.824,-0.036 to +0.010,no difference,0.314
+21,low,lasso F1,1698,0.3641,0.3613,-0.006 to +0.013,no difference,0.500,-0.026 to +0.037,no difference,0.853
+21,low,lasso F1n,1698,0.3606,0.3613,-0.007 to +0.006,no difference,0.831,-0.056 to +0.009,no difference,0.230
+21,low,random forest F0,1698,0.3720,0.3613,-0.002 to +0.024,no difference,0.082,-0.023 to +0.141,no difference,0.226
+21,low,random forest F1,1698,0.3804,0.3613,-0.002 to +0.045,no difference,0.121,-0.020 to +0.289,no difference,0.142
+21,low,random forest F1n,1698,0.3718,0.3613,-0.002 to +0.024,no difference,0.085,-0.023 to +0.138,no difference,0.232
+21,low,lightgbm F0,1698,0.3799,0.3613,+0.003 to +0.037,worse,0.022,-0.017 to +0.145,no difference,0.190
+21,low,lightgbm F1,1698,0.3851,0.3613,+0.001 to +0.050,worse,0.055,-0.009 to +0.296,no difference,0.098
+21,low,lightgbm F1n,1698,0.3793,0.3613,+0.002 to +0.036,worse,0.025,-0.023 to +0.160,no difference,0.222
+21,low,mlp F0,1698,0.3801,0.3613,+0.008 to +0.033,worse,0.000,+0.004 to +0.096,worse,0.035
+21,low,mlp F1,1698,0.3844,0.3613,+0.004 to +0.047,worse,0.043,+0.005 to +0.200,worse,0.082
+21,low,mlp F1n,1698,0.3739,0.3613,+0.004 to +0.024,worse,0.005,+0.002 to +0.073,worse,0.042
+21,low,lstm F0,1698,0.4548,0.3613,+0.025 to +0.199,worse,0.035,+0.007 to +0.356,worse,0.090
+21,low,lstm F1,1698,0.3912,0.3613,+0.013 to +0.049,worse,0.001,+0.030 to +0.376,worse,0.034
+21,low,lstm F1n,1698,0.4176,0.3613,+0.029 to +0.089,worse,0.002,+0.034 to +0.420,worse,0.040
+21,low,gru F0,1698,0.5289,0.3613,+0.017 to +0.367,worse,0.032,+0.016 to +0.207,worse,0.006
+21,low,gru F1,1698,0.3961,0.3613,+0.010 to +0.068,worse,0.044,+0.008 to +0.461,worse,0.153
+21,low,gru F1n,1698,0.3896,0.3613,+0.016 to +0.043,worse,0.000,+0.029 to +0.585,worse,0.193
+21,middle,ols F1,794,0.5099,0.5083,-0.008 to +0.009,no difference,0.646,-0.011 to +0.048,no difference,0.270
+21,middle,ols F1n,794,0.5089,0.5083,-0.001 to +0.002,no difference,0.367,-0.002 to +0.024,no difference,0.313
+21,middle,ridge F0,794,0.5099,0.5083,-0.004 to +0.006,no difference,0.520,-0.010 to +0.012,no difference,0.878
+21,middle,ridge F1,794,0.5106,0.5083,-0.011 to +0.011,no difference,0.600,-0.016 to +0.051,no difference,0.322
+21,middle,ridge F1n,794,0.5108,0.5083,-0.004 to +0.007,no difference,0.356,-0.008 to +0.029,no difference,0.316
+21,middle,lasso F0,794,0.5106,0.5083,-0.001 to +0.006,no difference,0.244,-0.022 to +0.010,no difference,0.691
+21,middle,lasso F1,794,0.5126,0.5083,-0.003 to +0.010,no difference,0.201,-0.004 to +0.049,no difference,0.132
+21,middle,lasso F1n,794,0.5108,0.5083,-0.001 to +0.007,no difference,0.195,-0.015 to +0.011,no difference,0.878
+21,middle,random forest F0,794,0.5184,0.5083,-0.003 to +0.019,no difference,0.123,+0.003 to +0.198,worse,0.146
+21,middle,random forest F1,794,0.5216,0.5083,-0.006 to +0.032,no difference,0.107,+0.000 to +0.160,worse,0.068
+21,middle,random forest F1n,794,0.5185,0.5083,-0.003 to +0.019,no difference,0.123,+0.003 to +0.197,worse,0.146
+21,middle,lightgbm F0,794,0.5221,0.5083,+0.003 to +0.028,worse,0.022,+0.018 to +0.081,worse,0.004
+21,middle,lightgbm F1,794,0.5220,0.5083,-0.000 to +0.028,no difference,0.068,+0.014 to +0.150,worse,0.027
+21,middle,lightgbm F1n,794,0.5233,0.5083,+0.004 to +0.030,worse,0.014,+0.018 to +0.085,worse,0.003
+21,middle,mlp F0,794,0.5258,0.5083,+0.006 to +0.037,worse,0.028,+0.009 to +0.065,worse,0.042
+21,middle,mlp F1,794,0.5165,0.5083,-0.006 to +0.023,no difference,0.247,-0.009 to +0.068,no difference,0.220
+21,middle,mlp F1n,794,0.5188,0.5083,+0.000 to +0.021,worse,0.098,-0.001 to +0.099,no difference,0.100
+21,middle,lstm F0,794,0.5836,0.5083,+0.018 to +0.178,worse,0.045,+0.059 to +0.204,worse,0.006
+21,middle,lstm F1,794,0.5510,0.5083,+0.019 to +0.068,worse,0.008,+0.044 to +0.586,worse,0.078
+21,middle,lstm F1n,794,0.6047,0.5083,+0.042 to +0.197,worse,0.003,+0.090 to +0.600,worse,0.030
+21,middle,gru F0,794,0.5250,0.5083,-0.002 to +0.045,no difference,0.139,-0.003 to +0.134,no difference,0.058
+21,middle,gru F1,794,0.5376,0.5083,+0.005 to +0.065,worse,0.094,+0.017 to +0.364,worse,0.096
+21,middle,gru F1n,794,0.5415,0.5083,+0.009 to +0.055,worse,0.060,+0.010 to +1.537,worse,0.265
+21,high,ols F1,734,0.6658,0.6613,-0.010 to +0.031,no difference,0.551,-0.036 to +0.015,no difference,0.621
+21,high,ols F1n,734,0.6622,0.6613,-0.001 to +0.002,no difference,0.270,-0.001 to +0.002,no difference,0.481
+21,high,ridge F0,734,0.6819,0.6613,+0.001 to +0.057,worse,0.019,-0.002 to +0.035,no difference,0.045
+21,high,ridge F1,734,0.6883,0.6613,-0.002 to +0.078,no difference,0.029,-0.026 to +0.039,no difference,0.480
+21,high,ridge F1n,734,0.6829,0.6613,+0.002 to +0.057,worse,0.013,-0.001 to +0.037,no difference,0.038
+21,high,lasso F0,734,0.6886,0.6613,+0.004 to +0.062,worse,0.013,+0.006 to +0.061,worse,0.010
+21,high,lasso F1,734,0.6842,0.6613,-0.006 to +0.073,no difference,0.078,-0.021 to +0.051,no difference,0.325
+21,high,lasso F1n,734,0.6859,0.6613,+0.005 to +0.054,worse,0.015,+0.006 to +0.059,worse,0.012
+21,high,random forest F0,734,0.7261,0.6613,+0.017 to +0.139,worse,0.023,+0.013 to +0.065,worse,0.010
+21,high,random forest F1,734,0.7272,0.6613,+0.023 to +0.133,worse,0.006,+0.016 to +0.084,worse,0.012
+21,high,random forest F1n,734,0.7259,0.6613,+0.016 to +0.139,worse,0.024,+0.013 to +0.065,worse,0.011
+21,high,lightgbm F0,734,0.6798,0.6613,-0.028 to +0.095,no difference,0.595,-0.043 to +0.043,no difference,0.747
+21,high,lightgbm F1,734,0.6739,0.6613,-0.035 to +0.088,no difference,0.721,-0.053 to +0.055,no difference,0.786
+21,high,lightgbm F1n,734,0.6802,0.6613,-0.026 to +0.094,no difference,0.572,-0.035 to +0.042,no difference,0.681
+21,high,mlp F0,734,0.7207,0.6613,+0.017 to +0.127,worse,0.048,-0.002 to +0.103,no difference,0.100
+21,high,mlp F1,734,0.7314,0.6613,+0.010 to +0.159,worse,0.123,-0.005 to +0.051,no difference,0.225
+21,high,mlp F1n,734,0.7371,0.6613,+0.013 to +0.164,worse,0.100,+0.004 to +0.056,worse,0.082
+21,high,lstm F0,734,0.7655,0.6613,+0.012 to +0.267,worse,0.024,+0.016 to +0.558,worse,0.024
+21,high,lstm F1,734,0.7379,0.6613,+0.009 to +0.128,worse,0.099,+0.013 to +0.267,worse,0.063
+21,high,lstm F1n,734,0.7753,0.6613,+0.045 to +0.181,worse,0.014,+0.034 to +0.325,worse,0.039
+21,high,gru F0,734,0.6790,0.6613,-0.036 to +0.086,no difference,0.623,-0.051 to +0.022,no difference,0.552
+21,high,gru F1,734,0.7173,0.6613,-0.004 to +0.149,no difference,0.019,+0.010 to +0.277,worse,0.019
+21,high,gru F1n,734,0.8005,0.6613,+0.013 to +0.232,worse,0.085,+0.006 to +0.979,worse,0.136
+63,low,ols F1,1648,0.5194,0.5166,-0.014 to +0.025,no difference,0.671,-0.033 to +0.058,no difference,0.728
+63,low,ols F1n,1648,0.5172,0.5166,+0.000 to +0.001,worse,0.024,+0.000 to +0.006,worse,0.109
+63,low,ridge F0,1648,0.5149,0.5166,-0.010 to +0.003,no difference,0.342,-0.011 to +0.039,no difference,0.242
+63,low,ridge F1,1648,0.5188,0.5166,-0.016 to +0.023,no difference,0.735,-0.019 to +0.069,no difference,0.285
+63,low,ridge F1n,1648,0.5154,0.5166,-0.009 to +0.004,no difference,0.509,-0.011 to +0.044,no difference,0.207
+63,low,lasso F0,1648,0.5189,0.5166,-0.010 to +0.021,no difference,0.670,-0.187 to +0.040,no difference,0.382
+63,low,lasso F1,1648,0.5233,0.5166,-0.011 to +0.036,no difference,0.410,-0.175 to +0.071,no difference,0.540
+63,low,lasso F1n,1648,0.5189,0.5166,-0.010 to +0.021,no difference,0.669,-0.187 to +0.040,no difference,0.382
+63,low,random forest F0,1648,0.5288,0.5166,-0.006 to +0.044,no difference,0.143,-0.112 to +0.159,no difference,0.574
+63,low,random forest F1,1648,0.5345,0.5166,-0.004 to +0.056,no difference,0.087,-0.052 to +0.223,no difference,0.158
+63,low,random forest F1n,1648,0.5287,0.5166,-0.006 to +0.043,no difference,0.146,-0.112 to +0.158,no difference,0.577
+63,low,lightgbm F0,1648,0.5433,0.5166,+0.001 to +0.068,worse,0.008,-0.122 to +0.170,no difference,0.567
+63,low,lightgbm F1,1648,0.5387,0.5166,-0.008 to +0.072,no difference,0.090,-0.186 to +0.247,no difference,0.620
+63,low,lightgbm F1n,1648,0.5426,0.5166,+0.001 to +0.068,worse,0.012,-0.125 to +0.162,no difference,0.621
+63,low,mlp F0,1648,0.5545,0.5166,+0.008 to +0.090,worse,0.000,-0.111 to +0.152,no difference,0.453
+63,low,mlp F1,1648,0.5283,0.5166,-0.007 to +0.043,no difference,0.174,-0.053 to +0.273,no difference,0.163
+63,low,mlp F1n,1648,0.5323,0.5166,-0.002 to +0.045,no difference,0.031,-0.094 to +0.145,no difference,0.497
+63,middle,ols F1,765,0.5733,0.5720,-0.010 to +0.013,no difference,0.770,-0.012 to +0.029,no difference,0.474
+63,middle,ols F1n,765,0.5722,0.5720,-0.001 to +0.001,no difference,0.683,-0.001 to +0.007,no difference,0.333
+63,middle,ridge F0,765,0.5803,0.5720,-0.008 to +0.022,no difference,0.119,-0.008 to +0.071,no difference,0.083
+63,middle,ridge F1,765,0.5820,0.5720,-0.007 to +0.025,no difference,0.115,-0.009 to +0.096,no difference,0.107
+63,middle,ridge F1n,765,0.5805,0.5720,-0.008 to +0.022,no difference,0.121,-0.008 to +0.077,no difference,0.092
+63,middle,lasso F0,765,0.5768,0.5720,-0.010 to +0.021,no difference,0.364,-0.024 to +0.032,no difference,0.805
+63,middle,lasso F1,765,0.5769,0.5720,-0.010 to +0.021,no difference,0.412,-0.024 to +0.037,no difference,0.681
+63,middle,lasso F1n,765,0.5766,0.5720,-0.010 to +0.021,no difference,0.380,-0.024 to +0.032,no difference,0.819
+63,middle,random forest F0,765,0.6188,0.5720,+0.011 to +0.111,worse,0.008,+0.023 to +0.161,worse,0.013
+63,middle,random forest F1,765,0.6037,0.5720,-0.005 to +0.083,no difference,0.061,+0.010 to +0.204,worse,0.058
+63,middle,random forest F1n,765,0.6183,0.5720,+0.011 to +0.109,worse,0.007,+0.023 to +0.161,worse,0.013
+63,middle,lightgbm F0,765,0.6534,0.5720,+0.020 to +0.194,worse,0.030,+0.028 to +0.171,worse,0.009
+63,middle,lightgbm F1,765,0.5966,0.5720,-0.015 to +0.079,no difference,0.166,+0.001 to +0.131,worse,0.087
+63,middle,lightgbm F1n,765,0.6491,0.5720,+0.022 to +0.179,worse,0.019,+0.027 to +0.167,worse,0.008
+63,middle,mlp F0,765,0.5766,0.5720,-0.046 to +0.036,no difference,0.765,+0.002 to +0.144,worse,0.081
+63,middle,mlp F1,765,0.5911,0.5720,-0.010 to +0.051,no difference,0.117,+0.012 to +0.169,worse,0.061
+63,middle,mlp F1n,765,0.5843,0.5720,-0.015 to +0.033,no difference,0.201,-0.001 to +0.111,no difference,0.101
+63,high,ols F1,729,0.4868,0.4690,-0.007 to +0.047,no difference,0.098,-0.008 to +0.027,no difference,0.211
+63,high,ols F1n,729,0.4696,0.4690,-0.000 to +0.002,no difference,0.279,-0.000 to +0.001,no difference,0.698
+63,high,ridge F0,729,0.5387,0.4690,+0.011 to +0.142,worse,0.001,+0.014 to +0.102,worse,0.000
+63,high,ridge F1,729,0.5542,0.4690,+0.025 to +0.161,worse,0.001,+0.023 to +0.100,worse,0.000
+63,high,ridge F1n,729,0.5391,0.4690,+0.012 to +0.142,worse,0.001,+0.015 to +0.102,worse,0.000
+63,high,lasso F0,729,0.5068,0.4690,-0.012 to +0.077,no difference,0.171,+0.006 to +0.135,worse,0.044
+63,high,lasso F1,729,0.5182,0.4690,+0.009 to +0.080,worse,0.058,+0.017 to +0.128,worse,0.020
+63,high,lasso F1n,729,0.5071,0.4690,-0.011 to +0.077,no difference,0.166,+0.006 to +0.135,worse,0.044
+63,high,random forest F0,729,0.5501,0.4690,+0.020 to +0.139,worse,0.011,+0.018 to +0.104,worse,0.001
+63,high,random forest F1,729,0.5535,0.4690,+0.034 to +0.135,worse,0.003,+0.026 to +0.121,worse,0.001
+63,high,random forest F1n,729,0.5500,0.4690,+0.020 to +0.139,worse,0.011,+0.019 to +0.105,worse,0.001
+63,high,lightgbm F0,729,0.5395,0.4690,-0.002 to +0.134,no difference,0.037,+0.004 to +0.091,worse,0.005
+63,high,lightgbm F1,729,0.5321,0.4690,+0.004 to +0.120,worse,0.024,+0.006 to +0.112,worse,0.008
+63,high,lightgbm F1n,729,0.5319,0.4690,-0.009 to +0.123,no difference,0.051,+0.001 to +0.088,worse,0.010
+63,high,mlp F0,729,0.5840,0.4690,+0.041 to +0.197,worse,0.007,+0.098 to +1.354,worse,0.039
+63,high,mlp F1,729,0.5868,0.4690,+0.024 to +0.200,worse,0.020,+0.017 to +0.098,worse,0.001
+63,high,mlp F1n,729,0.5797,0.4690,+0.009 to +0.206,worse,0.043,+0.020 to +0.103,worse,0.000
