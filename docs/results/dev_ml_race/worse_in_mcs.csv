@@ -1,5 +1,5 @@
 h,loss,worse than HAR + VIX,of which in the MCS,forecasts
-5,QLIKE,2,1,gru F1
+5,QLIKE,3,2,"gru F1, gru F1n"
 5,RMSE,8,8,"random forest F0, random forest F1, random forest F1n, lightgbm F0, lightgbm F1, lightgbm F1n, mlp F1n, lstm F1n"
 21,QLIKE,13,12,"random forest F0, random forest F1, lightgbm F0, lightgbm F1, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1, gru F0, gru F1, gru F1n"
 21,RMSE,16,16,"ridge F0, ridge F1n, lasso F0, lasso F1n, random forest F0, random forest F1, random forest F1n, mlp F0, mlp F1, mlp F1n, lstm F0, lstm F1, lstm F1n, gru F0, gru F1, gru F1n"

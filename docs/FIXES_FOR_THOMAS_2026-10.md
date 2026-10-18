@@ -840,3 +840,8 @@ is the one proposal sentence naming the continuation. Not applied.
   MCS separates more than the race's, but not enough to stand for a pairwise result. No claim sentence in
   README.md or docs/WRITEUP.md cites MCS membership (checked with grep); if one is added at merge, it should
   cite the paired interval instead.
+  Interim 5 (2026-10-18 17:24Z, 12 of 18 race fits, `examples/dev_ml_race.py --markdown-only` then
+  `examples/dev_ml_summary.py` at b0500c8 plus uncommitted files, development data only): 'better' than HAR + VIX
+  in 0 of 24, 'worse' in 16 (new: GRU F1n at h = 5, 'worse' on QLIKE +0.006 to +0.205, 'no difference' on RMSE).
+  The clause stands. Adding the row changes the h = 5 MCS p-values of other forecasts (the set changed); LSTM F1
+  at h = 5 stays outside the 10% MCS (p 0.048, was 0.029).

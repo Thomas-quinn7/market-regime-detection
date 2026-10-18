@@ -21,6 +21,7 @@ h,forecast,windows,dRMSE 95%,RMSE,DM p (MSE),dQLIKE 95%,QLIKE,DM p (QLIKE)
 5,lstm F1n,651,+0.005 to +0.033,worse,0.019,-0.008 to +0.055,no difference,0.116
 5,gru F0,651,-0.026 to +0.022,no difference,0.850,-0.040 to +0.013,no difference,0.378
 5,gru F1,651,-0.004 to +0.038,no difference,0.108,+0.001 to +0.137,worse,0.055
+5,gru F1n,651,-0.004 to +0.040,no difference,0.063,+0.006 to +0.205,worse,0.050
 21,ols F1,153,-0.004 to +0.012,no difference,0.469,-0.009 to +0.032,no difference,0.449
 21,ols F1n,153,-0.000 to +0.001,no difference,0.240,-0.001 to +0.005,no difference,0.389
 21,ridge F0,153,+0.001 to +0.019,worse,0.017,-0.003 to +0.014,no difference,0.137
