@@ -12,7 +12,7 @@ the reopen scope, stage S4:
     against HAR + VIX exactly as the HMM probability is. If the noise regressor's interval looks like the
     HMM probability's, the "no difference" verdict for the probability is what nesting alone produces.
 
-Item (b), the K = 3 and 4 Student-t HMMs, is a separate run. Data: S&P 500 and VIX 2005-01-01 to
+Item (b), the K = 3 and 4 Student-t HMMs, is a separate run (examples/dev_k_states.py). Data: S&P 500 and VIX 2005-01-01 to
 2023-12-31 from the committed caches (a download attempt raises). Run from the repo root::
 
     python -u examples/dev_continuations.py [--n-boot 2000] [--out docs/DEV_CONTINUATIONS_2026-10.md]
@@ -154,7 +154,10 @@ def main() -> None:
       f"and the HMM probability {hmm_row['dRMSE 95%']} ({hmm_row['RMSE']}); a 'no difference' verdict for a nested "
       "regressor is what nesting alone produces when the added regressor carries nothing, so the HMM probability's "
       "verdict should be read against this noise row, not against zero.\n")
-    P("## (b) K = 3 and 4 Student-t HMMs\n\nNot run yet; separate script.\n")
+    P("## (b) K = 3 and 4 Student-t HMMs\n\nSeparate run: `examples/dev_k_states.py` writes "
+      "`docs/DEV_K_STATES_2026-10.md` (Gaussian and Student-t fits with 20 starts, per-refit convergence, and the "
+      "walk-forward forecasts of the three- and four-state models against the two-state model and HAR + VIX, "
+      "same class as this file).\n")
     Path(args.out).write_text("\n".join(out) + "\n", encoding="ascii")
     print("\n".join(f"h={s['horizon']}: {s['HAR + VIX + HMM prob vs HAR + VIX, dRMSE 95%']} {s['RMSE']}" for s in summary))
     print(f"noise: {noise_row['dRMSE 95%']} {noise_row['RMSE']}")

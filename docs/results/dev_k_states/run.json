@@ -1,0 +1,12 @@
+{
+ "git": "45626ea plus uncommitted files",
+ "when": "2026-10-18 00:49Z",
+ "n_starts": 20,
+ "wf_starts": 20,
+ "max_iter": 500,
+ "tol": 0.0001,
+ "step": 63,
+ "n_jobs": 6,
+ "seconds": 3532,
+ "data": "2005-01-04 to 2023-12-29 (4780 days)"
+}

@@ -1,0 +1,5 @@
+model,refits,refits converged,refits with all starts converged,median starts at best loglik
+"Gaussian K=2 (statsmodels, default start)",64,64,n/a,n/a
+Student-t K=2 (20 starts per refit),64,64,64,20
+Student-t K=3 (20 starts per refit),64,64,62,20
+Student-t K=4 (20 starts per refit),64,64,53,12

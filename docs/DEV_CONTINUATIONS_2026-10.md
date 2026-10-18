@@ -2,7 +2,7 @@ development data only, no holdout
 
 # Development-only continuations, October 2026
 
-Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout**. These are continuations of the development work, not claims; no holdout is opened and no registered verdict is touched. Written by `examples/dev_continuations.py` at 8e454ec plus uncommitted files, 2026-10-17 22:16Z, 2,000 bootstrap draws (seed 0). Data: S&P 500 and VIX 2005-01-04 to 2023-12-29 (4780 days) from the committed caches.
+Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout**. These are continuations of the development work, not claims; no holdout is opened and no registered verdict is touched. Written by `examples/dev_continuations.py` at 45626ea plus uncommitted files, 2026-10-17 23:52Z, 2,000 bootstrap draws (seed 0). Data: S&P 500 and VIX 2005-01-04 to 2023-12-29 (4780 days) from the committed caches.
 
 ## (a) Forecast horizon: 5, 21 and 63 trading days
 
@@ -78,5 +78,5 @@ One line: on development data the pure-noise regressor gives -0.000 to +0.001 (n
 
 ## (b) K = 3 and 4 Student-t HMMs
 
-Not run yet; separate script.
+Separate run: `examples/dev_k_states.py` writes `docs/DEV_K_STATES_2026-10.md` (Gaussian and Student-t fits with 20 starts, per-refit convergence, and the walk-forward forecasts of the three- and four-state models against the two-state model and HAR + VIX, same class as this file).
 

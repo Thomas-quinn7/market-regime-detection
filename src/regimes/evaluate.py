@@ -186,6 +186,16 @@ class WalkForwardResult:
     convergence: pd.DataFrame | None = None  # per refit: best_converged (statsmodels flag), detail
 
 
+def series_sha256(y: pd.Series) -> str:
+    """sha256 of a series' dates and float64 values, so a checkpoint is tied to the data it was made
+    from and not only to its span. A revised print inside the span changes the hash."""
+    import hashlib
+    h = hashlib.sha256()
+    h.update("\n".join(str(i) for i in y.index).encode("utf-8"))
+    h.update(np.ascontiguousarray(y.to_numpy(dtype=float)).tobytes())
+    return h.hexdigest()
+
+
 def walk_forward_oos(
     returns: pd.Series,
     *,
@@ -252,10 +262,22 @@ def walk_forward_oos(
         ckpt.mkdir(parents=True, exist_ok=True)
         settings = {"n": n, "first": str(y.index[0]), "last": str(y.index[-1]),
                     "min_train": min_train, "step": step, "horizon": horizon,
-                    "n_regimes": n_regimes, "order_by": order_by}
+                    "n_regimes": n_regimes, "order_by": order_by,
+                    "input_sha256": series_sha256(y)}
         sfile = ckpt / "settings.json"
-        if sfile.exists() and json.loads(sfile.read_text(encoding="utf-8")) != settings:
-            raise ValueError(f"checkpoint {ckpt} was made with different settings or data")
+        if sfile.exists():
+            saved = json.loads(sfile.read_text(encoding="utf-8"))
+            if "input_sha256" not in saved:
+                # Written before the input hash existed (October 2026): checked on span and settings
+                # only, as before, then upgraded so the next rerun checks the data values too.
+                legacy = {k: v for k, v in settings.items() if k != "input_sha256"}
+                if saved != legacy:
+                    raise ValueError(f"checkpoint {ckpt} was made with different settings or data")
+                warnings.warn(f"checkpoint {ckpt} predates input hashing; matched on span and settings only",
+                              RuntimeWarning, stacklevel=2)
+            elif saved != settings:
+                raise ValueError(f"checkpoint {ckpt} was made with different settings or data "
+                                 "(span, settings or the input values themselves)")
         sfile.write_text(json.dumps(settings, indent=1), encoding="utf-8")
 
     for i in range(min_train, n, step):
