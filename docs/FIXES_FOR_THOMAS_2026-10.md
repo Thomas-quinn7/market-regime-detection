@@ -592,6 +592,8 @@ Rule 2 freezes these files, so each gets a disclosure sentence where the WRITEUP
 - Why: desk 16 (model-validator Q6); panel item 10. The model-validator's draft also says "and archived
   at the Internet Archive": the lane cannot do that (rule 6, nothing that posts), so the clause stays out
   until Thomas has taken the Wayback snapshots.
+- **P34 DECIDED 2026-10-18 by Thomas: (b), no Wayback snapshots.** The archive clause stays out for good; the
+  proposed wording above (without it) is the candidate. The README edit itself is Thomas's to make.
 - Evidence: `docs/results/audit/README.md` and the two captures beside it (copied in S1); desk,
   model-validator Q6 (push and CI times).
 
