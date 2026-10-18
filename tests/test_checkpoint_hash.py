@@ -1,7 +1,6 @@
 """The walk-forward checkpoint is tied to the input values, not only to the span (desk, quant-dev F2;
 joint desk review 2026-10-18 finding 9)."""
 import json
-import warnings
 
 import numpy as np
 import pandas as pd
