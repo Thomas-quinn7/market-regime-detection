@@ -114,6 +114,25 @@ def schedule_shift(here: pd.Series, s8b: pd.Series) -> dict:
             "on": str(d.idxmax().date()), "days diff > 0.1": int((d > 0.1).sum())}
 
 
+def verdicts_two_schedules(here: pd.DataFrame, s8b: pd.DataFrame) -> pd.DataFrame:
+    """F1 vs F0 and F1n vs F0 for every (h, model) in both this script's vs_f0 rows and S8 (b) table (i), side by
+    side, with whether either verdict differs between the two refit schedules."""
+    name = {"F1": "F1 vs F0", "F1n": "F1n vs F0 (noise control)"}
+    out = []
+    for _, r in here[here["set"].isin(list(name))].iterrows():
+        m = s8b[(s8b["h"] == r["h"]) & (s8b["learner"] == r["model"]) & (s8b["comparison"] == name[r["set"]])]
+        if m.empty:
+            continue
+        b = m.iloc[0]
+        out.append({"h": r["h"], "model": r["model"], "comparison": name[r["set"]],
+                    "dRMSE S8 (b)": b["dRMSE 95%"], "RMSE S8 (b)": b["RMSE"],
+                    "dRMSE here": r["dRMSE 95%"], "RMSE here": r["RMSE"],
+                    "dQLIKE S8 (b)": b["dQLIKE 95%"], "QLIKE S8 (b)": b["QLIKE"],
+                    "dQLIKE here": r["dQLIKE 95%"], "QLIKE here": r["QLIKE"],
+                    "verdict moves": "yes" if (b["RMSE"], b["QLIKE"]) != (r["RMSE"], r["QLIKE"]) else "no"})
+    return pd.DataFrame(out)
+
+
 def fit(target, X, model: str, h: int) -> pd.Series:
     if model == "ols":
         return dm.fit_one(target, X, "ols", h)[0]
@@ -189,6 +208,16 @@ def markdown(returns, ivs, noise, n_boot: int) -> str:
                    "unaffected; this table says how much the F0 forecast itself depends on the schedule. A large "
                    "value means the learner's tuned penalty moved between the two schedules, not an error.\n")
         out.append(md_table(pd.DataFrame(shift)) + "\n")
+    s8b_i = dm.CACHE / "decisive_i.csv"
+    if rows and s8b_i.exists():
+        two = verdicts_two_schedules(pd.DataFrame(rows).fillna(""), pd.read_csv(s8b_i))
+        if not two.empty:
+            out.append("## Do the HMM and noise verdicts depend on the refit schedule?\n")
+            out.append(f"Class: {CLASS}. The same comparison (F1 or F1n against F0, same model, same horizon) on the "
+                       "S8 (b) rows (`docs/results/dev_ml_regime/decisive_i.csv`) and on the later-starting detector "
+                       "rows here. The two differ in first day, refit dates and, for a tuned learner, the chosen "
+                       f"penalty. Verdicts that move: {int((two['verdict moves'] == 'yes').sum())} of {len(two)} rows.\n")
+            out.append(md_table(two) + "\n")
     # descriptives on the h = 21 scored rows
     sets, prob = sets_at(returns, ivs, noise, sig, LEARNER_H)
     scored = sets["F0"].index[756 + LEARNER_H:]

@@ -161,6 +161,15 @@ def reading(t1: pd.DataFrame, t2: pd.DataFrame, t3: pd.DataFrame, race_t: pd.Dat
         wd, _ = n_verdict(alt, "worse")
         out.append(f"- Other regime detectors (d) in place of the HMM probability: 'better' than F0 in {bd} of {nd} "
                    f"comparisons, 'worse' in {wd}." + (" The null is not specific to the HMM." if bd == 0 else "") + "\n")
+        two = drd.verdicts_two_schedules(det_t, t1) if {"h", "model"} <= set(det_t.columns) else pd.DataFrame()
+        if len(two):
+            hmm = two[two["comparison"] == "F1 vs F0"]
+            mv = two[two["verdict moves"] == "yes"]
+            out.append(f"- Refit schedule: the same F1 and F1n comparisons on the later-starting detector rows move "
+                       f"{len(mv)} of {len(two)} verdicts against S8 (b)"
+                       + "".join(f"; {r['comparison']}, {r['model']} at h = {int(r['h'])}" for _, r in mv.iterrows())
+                       + f". HMM rows that move: {int((hmm['verdict moves'] == 'yes').sum())} of {len(hmm)} "
+                       "(`docs/DEV_REGIME_DETECTORS_2026-10.md`, schedule table).\n")
     else:
         out.append("- The detectors (d): not scored when this file was written; no reading.\n")
     out.append("Multiplicity: none of these counts is corrected; at a 2.5% one-sided rate per comparison about "

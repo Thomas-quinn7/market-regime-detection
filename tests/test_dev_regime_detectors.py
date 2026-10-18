@@ -37,3 +37,25 @@ def test_schedule_shift_on_common_rows():
     assert out["first day S8 (b)"] == "2020-01-01"
     assert out["max abs diff"] == "0.5000" and out["on"] == "2020-01-06" and out["days diff > 0.1"] == 1
     assert out["median abs diff"] == "0.0000"
+
+
+def test_verdicts_two_schedules_flags_a_moved_verdict():
+    here = pd.DataFrame([
+        {"h": 21, "model": "ols", "set": "F0", "dRMSE 95%": "", "RMSE": "", "dQLIKE 95%": "", "QLIKE": ""},
+        {"h": 21, "model": "ols", "set": "F1", "dRMSE 95%": "a", "RMSE": "no difference", "dQLIKE 95%": "b",
+         "QLIKE": "worse"},
+        {"h": 21, "model": "ols", "set": "F1n", "dRMSE 95%": "c", "RMSE": "no difference", "dQLIKE 95%": "d",
+         "QLIKE": "no difference"},
+        {"h": 21, "model": "ols", "set": "F1[gmm 2]", "dRMSE 95%": "e", "RMSE": "worse", "dQLIKE 95%": "f",
+         "QLIKE": "worse"},
+        {"h": 5, "model": "lasso", "set": "F1", "dRMSE 95%": "g", "RMSE": "no difference", "dQLIKE 95%": "h",
+         "QLIKE": "no difference"}])
+    s8b = pd.DataFrame([
+        {"h": 21, "learner": "ols", "comparison": "F1 vs F0", "dRMSE 95%": "A", "RMSE": "no difference",
+         "dQLIKE 95%": "B", "QLIKE": "no difference"},
+        {"h": 21, "learner": "ols", "comparison": "F1n vs F0 (noise control)", "dRMSE 95%": "C",
+         "RMSE": "no difference", "dQLIKE 95%": "D", "QLIKE": "no difference"}])
+    out = drd.verdicts_two_schedules(here, s8b)
+    assert list(out["comparison"]) == ["F1 vs F0", "F1n vs F0 (noise control)"]   # detector and unmatched rows dropped
+    assert list(out["verdict moves"]) == ["yes", "no"]
+    assert out.iloc[0]["dRMSE S8 (b)"] == "A" and out.iloc[0]["dRMSE here"] == "a"

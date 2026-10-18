@@ -57,3 +57,15 @@ def test_reading_counts_and_missing_parts():
     assert "'better' at h = 5 (table (iii))" in text
     assert "claim B needs the closer look" in text  # mlp finding is not in a worse learner
     assert text.isascii()
+
+
+def test_reading_counts_schedule_moves():
+    t1 = _table()
+    t2 = pd.DataFrame({"h": [126, 63], "learner": ["lightgbm", "mlp"], "RMSE": ["worse"] * 2, "QLIKE": ["worse"] * 2})
+    t3 = pd.DataFrame({"h": [5], "RMSE": ["no difference"], "QLIKE": ["no difference"]})
+    det_t = pd.DataFrame({"h": [21, 21, 63], "model": ["ridge", "ridge", "mlp"], "set": ["F1", "F1n", "F1"],
+                          "dRMSE 95%": ["e"] * 3, "RMSE": ["no difference", "worse", "better"],
+                          "dQLIKE 95%": ["f"] * 3, "QLIKE": ["no difference", "better", "better"]})
+    text = "\n".join(s.reading(t1, t2, t3, None, det_t))
+    assert "move 1 of 3 verdicts against S8 (b); F1n vs F0 (noise control), ridge at h = 21." in text
+    assert "HMM rows that move: 0 of 2" in text
