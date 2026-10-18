@@ -1,0 +1,7 @@
+h,model,set,days,windows,RMSE,QLIKE,dRMSE 95%,DM p (MSE),dQLIKE 95%,DM p (QLIKE)
+5,lasso,F0,3237,647,0.4896,0.4666,,,,
+5,lasso,F1,3237,647,no difference,no difference,-0.003 to +0.005,0.634,-0.011 to +0.003,0.293
+5,lasso,F1n,3237,647,no difference,no difference,-0.000 to +0.002,0.267,-0.002 to +0.001,0.729
+63,lasso,F0,3121,49,0.5288,0.5321,,,,
+63,lasso,F1,3121,49,no difference,no difference,-0.002 to +0.018,0.069,-0.008 to +0.035,0.168
+63,lasso,F1n,3121,49,no difference,no difference,-0.000 to +0.000,0.230,-0.002 to +0.000,0.063

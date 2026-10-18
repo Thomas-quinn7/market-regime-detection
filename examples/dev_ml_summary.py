@@ -161,7 +161,9 @@ def reading(t1: pd.DataFrame, t2: pd.DataFrame, t3: pd.DataFrame, race_t: pd.Dat
         wd, _ = n_verdict(alt, "worse")
         out.append(f"- Other regime detectors (d) in place of the HMM probability: 'better' than F0 in {bd} of {nd} "
                    f"comparisons, 'worse' in {wd}." + (" The null is not specific to the HMM." if bd == 0 else "") + "\n")
-        two = drd.verdicts_two_schedules(det_t, t1) if {"h", "model"} <= set(det_t.columns) else pd.DataFrame()
+        sc = drd.CACHE / "schedule_check.csv"
+        both = pd.concat([det_t] + ([pd.read_csv(sc)] if sc.exists() else []), ignore_index=True)
+        two = drd.verdicts_two_schedules(both, t1) if {"h", "model"} <= set(both.columns) else pd.DataFrame()
         if len(two):
             hmm = two[two["comparison"] == "F1 vs F0"]
             mv = two[two["verdict moves"] == "yes"]

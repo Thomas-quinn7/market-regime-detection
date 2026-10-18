@@ -814,5 +814,9 @@ is the one proposal sentence naming the continuation. Not applied.
   Interim (2026-10-18 15:18Z, 8 of 18 race fits scored, `examples/dev_ml_race.py --markdown-only` then
   `examples/dev_ml_summary.py`, development data only): LSTM/GRU 'better' than HAR + VIX in 0 of 16
   comparisons, 'worse' in 13; the clause stands so far. Recheck when the race finishes.
+  Interim 2 (2026-10-18 16:06Z, 10 of 18 race fits, same two scripts at e290471 plus uncommitted files,
+  development data only): 'better' in 0 of 20, 'worse' in 14. The new fit, GRU F0 at h = 5, has the lowest
+  point RMSE and QLIKE at h = 5 (top of both MCS rankings, p = 1.000) but is 'no difference' against HAR + VIX
+  (RMSE -0.026 to +0.022, QLIKE -0.040 to +0.013); the clause "no learner ... beat HAR + VIX" stays true.
   Detectors now include the h = 21 learner part (lasso, chosen by the race rule; `examples/dev_regime_detectors.py
   --part learner`, 2026-10-18 15:29Z): 'better' than F0 in 0 of 48, 'worse' in 5 (was 0 of 36, 4 with OLS only).

@@ -59,3 +59,35 @@ def test_verdicts_two_schedules_flags_a_moved_verdict():
     assert list(out["comparison"]) == ["F1 vs F0", "F1n vs F0 (noise control)"]   # detector and unmatched rows dropped
     assert list(out["verdict moves"]) == ["yes", "no"]
     assert out.iloc[0]["dRMSE S8 (b)"] == "A" and out.iloc[0]["dRMSE here"] == "a"
+
+
+def test_schedule_part_needs_a_chosen_learner(monkeypatch, tmp_path):
+    monkeypatch.setattr(drd, "CACHE", tmp_path)
+    monkeypatch.setattr(drd, "signals", lambda r, i: pd.DataFrame())
+    with pytest.raises(RuntimeError, match="--part learner"):
+        drd.run(None, None, None, "schedule")
+
+
+def test_score_reads_only_the_named_sets_on_common_rows(monkeypatch, tmp_path):
+    import numpy as np
+    monkeypatch.setattr(drd, "CACHE", tmp_path)
+    idx = pd.bdate_range("2015-01-01", periods=400)
+    returns = pd.Series(np.random.default_rng(1).normal(0, 0.01, len(idx)), index=idx)
+    target = drd.forward_vol(returns, 5)
+    rng = np.random.default_rng(2)
+    for s, start in (("F0", 0), ("F1", 10), ("F1n", 0), ("F1[gmm 2]", 0)):
+        f = (target + rng.normal(0, 0.05, len(target))).iloc[start:]
+        f.rename("forecast").to_csv(drd.cache_path(5, "lasso", s))
+    rows = drd.score([(5, "lasso"), (63, "lasso")], ["F0", "F1", "F1n"], returns, 50)
+    assert [r["set"] for r in rows] == ["F0", "F1", "F1n"]        # no detector set, no h = 63 (no cache)
+    assert len({r["days"] for r in rows}) == 1                   # one common row set per horizon
+    assert rows[0]["days"] == target.dropna().iloc[10:].shape[0]
+    assert "RMSE" in rows[1] and rows[1]["RMSE"] in ("better", "worse", "no difference")
+
+
+def test_schedule_pairs_are_the_cached_pairs_outside_the_main_tables(monkeypatch, tmp_path):
+    monkeypatch.setattr(drd, "CACHE", tmp_path)
+    for h, m, s in ((21, "ols", "F0"), (21, "lasso", "F0"), (5, "lasso", "F0"), (21, "random forest", "F0"),
+                    (21, "random forest", "F1"), (63, "mlp", "F1")):
+        drd.cache_path(h, m, s).write_text("")
+    assert drd.schedule_pairs([(21, "ols"), (21, "lasso")]) == [(5, "lasso"), (21, "random forest")]

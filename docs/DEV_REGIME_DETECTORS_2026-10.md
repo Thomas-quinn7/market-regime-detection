@@ -2,7 +2,7 @@ development data only (S&P 500, 2005-2023), no holdout, not a claim
 
 # Alternative regime detectors in place of the HMM, development data, October 2026
 
-Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout, not a claim**. Written by `examples/dev_regime_detectors.py` at 4db8305 plus uncommitted files, 2026-10-18 15:50Z, 2,000 bootstrap draws (seed 0). Design: amendment A2 of `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit. Every detector is fitted on the training rows only and applied forward (`regimes.detectors`, causality test in `tests/test_detectors.py`). F1[d] = F0 + detector d's input in place of the HMM probability; F1 = the HMM; F1n = pure noise. Every set at a horizon is fitted on the same rows. Stage S8 (d) of the reopen.
+Class of every table in this file: **development data only (S&P 500, 2005-2023), no holdout, not a claim**. Written by `examples/dev_regime_detectors.py` at e290471 plus uncommitted files, 2026-10-18 16:10Z, 2,000 bootstrap draws (seed 0). Design: amendment A2 of `docs/ML_REGIME_PROTOCOL_DRAFT.md`, committed before the first fit. Every detector is fitted on the training rows only and applied forward (`regimes.detectors`, causality test in `tests/test_detectors.py`). F1[d] = F0 + detector d's input in place of the HMM probability; F1 = the HMM; F1n = pure noise. Every set at a horizon is fitted on the same rows. Stage S8 (d) of the reopen.
 
 Learner at h = 21: **lasso**, the lowest mean QLIKE on F0 at h = 21 over the S8 (b) and (c) forecasts, chosen before any detector fit with it.
 
@@ -49,18 +49,22 @@ Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. Pair
 | 21 | lasso | F1[changepoint] | 3205 | 152 | no difference | no difference | -0.023 to +0.004 | 0.344 | -0.006 to +0.042 | 0.374 |
 | 21 | lasso | F1[spectral 2] | 3205 | 152 | worse | no difference | +0.001 to +0.010 | 0.008 | -0.004 to +0.022 | 0.192 |
 
-## Refit-schedule sensitivity: F0 here against F0 in S8 (b), h = 21
+## Refit-schedule sensitivity: F0 here against F0 in S8 (b)
 
-Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The detector inputs need warm-up rows, so every set here starts later than in S8 (b) and the refit dates move. Comparisons inside the table above are on one schedule and are unaffected; this table says how much the F0 forecast itself depends on the schedule. A large value means the learner's tuned penalty moved between the two schedules, not an error.
+Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The detector inputs need warm-up rows, so every set here starts later than in S8 (b) and the refit dates move. Comparisons inside the table above are on one schedule and are unaffected; this table says how much the F0 forecast itself depends on the schedule. A large value means the learner's tuned penalty moved between the two schedules, not an error. The rows not in the table above were fitted for this check only (`--part schedule`, F0, F1 and F1n; no detector input).
 
-| model | common days | first day here | first day S8 (b) | median abs diff | 99th pct abs diff | max abs diff | on | days diff > 0.1 |
-|---|---|---|---|---|---|---|---|---|
-| ols | 3226 | 2011-03-08 | 2011-02-04 | 0.0032 | 0.0379 | 0.0853 | 2011-10-27 | 0 |
-| lasso | 3226 | 2011-03-08 | 2011-02-04 | 0.0081 | 0.3879 | 1.4262 | 2020-03-16 | 210 |
+| h | model | common days | first day here | first day S8 (b) | median abs diff | 99th pct abs diff | max abs diff | on | days diff > 0.1 |
+|---|---|---|---|---|---|---|---|---|---|
+| 5 | lasso | 3242 | 2011-02-11 | 2011-01-12 | 0.0073 | 0.1233 | 0.3167 | 2018-12-24 | 58 |
+| 5 | ols | 3242 | 2011-02-11 | 2011-01-12 | 0.0028 | 0.0347 | 0.0740 | 2020-04-21 | 0 |
+| 21 | lasso | 3226 | 2011-03-08 | 2011-02-04 | 0.0081 | 0.3879 | 1.4262 | 2020-03-16 | 210 |
+| 21 | ols | 3226 | 2011-03-08 | 2011-02-04 | 0.0032 | 0.0379 | 0.0853 | 2011-10-27 | 0 |
+| 63 | lasso | 3184 | 2011-05-06 | 2011-04-06 | 0.0074 | 0.1638 | 0.2530 | 2018-12-26 | 207 |
+| 63 | ols | 3184 | 2011-05-06 | 2011-04-06 | 0.0037 | 0.0527 | 0.1100 | 2011-10-27 | 1 |
 
 ## Do the HMM and noise verdicts depend on the refit schedule?
 
-Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The same comparison (F1 or F1n against F0, same model, same horizon) on the S8 (b) rows (`docs/results/dev_ml_regime/decisive_i.csv`) and on the later-starting detector rows here. The two differ in first day, refit dates and, for a tuned learner, the chosen penalty. Verdicts that move: 1 of 8 rows.
+Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The same comparison (F1 or F1n against F0, same model, same horizon) on the S8 (b) rows (`docs/results/dev_ml_regime/decisive_i.csv`) and on the later-starting detector rows here. The two differ in first day, refit dates and, for a tuned learner, the chosen penalty. Verdicts that move: 1 of 12 rows.
 
 | h | model | comparison | dRMSE S8 (b) | RMSE S8 (b) | dRMSE here | RMSE here | dQLIKE S8 (b) | QLIKE S8 (b) | dQLIKE here | QLIKE here | verdict moves |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -72,6 +76,10 @@ Class: development data only (S&P 500, 2005-2023), no holdout, not a claim. The 
 | 63 | ols | F1n vs F0 (noise control) | +0.000 to +0.001 | worse | +0.000 to +0.001 | worse | -0.000 to +0.005 | no difference | +0.000 to +0.006 | worse | yes |
 | 21 | lasso | F1 vs F0 | -0.006 to +0.009 | no difference | -0.029 to +0.011 | no difference | -0.007 to +0.031 | no difference | -0.015 to +0.050 | no difference | no |
 | 21 | lasso | F1n vs F0 (noise control) | -0.004 to +0.000 | no difference | -0.026 to +0.000 | no difference | -0.010 to +0.001 | no difference | -0.014 to +0.012 | no difference | no |
+| 5 | lasso | F1 vs F0 | -0.001 to +0.005 | no difference | -0.003 to +0.005 | no difference | -0.007 to +0.005 | no difference | -0.011 to +0.003 | no difference | no |
+| 5 | lasso | F1n vs F0 (noise control) | -0.000 to +0.002 | no difference | -0.000 to +0.002 | no difference | -0.003 to +0.002 | no difference | -0.002 to +0.001 | no difference | no |
+| 63 | lasso | F1 vs F0 | -0.003 to +0.017 | no difference | -0.002 to +0.018 | no difference | -0.012 to +0.034 | no difference | -0.008 to +0.035 | no difference | no |
+| 63 | lasso | F1n vs F0 (noise control) | -0.000 to +0.000 | no difference | -0.000 to +0.000 | no difference | -0.000 to +0.000 | no difference | -0.002 to +0.000 | no difference | no |
 
 ## Label persistence and agreement with the HMM (h = 21 scored rows)
 

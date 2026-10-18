@@ -13,6 +13,8 @@ rows. Caches under ``docs/results/dev_regime_detectors/``::
 
     python -u examples/dev_regime_detectors.py --part ols        # detectors + OLS at 5, 21, 63
     python -u examples/dev_regime_detectors.py --part learner    # the S8 (b)/(c) winner at 21 (after the race)
+    python -u examples/dev_regime_detectors.py --part schedule   # that learner, F0/F1/F1n only, at 5 and 63
+    python -u examples/dev_regime_detectors.py --part schedule --models ridge,mlp   # and these at 21
     python -u examples/dev_regime_detectors.py --markdown-only
 
 Data from the committed caches to 2023-12-31; a download attempt raises.
@@ -49,6 +51,7 @@ from posthoc_stats import git_head, md_table  # noqa: E402
 CLASS = dm.CLASS
 HORIZONS = (5, 21, 63)
 LEARNER_H = 21
+SCHEDULE_H = (5, 63)   # --part schedule: the learner's F0, F1, F1n on these rows, for the refit-schedule check only
 CACHE = ROOT / "docs" / "results" / "dev_regime_detectors"
 
 
@@ -141,15 +144,29 @@ def fit(target, X, model: str, h: int) -> pd.Series:
     return walk_forward_learner(target, X, model, horizon=h, step=63, min_rows=756, val=252).forecast
 
 
-def run(returns, ivs, noise, part: str) -> None:
+def schedule_pairs(main: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    """(h, model) pairs with an F0 cache here that are not in the main tables: the refit-schedule check rows."""
+    found = {(int(f.name[1:4]), f.name.split("__")[1].replace("_", " ")) for f in CACHE.glob("h*__*__F0.csv")}
+    return sorted(found - set(main))
+
+
+def run(returns, ivs, noise, part: str, models: tuple[str, ...] = ()) -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
     sig = signals(returns, ivs)
-    plan = [(h, "ols") for h in HORIZONS] if part == "ols" else [(LEARNER_H, best_learner())]
-    if part == "learner":
+    names = set_names()
+    if part == "ols":
+        plan = [(h, "ols") for h in HORIZONS]
+    elif part == "learner":
+        plan = [(LEARNER_H, best_learner())]
         (CACHE / "learner.txt").write_text(plan[0][1] + "\n")
         print(f"learner at h=21 (lowest mean QLIKE on F0 in S8 b/c): {plan[0][1]}", flush=True)
+    else:
+        if not (CACHE / "learner.txt").exists():
+            raise RuntimeError("no learner chosen yet; run --part learner first")
+        plan = [(h, (CACHE / "learner.txt").read_text().strip()) for h in SCHEDULE_H] + [(LEARNER_H, m) for m in models]
+        names = ["F0", "F1", "F1n"]
     for h, model in plan:
-        todo = [s for s in set_names() if not cache_path(h, model, s).exists()]
+        todo = [s for s in names if not cache_path(h, model, s).exists()]
         if not todo:
             continue
         sets, _ = sets_at(returns, ivs, noise, sig, h)
@@ -159,6 +176,26 @@ def run(returns, ivs, noise, part: str) -> None:
             f = fit(target, sets[s], model, h)
             f.rename("forecast").to_csv(cache_path(h, model, s), float_format="%.12g")
             print(f"h={h} {model:<14} {s:<20} {len(f)} forecasts, {time.time() - t:.0f} s", flush=True)
+
+
+def score(pairs, names, returns, n_boot: int) -> list[dict]:
+    """RMSE, QLIKE and the comparison with F0 for every cached (h, model, set), each horizon on its common rows."""
+    rows = []
+    for h, model in pairs:
+        fc = {s: pd.read_csv(cache_path(h, model, s), index_col=0, parse_dates=True)["forecast"]
+              for s in names if cache_path(h, model, s).exists()}
+        if "F0" not in fc:
+            continue
+        df = pd.concat({"target": forward_vol(returns, h), **fc}, axis=1, sort=True).dropna()
+        y = df["target"].to_numpy()
+        for s in fc:
+            row = {"h": h, "model": model, "set": s, "days": len(df), "windows": len(df) // h,
+                   "RMSE": f"{np.sqrt(((df[s] - df['target']) ** 2).mean()):.4f}",
+                   "QLIKE": f"{qlike(df[s].to_numpy(), y).mean():.4f}"}
+            if s != "F0":
+                row.update(dm.cmp_row(df, s, "F0", h, n_boot))
+            rows.append(row)
+    return rows
 
 
 def markdown(returns, ivs, noise, n_boot: int) -> str:
@@ -173,21 +210,11 @@ def markdown(returns, ivs, noise, n_boot: int) -> str:
            "F1n = pure noise. Every set at a horizon is fitted on the same rows. Stage S8 (d) of the reopen.\n",
            f"Learner at h = 21: **{learner or 'not yet chosen (the race is not finished)'}**, the lowest mean QLIKE on "
            "F0 at h = 21 over the S8 (b) and (c) forecasts, chosen before any detector fit with it.\n"]
-    rows = []
-    for h, model in [(h, "ols") for h in HORIZONS] + ([(LEARNER_H, learner)] if learner else []):
-        fc = {s: pd.read_csv(cache_path(h, model, s), index_col=0, parse_dates=True)["forecast"]
-              for s in set_names() if cache_path(h, model, s).exists()}
-        if "F0" not in fc:
-            continue
-        df = pd.concat({"target": forward_vol(returns, h), **fc}, axis=1, sort=True).dropna()
-        y = df["target"].to_numpy()
-        for s in fc:
-            row = {"h": h, "model": model, "set": s, "days": len(df), "windows": len(df) // h,
-                   "RMSE": f"{np.sqrt(((df[s] - df['target']) ** 2).mean()):.4f}",
-                   "QLIKE": f"{qlike(df[s].to_numpy(), y).mean():.4f}"}
-            if s != "F0":
-                row.update(dm.cmp_row(df, s, "F0", h, n_boot))
-            rows.append(row)
+    main = [(h, "ols") for h in HORIZONS] + ([(LEARNER_H, learner)] if learner else [])
+    rows = score(main, set_names(), returns, n_boot)
+    sched = score(schedule_pairs(main), ["F0", "F1", "F1n"], returns, n_boot)
+    if sched:
+        pd.DataFrame(sched).to_csv(CACHE / "schedule_check.csv", index=False)
     out.append("## Each regime input against F0 (HAR + VIX inputs only)\n")
     out.append(f"Class: {CLASS}. Paired circular block bootstrap, block max(63, h); DM = HAC Diebold-Mariano, lag 20. "
                "The F1n row is the size of a gain that means nothing.\n")
@@ -195,22 +222,24 @@ def markdown(returns, ivs, noise, n_boot: int) -> str:
     if rows:
         pd.DataFrame(rows).to_csv(CACHE / "vs_f0.csv", index=False)
     shift = []
-    for model in ["ols"] + ([learner] if learner and learner != "ols" else []):
-        here, s8b = cache_path(LEARNER_H, model, "F0"), dm.cache_path(LEARNER_H, model, "F0")
+    for h, model in sorted(set(main) | set(schedule_pairs(main))):
+        here, s8b = cache_path(h, model, "F0"), dm.cache_path(h, model, "F0")
         if here.exists() and s8b.exists():
-            shift.append({"model": model, **schedule_shift(
+            shift.append({"h": h, "model": model, **schedule_shift(
                 pd.read_csv(here, index_col=0, parse_dates=True)["forecast"],
                 pd.read_csv(s8b, index_col=0, parse_dates=True)["forecast"])})
     if shift:
-        out.append("## Refit-schedule sensitivity: F0 here against F0 in S8 (b), h = 21\n")
+        out.append("## Refit-schedule sensitivity: F0 here against F0 in S8 (b)\n")
         out.append(f"Class: {CLASS}. The detector inputs need warm-up rows, so every set here starts later than in "
                    "S8 (b) and the refit dates move. Comparisons inside the table above are on one schedule and are "
                    "unaffected; this table says how much the F0 forecast itself depends on the schedule. A large "
-                   "value means the learner's tuned penalty moved between the two schedules, not an error.\n")
+                   "value means the learner's tuned penalty moved between the two schedules, not an error. The "
+                   "rows not in the table above were fitted for this check only (`--part schedule`, F0, F1 and "
+                   "F1n; no detector input).\n")
         out.append(md_table(pd.DataFrame(shift)) + "\n")
     s8b_i = dm.CACHE / "decisive_i.csv"
-    if rows and s8b_i.exists():
-        two = verdicts_two_schedules(pd.DataFrame(rows).fillna(""), pd.read_csv(s8b_i))
+    if (rows or sched) and s8b_i.exists():
+        two = verdicts_two_schedules(pd.DataFrame(rows + sched).fillna(""), pd.read_csv(s8b_i))
         if not two.empty:
             out.append("## Do the HMM and noise verdicts depend on the refit schedule?\n")
             out.append(f"Class: {CLASS}. The same comparison (F1 or F1n against F0, same model, same horizon) on the "
@@ -242,7 +271,8 @@ def markdown(returns, ivs, noise, n_boot: int) -> str:
 def main() -> None:
     global CACHE
     parser = argparse.ArgumentParser()
-    parser.add_argument("--part", choices=("ols", "learner"), default="ols")
+    parser.add_argument("--part", choices=("ols", "learner", "schedule"), default="ols")
+    parser.add_argument("--models", default="", help="--part schedule: extra models at h = 21, comma-separated")
     parser.add_argument("--markdown-only", action="store_true")
     parser.add_argument("--n-boot", type=int, default=2000)
     parser.add_argument("--out", default=str(ROOT / "docs" / "DEV_REGIME_DETECTORS_2026-10.md"))
@@ -253,7 +283,7 @@ def main() -> None:
     returns, ivs = dm.load()
     noise = pd.Series(np.random.default_rng(0).standard_normal(len(returns)), index=returns.index)
     if not args.markdown_only:
-        run(returns, ivs, noise, args.part)
+        run(returns, ivs, noise, args.part, tuple(m for m in args.models.split(",") if m))
     Path(args.out).write_text(markdown(returns, ivs, noise, args.n_boot), encoding="ascii")
     print(f"wrote {args.out}")
 
