@@ -101,9 +101,9 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
 
 ### P1. README.md lines 13-15: "where the two were level"
 
-- Status: proposal, not applied (claim prose, rule 7). Thomas's pointer of 2026-10-18 11:56: keep all
-  three sentences below, including the one naming the unregistered HAR + VIX comparisons on the S&P;
-  Thomas applies it at merge.
+- Status: **APPLIED 2026-10-19 on Thomas's word** ("paste P1 as approved"), the three sentences exactly as
+  proposed below, README.md:13-18. Earlier: Thomas's pointer of 2026-10-18 11:56 approved all three
+  sentences, including the one naming the unregistered HAR + VIX comparisons on the S&P.
 
 - Old (README.md:13-15): "The regime model's own forecast had a higher error than HAR plus implied vol on
   every holdout but one, the short 2024-2026 sample, where the two were level."

@@ -11,8 +11,12 @@ opened, and each holdout was run once.
 The answer is no. On four holdouts (the S&P 500 in 1996-2004 and 2024-2026, the Nasdaq-100, Dow and
 Russell 2000, and oil, gold, emerging-market and Brazil ETFs), adding a regime probability to a simple
 HAR forecast with the market's own implied vol never made a measurable difference. That was the
-two-state model's probability on the first three and Markov-switching GARCH's on the ETFs. The regime model's own forecast had a higher error than HAR plus implied vol on every
-holdout but one, the short 2024-2026 sample, where the two were level. Richer regime models did beat
+two-state model's probability on the first three and Markov-switching GARCH's on the ETFs. On the two S&P 500 holdouts the registered comparison for the regime model's own forecast was
+against HAR without the VIX: on RMSE it lost on 1996-2004 and was not shown to differ on 2024-2026,
+where it beat HAR on QLIKE. Against HAR plus implied vol the registered comparison was on the four ETFs
+only, where MS-GARCH lost on all four on RMSE and on oil alone on QLIKE. The S&P comparisons against
+HAR plus the VIX are unregistered: on 1996-2004 the HMM's implied vol is worse on both losses; on
+2024-2026 the two are not shown to differ on either (post hoc). Richer regime models did beat
 the two-state one, a multifractal model on the Russell 2000 and Markov-switching GARCH on gold and
 emerging markets, however both still had a higher error than HAR plus implied vol on every holdout. The write-up also shows why. The
 two-state probability is a squashed version of EWMA volatility, pinned near 0 or 1, so its forecast is
