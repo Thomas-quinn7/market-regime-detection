@@ -864,3 +864,36 @@ is the one proposal sentence naming the continuation. Not applied.
   quotes table (i), say that one 'better' and one 'worse' in 46 is within what the noise regressor produces (2 'better' in 46), and
   that both depend on the refit dates (`docs/DEV_ML_2026-10.md`, "Reading", refit-schedule bullet). The race
   clause is closed; nothing under P19 is open.
+
+## S9 pass: the benchmark form check
+
+Written 2026-10-19 (stage S9). The scope asks for this proposal as "P20"; P20 was already used by the S6 pass
+(README.md lines 11-13), so it is numbered P35. Proposal only (rule 7), not applied.
+
+### P35. Name the form of the HAR + implied vol benchmark (WRITEUP.md lines 529-530)
+
+- Old (WRITEUP.md lines 529-530): "Every signal set is turned into a forecast by the same walk-forward
+  regression (`regimes.forecast`), refit quarterly and fitted in logs, ..."
+- Proposed: "Every signal set is turned into a forecast by the same walk-forward regression
+  (`regimes.forecast`), refit quarterly and fitted in logs, with every volatility input and the target in
+  logs (the log-HAR form of Corsi 2009, used for every HAR + implied vol benchmark in this note); on
+  development data to 2022 a version with the inputs in levels was never better on RMSE or QLIKE and changed
+  no 21-day verdict, ..."
+- Why: the implied-horizon-vol study (laptop, 19 Oct, `/opt/hmm-agent/reviews/IHV_RESULTS_2026-10-19.md`,
+  "Reading") says MR's HAR + IV benchmark "used the same level-feature, log-target form". It did not: every
+  script that builds the benchmark takes np.log of the HAR inputs and of IV / sqrt(252)
+  (`examples/vol_forecast_vix.py` lines 104-132, `examples/better_vol_models.py` lines 93-117,
+  `examples/msgarch_credit.py` lines 168-186, `examples/intraday_rv.py` lines 117-144,
+  `examples/term_structure_regimes.py` lines 105-117). The paper should say so in one clause, because the
+  level form is the one that blows up.
+- Evidence (development data only, S&P 500 and ES to 2022-12-30, no holdout, not a claim;
+  `examples/dev_benchmark_form.py` at feff299 plus uncommitted files, `docs/DEV_BENCHMARK_FORM_2026-10.md`,
+  "Answer" and the claims table): within-form verdicts that differ between the two forms 7 of 24, none at the
+  paper's target and horizon (daily-return vol, 21 days); every claim sentence the S&P development data can
+  speak to (4 of 7) points the same way under the log form; the log-form benchmark has the lower loss in 3 of
+  8 target-horizon cells (h = 1 and 5), the level form in none. On the ES 5-minute target at h = 1 the HMM
+  probability reads 'better' than HAR + VIX in the log form only (RMSE -0.002 to -0.000, QLIKE -0.004 to
+  -0.001, no multiplicity correction): a short-horizon development lead, outside every claim (all are 21-day)
+  and not cited in the proposed sentence.
+- Reference check: Corsi, F. (2009), "A Simple Approximate Long-Memory Model of Realized Volatility", Journal
+  of Financial Econometrics 7(2), 174-196; WRITEUP.md line 519 already cites Corsi for HAR-RV.
