@@ -48,7 +48,7 @@ caveats for every result below.
 | Adding the VIX | every signal scored as a forecast against HAR-RV, with two holdouts committed first (1996-2004, 2024-2026): adding the VIX cuts forecast error on both (about 9% on 1996-2004); a regime probability adds nothing once the VIX is in; the HMM's own forecast loses to HAR on 1996-2004 and draws on 2024-2026 |
 | Three more attempts, and why it loses | VIX term structure, recession and Fed-easing labels, and intraday realised vol from S&P futures (development data): the HMM never beats a simple measure built from the same information. Its probability is a squashed EWMA vol, pinned near 0 or 1, with a forecast stuck between two levels; on simulated data it wins only when volatility truly has two states |
 | Better vol models, and three more indices | HARQ, SHAR, GJR-GARCH, a multifractal regime model (MSM) and a combination, tested on a Nasdaq-100, Dow and Russell 2000 holdout committed first: none beats HAR-RV + implied vol on any index; MSM beats the two-state HMM on the Russell 2000 only, so the regime claim is mixed |
-| Markov-switching GARCH and credit | a regime model where volatility moves inside each regime, plus the Baa credit spread, tested on an oil, gold, emerging-market and Brazil ETF holdout committed first: MS-GARCH loses to HAR + implied vol on all four and is no better than one GJR-GARCH, though it does beat the two-state HMM (confirmed); credit adds nothing |
+| Markov-switching GARCH and credit | a regime model where volatility moves inside each regime, plus the Baa credit spread, tested on an oil, gold, emerging-market and Brazil ETF holdout committed first: MS-GARCH loses to HAR + implied vol on all four on RMSE, the registered loss (on QLIKE, oil only; post hoc), is no better than one GJR-GARCH on either loss, and beats the two-state HMM on RMSE (confirmed: gold and emerging markets; on QLIKE the two assets are oil and Brazil, post hoc); credit adds nothing on either loss |
 
 ## The idea
 
@@ -119,6 +119,13 @@ Everything runs with no API keys. `macro_quadrants.py` uses FRED/ALFRED data who
 cache is committed, so it runs offline too; a free `FRED_API_KEY` (`fred.stlouisfed.org` -> My Account
 -> API Keys) is needed only to refresh or extend that macro data.
 
+The development work and the two S&P 500 holdouts (claims A, B, C) use Yahoo's ^VIX; the cross-index
+holdout (P1-P5, R1-R3) uses FRED's VIXCLS as the implied vol for all three indices, and the ETF holdout
+(M1-M5) FRED's OVXCLS, GVZCLS, VXEEMCLS and VXEWZCLS. FRED's series equals Cboe's published history;
+Yahoo's differs from it on 12 of 6,037 common days in 2000-2023 by up to 0.98 points (2014-10-15) and has
+no row on 13 days FRED prints (2004-06-11 and twelve 2022-2023 US holidays). The stock-bond holdout uses
+no VIX.
+
 ## Layout
 
 ```
@@ -159,8 +166,11 @@ came after the freeze commits in every case, the protocol files were not edited 
 results except to add the freeze hash (the results commits then changed the status line of the
 cross-index and MS-GARCH protocols and appended a results section, 51 and 61 lines; no rule was
 edited), and the result files under `docs/results/` have not been
-changed since. One caveat: the stock-bond freeze (53b50c6) was pushed in the same push as its
-results, so for that holdout the commit order is local evidence only. The three later freezes were
+changed since. One caveat: the stock-bond holdout was an out-of-sample check whose rules I wrote before
+running it, not a frozen holdout. Its data files were on disk (14:17-14:18 on 13 Oct) before the
+protocol was written (14:23) and committed (53b50c6, 14:33), the loader that reads them was committed
+with the results, and the freeze and the results went up in one push, so for that holdout the commit
+order is local evidence only. The three later freezes were
 public on GitHub before their results were pushed.
 
 | Holdout | Protocol | Freeze commit | Results commit |

@@ -125,6 +125,8 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
 
 ### P2. README.md line 47: the MS-GARCH row names no loss
 
+- Status: **APPLIED 2026-10-20 on Thomas's word** (README.md line 51), exactly as proposed.
+
 - Old (README.md:47, inside the row): "MS-GARCH loses to HAR + implied vol on all four and is no better
   than one GJR-GARCH, though it does beat the two-state HMM (confirmed); credit adds nothing"
 - Proposed: "MS-GARCH loses to HAR + implied vol on all four on RMSE, the registered loss (on QLIKE, oil
@@ -150,6 +152,9 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
 - Evidence: POSTHOC (a) table for the ETF holdout (post hoc).
 
 ### P4. README.md line 158: the stock-bond caveat
+
+- Status: **APPLIED 2026-10-20 on Thomas's word** (README.md lines 169-173), exactly as proposed. Not done here:
+  the same facts at WRITEUP.md:463-466 (that is P21, not ruled).
 
 - Old (README.md:157-159 after A6; 155-157 before it): "One caveat: the stock-bond freeze (53b50c6) was pushed in the same push as
   its results, so for that holdout the commit order is local evidence only."
@@ -206,6 +211,11 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
   `examples/reproduce_holdout.py`, `examples/check_writeup_tables.py`, `examples/etf_refit_audit.py`).
 
 ### P8. The VIX source, one sentence per claim (new; README data section and WRITEUP)
+
+- Status: **APPLIED 2026-10-20 on Thomas's word** (README.md, after the API-key paragraph), README only; the
+  WRITEUP copy is not done. One change: "12 of 6,037 development days" became "12 of 6,037 common days in
+  2000-2023", because the compared span includes 2000-2004, which is holdout, not development (re-run of
+  `examples/vix_source_check.py` 2026-10-20: same counts, 12 / 6037 / 0.98 / 13 / 0).
 
 - Proposed (README, after the data description): "The development work and the two S&P 500 holdouts
   (claims A, B, C) use Yahoo's ^VIX; the cross-index holdout (P1-P5, R1-R3) uses FRED's VIXCLS as the
