@@ -924,6 +924,9 @@ on the laptop after checking the evidence.
 
 ### P1b. README.md line 48, the "Adding the VIX" table row: "draws on 2024-2026"
 
+- Status: **APPLIED 2026-10-20 on Thomas's word** (approved in advance), exactly as proposed; evidence checked
+  against POSTHOC_2026-10.md:534 and :628. The sub-note ("cuts forecast error" -> "cuts the RMSE") is NOT applied: not ruled.
+
 - Old (README.md:48, end of the row): "the HMM's own forecast loses to HAR on 1996-2004 and draws on
   2024-2026 |"
 - Proposed: "the HMM's own forecast loses to HAR on RMSE on 1996-2004 and, on 2024-2026, is not shown to
