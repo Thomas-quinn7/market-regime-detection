@@ -527,8 +527,11 @@ own implied volatility over the next 21 days (filtered state probabilities pushe
 transition matrix and weighted by the state variances), and the implied volatility of a second HMM
 that observes both the return and the log VIX each day (`regimes.vix_regimes`). Every signal set is
 turned into a forecast by the same walk-forward regression (`regimes.forecast`), refit quarterly and
-fitted in logs, with the training rows embargoed so that no 21-day target is used before it was fully
-known. A test rewrites every target that was still unknown at a refit date and checks that the
+fitted in logs, with every volatility input and the target in logs (the log-HAR form of Corsi 2009,
+used for every HAR + implied vol benchmark in this note) and the training rows embargoed so that no
+21-day target is used before it was fully known. On development data to 2022, a version with the
+inputs in levels was never better on RMSE or QLIKE and changed no 21-day verdict on the daily-return
+target. A test rewrites every target that was still unknown at a refit date and checks that the
 forecast does not move.
 
 One change was made after seeing a result, and it applies to every signal alike. The calibration was

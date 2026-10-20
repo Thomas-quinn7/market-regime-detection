@@ -870,6 +870,11 @@ is the one proposal sentence naming the continuation. Not applied.
 Written 2026-10-19 (stage S9). The scope asks for this proposal as "P20"; P20 was already used by the S6 pass
 (README.md lines 11-13), so it is numbered P35. Proposal only (rule 7), not applied.
 
+**APPLIED 2026-10-20, approved by Thomas the same day** (WRITEUP.md lines 529-533). One change from the
+proposed text: "changed no 21-day verdict" is narrowed to "on the daily-return target", because on the ES
+5-minute RV target at h = 21 one verdict does differ (HAR + VIX against HAR on QLIKE: 'better' in levels,
+'no difference' in logs; `docs/DEV_BENCHMARK_FORM_2026-10.md`, Target B, horizon 21).
+
 ### P35. Name the form of the HAR + implied vol benchmark (WRITEUP.md lines 529-530)
 
 - Old (WRITEUP.md lines 529-530): "Every signal set is turned into a forecast by the same walk-forward
