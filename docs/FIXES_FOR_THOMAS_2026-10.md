@@ -912,3 +912,108 @@ proposed text: "changed no 21-day verdict" is narrowed to "on the daily-return t
   and not cited in the proposed sentence.
 - Reference check: Corsi, F. (2009), "A Simple Approximate Long-Memory Model of Realized Volatility", Journal
   of Financial Econometrics 7(2), 174-196; WRITEUP.md line 519 already cites Corsi for HAR-RV.
+
+## S9 follow-up pass: the desk re-check of 2026-10-20
+
+Written 2026-10-20 (pointer 2026-10-20 13:20 UTC; joint desk review
+`/opt/desk-agent/out/DESK_REVIEW_HMM_VRP_2026-10-18.md`, "Next moves after re-check", bucket 1 item 5, and
+its findings N7, N10 and the re-check lines 246-247 and 262). All four are proposals only (rule 7); none is
+applied by the lane. Line numbers are README.md at 00ee358. No new number: every figure below is already
+printed in a committed file, named beside it. P1b is approved by Thomas in advance and is applied by Claude
+on the laptop after checking the evidence.
+
+### P1b. README.md line 48, the "Adding the VIX" table row: "draws on 2024-2026"
+
+- Old (README.md:48, end of the row): "the HMM's own forecast loses to HAR on 1996-2004 and draws on
+  2024-2026 |"
+- Proposed: "the HMM's own forecast loses to HAR on RMSE on 1996-2004 and, on 2024-2026, is not shown to
+  differ on RMSE and beats it on QLIKE |"
+- Why: desk re-check line 246 (fitness D; lead's trace): "draws" hides the QLIKE result that the README's
+  opening paragraph (P1, applied at feff299) already reports; pointer 00:00 (c) (name the loss).
+- Evidence (reproduction and post hoc, `examples/posthoc_stats.py` at e6dad63, `docs/POSTHOC_2026-10.md`):
+  1996-2004, comparison 6 "HMM implied vol vs HAR", RMSE +0.016 to +0.094 worse (POSTHOC:534; the same
+  interval is the registered claim C entry, WRITEUP.md:567); 2024-2026, comparison 6, RMSE -0.063 to
+  +0.023 no difference and QLIKE -0.100 to -0.013 better (POSTHOC:628; the QLIKE interval is printed by
+  the frozen script and quoted at WRITEUP.md:571-572; `examples/check_writeup_tables.py` matched it,
+  REPRODUCTION_2026-10.md:39-44). On QLIKE the 1996-2004 comparison is also worse (+0.026 to +0.192,
+  POSTHOC:534, post hoc), so "on RMSE" in the first clause is a loss name, not a hedge.
+- Not part of P1b, for Thomas to rule separately: the same row's "adding the VIX cuts forecast error on
+  both" is RMSE; on QLIKE (post hoc) claim A holds on 1996-2004 and is not shown on 2024-2026
+  (POSTHOC:545 and :639). Possible wording: "adding the VIX cuts the RMSE on both (about 9% on 1996-2004)".
+
+### P36. README.md lines 12-13 and 21-22: name the loss in the two headline sentences
+
+- Old (README.md:11-13): "... adding a regime probability to a simple HAR forecast with the market's own
+  implied vol never made a measurable difference."
+  Proposed: "... adding a regime probability to a simple HAR forecast with the market's own implied vol
+  never made a measurable difference on RMSE, the registered loss, nor on QLIKE (post hoc)."
+  Evidence: registered RMSE verdicts, WRITEUP.md:566 (claim B, both S&P periods), the cross-index result
+  file (R3) and the ETF result file (M4); under QLIKE, post hoc, `docs/POSTHOC_2026-10.md`: S&P claim B
+  holds on both periods under every loss and block scheme (POSTHOC:546, :640); cross-index R3 "no
+  difference" on all three indices under both losses (POSTHOC:123, :132, :141; claim row :159); ETF M4 "no
+  difference" on all four assets under both losses (POSTHOC:305, :314, :323, :332). The S7 Holm pass
+  moves no null (`docs/MULTIPLE_TESTING_2026-10.md`).
+- Old (README.md:20-22): "... however both still had a higher error than HAR plus implied vol on every
+  holdout."
+  Proposed: "... however both still had a higher RMSE and a higher QLIKE than HAR plus implied vol on every
+  index and ETF they were scored on (for MS-GARCH the registered comparison, worse on RMSE on all four
+  ETFs; for the multifractal model not a registered comparison)."
+  Evidence (post hoc, POSTHOC model confidence set tables, RMSE / QLIKE): MSM against HAR-RV + IV,
+  Nasdaq-100 0.370 / 0.277 vs 0.342 / 0.229 (POSTHOC:222, :230), Dow 0.345 / 0.373 vs 0.316 / 0.316
+  (:249, :257), Russell 2000 0.312 / 0.125 vs 0.299 / 0.113 (:275, :279); MS-GARCH against HAR + IV, oil
+  0.988 / 0.345 vs 0.859 / 0.247 (:425, :432), gold 0.370 / 0.251 vs 0.344 / 0.223 (:455, :459), EEM
+  0.494 / 0.281 vs 0.471 / 0.253 (:477, :481), Brazil 0.931 / 0.361 vs 0.868 / 0.316 (:501, :507).
+  Registered M5 (MS-GARCH vs HAR + IV): worse on RMSE on all four; on QLIKE (post hoc) worse on oil only
+  (POSTHOC:306, :315, :324, :333).
+- Why: desk re-check line 247 (model-validator D: README.md:12-13 and :21-22 name no loss); pointer 00:00 (c).
+- Interaction: P33 rewrites the first half of the sentence at line 20 ("On RMSE, richer regime models did
+  beat ..."); P36's second change is to its last clause and reads with or without P33.
+
+### P28b. README "Reproducing the numbers" (lines 188-192) and WRITEUP "Reproduce" (lines 965-966): the per-holdout reproduction outcome
+
+Supersedes P28's proposed text (P7 stays the longer optional paragraph). Class of every outcome named:
+reproduction, not a new test.
+
+- Old (README.md:189-192): "The data pulls are cached and the bootstrap is seeded, so reruns of the
+  development scripts are deterministic. The holdout scripts can be rerun too, and with the same cached
+  data files they give the same forecasts (a fresh download can differ where Yahoo revises adjusted
+  prices), however the holdouts themselves are spent: a rerun is a reproduction, not a new test."
+- Proposed (README): "The data pulls are cached and the bootstrap is seeded, so reruns of the development
+  scripts are deterministic. The holdout scripts can be rerun too, however the holdouts themselves are
+  spent: a rerun is a reproduction, not a new test. In October 2026 each was rerun on a second machine from
+  the cached data files (docs/results/reproductions/REPRODUCTION_2026-10.md). Both VIX holdouts and the
+  stock-bond holdout reproduced every number in the write-up's tables. The cross-index holdout, run from
+  the committed 5-minute RV caches because the licensed bar files were not on that machine, reproduced
+  every table number, but not byte for byte: the printed last-fit MSM parameter b differs in the third
+  decimal on each index. The ETF holdout reproduced exactly when re-scored from its frozen MS-GARCH
+  checkpoints; a full refit of the MS-GARCH models did not reproduce those checkpoints (none of the 20
+  walk-forward files is identical, the largest RMSE change is 0.005), and no per-asset verdict or claim
+  outcome moved on RMSE or QLIKE. A fresh download can differ where Yahoo revises adjusted prices."
+- Old (WRITEUP.md:965-966): "Every number and figure in this note comes straight from those scripts. The
+  raw data pull is cached, so reruns are deterministic."
+- Proposed (WRITEUP): "Every number and figure in this note comes straight from those scripts. The raw data
+  pull is cached and the bootstrap is seeded, so reruns of the development scripts are deterministic. The
+  holdouts are spent, and a rerun of one is a reproduction, not a new test. In October 2026 each holdout
+  was rerun on a second machine (docs/results/reproductions/REPRODUCTION_2026-10.md): the two VIX
+  holdouts and the stock-bond holdout reproduced every number in the tables above; the cross-index holdout
+  reproduced every table number but not byte for byte (one printed MSM parameter differs in the third
+  decimal on each index); the ETF holdout reproduced exactly from its frozen MS-GARCH checkpoints, while a
+  full MS-GARCH refit did not reproduce them (largest RMSE change 0.005) and moved no verdict on RMSE or
+  QLIKE."
+- Why: desk re-check N7 and line 262 (model-validator D; lead verified both texts): README:179-182 (now
+  188-192) says reruns "give the same forecasts" against REPRODUCTION_2026-10.md:28-34, and the WRITEUP
+  does not cite the note. "Reruns are deterministic" in the WRITEUP is the same overstatement for the ETF
+  refit.
+- Evidence (reproduction): REPRODUCTION_2026-10.md:28-34 (outcome table; the cross-index chain run exit 1
+  on absent bar files, the wrapper's 3 differing lines; ETF 0 of 20 files equal), :39-44 (52 VIX and
+  stock-bond numbers checked, 0 mismatches, `examples/check_writeup_tables.py`), :203-215 (largest RMSE
+  change 0.0051, MS-GARCH Brazil; 0 of 36 verdicts moved on each loss, `examples/compare_forecasts.py`),
+  :216-222 (cross-index `b` differs by 0.003, 0.001, 0.001).
+- Unsure: "reruns of the development scripts are deterministic" is kept from the current README. The lane
+  checked it for its own development scripts on pc-lanes (DEV_* reruns byte-identical), not for
+  `examples/msgarch_credit.py` across machines, which refits MS-GARCH like the ETF holdout.
+
+### N10 (no proposal needed): settings.json rewrite in legacy checkpoint directories
+
+Written directly into `docs/results/reproductions/REPRODUCTION_2026-10.md` (a working doc), section "What
+a reader can check". No README or WRITEUP change proposed.

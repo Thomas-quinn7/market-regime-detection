@@ -145,6 +145,17 @@ for the 28 lines where a checkpoint load replaces the "N refits" and last-fit li
   recorded; `requirements-lock.txt` (added 16 Oct) pins the same numpy, pandas, scipy, statsmodels,
   arch, numba and yfinance versions as used here (a few non-numerical packages differ by a patch
   version).
+- Checkpoint settings files (added 2026-10-20, desk re-check N10): since the input-hash change (FIXES A2,
+  a53cbf5), `walk_forward_oos` rewrites `settings.json` in any checkpoint directory it is given
+  (`src/regimes/evaluate.py:267-281`): a legacy file without `input_sha256` is accepted once, only if its
+  span and settings match, and is then rewritten with the input hash; the block files are never touched,
+  and checkpoint directories are under `data/checkpoints/`, which is gitignored (`.gitignore:26`), so
+  nothing tracked changes. No frozen holdout script passes `checkpoint_dir` (the only caller is
+  `examples/regime_labels.py:52`, `wf_gspc_1928_2023`), and the ETF holdout's frozen checkpoints in
+  `data/checkpoints/msgarch_credit/` are `msgarch_credit.py`'s own CSV cache, which `evaluate.py` neither
+  reads nor writes. On pc-lanes no `settings.json` exists under `data/` (checked 2026-10-20); on the laptop
+  the first rerun of `regime_labels.py` upgrades `data/checkpoints/wf_gspc_1928_2023/settings.json` if
+  that directory exists.
 
 ## Identity reruns after the convergence-recording change (stage S3, 17 Oct 2026, 21:10-21:17Z)
 
