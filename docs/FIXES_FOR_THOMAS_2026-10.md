@@ -265,6 +265,12 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
 
 ### P11. WRITEUP.md lines 298-300: the execution assumption and the cost per switch
 
+- Status: **APPLIED 2026-10-24 on Thomas's word** ("approve P16 and P11-P13, apply them"), WRITEUP.md:298-307,
+  with two wording changes found when checking against `ALLOCATION_LAG_2026-10.md` sections 3 and 4: "do not
+  move" became "barely move (Sharpe 0.56 to 0.59 and 0.66 to 0.64)", and the lag comparison names its window
+  ("scored on the same 4,022 days, one fewer than the table below"), because the 21-day rule's lag-1 Sharpe is
+  0.75 there against 0.74 in the published table.
+
 - Old (WRITEUP.md:298-300): "The rules are deliberately strict on look-ahead: the regime probability is the
   **walk-forward out-of-sample** one (parameters estimated only on past data), the position for each day
   is decided from the prior day's information, and turnover is charged 5 basis points."
@@ -286,6 +292,10 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
 
 ### P12. WRITEUP.md lines 363-365: "The drawdown reduction is the more robust part of the result"
 
+- Status: **APPLIED 2026-10-24 on Thomas's word**, WRITEUP.md:370-374, with one correction: "unchanged at -18%"
+  became "barely moves (-19% to -18%)", since `ALLOCATION_LAG_2026-10.md` section 3 has the vol-target rule at
+  -19% with the published lag and -18% with one more day.
+
 - Old (WRITEUP.md:363-365): "The drawdown reduction is the more robust part of the result, since every
   switching and vol-targeting rule cuts the maximum drawdown sharply (-12% to -25%, against -52% for
   equity), though as a single-path statistic it has no interval here either."
@@ -297,6 +307,12 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
 - Evidence: `docs/ALLOCATION_LAG_2026-10.md` section 3 (development data only).
 
 ### P13. WRITEUP.md lines 370-371: "the ~2.3% of annual return given up is a real cost of the insurance"
+
+- Status: **APPLIED 2026-10-24 on Thomas's word**, WRITEUP.md:379-382, reworded because the proposal's split did
+  not add up: 1.55 is turnover times cost before compounding, and 1.55 + 0.72 is not 2.40. By section 4's own
+  definition (give-up at 5 bps less give-up at zero cost) brokerage is 2.40 - 0.72 = 1.68. Applied text keeps
+  the published "~2.3%" (10.0% vs 7.7% in the table) and says about 0.7 points out of the market and about 1.7
+  points brokerage.
 
 - Old (WRITEUP.md:370-371): "The binary switch is crude, the ~2.3% of annual return given up is a real cost
   of the insurance, and none of this is a live trading system."
@@ -331,6 +347,8 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
   `regimes.allocation.rebalanced_backtest`.
 
 ### P16. README.md line 41: the allocation row
+
+- Status: **APPLIED 2026-10-24 on Thomas's word** (README.md:45), exactly as proposed.
 
 - Old (README.md:41, end of the row): "... and a block bootstrap cannot tell any of the Sharpe ratios apart:
   loss avoidance, not alpha (out-of-sample, after costs)"

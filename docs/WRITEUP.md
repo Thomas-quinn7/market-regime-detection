@@ -297,7 +297,14 @@ regime probability into a position and score it on profit and loss.
 
 The rules are deliberately strict on look-ahead: the regime probability is the **walk-forward
 out-of-sample** one (parameters estimated only on past data), the position for each day is decided from
-the prior day's information, and turnover is charged 5 basis points. When the filtered high-vol
+the prior day's close and filled at that same close, and turnover is charged 5 basis points per leg (a
+full switch is 10 basis points). Filling at the close that produced the signal is the most favourable
+execution a closing-price signal can have. With one more day of lag (signal at the close of t-2, filled
+at the close of t-1, scored on the same 4,022 days, one fewer than the table below) the regime switch
+goes from Sharpe 0.66 and max drawdown -15% to 0.44 and -26%, and the 21-day trailing-vol rule from
+0.75 and -18% to 0.58 and -23%, while the EWMA rule and vol targeting barely move (Sharpe 0.56 to 0.59
+and 0.66 to 0.64). The regime switch trades about 15 full switches a year, a cost of 1.55% a year at 5
+basis points per leg, against about 0.5% for the trailing-vol rules. When the filtered high-vol
 probability is below 0.5 the strategy holds equity (SPY); at or above it, the strategy switches to cash
 (BIL) or to 7-10y Treasuries (IEF). Benchmarks are static 100% equity, a static 60/40, and the
 baseline from earlier: the same equity/cash switch driven by plain trailing vol instead of the regime
@@ -360,16 +367,20 @@ same blocks for every strategy so differences are paired, 2,000 draws) gives:
 Every difference interval contains zero, including the one against plain buy-and-hold. Sixteen years
 of daily data pins a single Sharpe ratio down only to about plus or minus 0.4, while the gaps in the
 table are under 0.2, so the Sharpe column above should be read as a description of one path rather
-than a ranking. The drawdown reduction is the more robust part of the result, since every switching
-and vol-targeting rule cuts the maximum drawdown sharply (-12% to -25%, against -51% for equity),
-though as a single-path statistic it has no interval here either.
+than a ranking. Every switching and vol-targeting rule cuts the maximum drawdown on this path (-12% to
+-25%, against -51% for equity), but the drawdown is the statistic most exposed to execution timing:
+with one more day of lag the regime switch's drawdown is -26%, against -31% for the 60/40, while the
+vol-targeting rule's barely moves (-19% to -18%). As a single-path statistic it has no interval here
+either.
 
 Caveats, because this is the result most easily oversold. It is a single out-of-sample path on one
 market over one 16-year window, and that window is bracketed by two large crashes that flatter a
 loss-avoidance strategy; a different sample could look very different (Ang & Bekaert flag the same
-sample-specificity about their own numbers). The binary switch is crude, the ~2.3% of annual return
-given up is a real cost of the insurance, and none of this is a live trading system. The claim is
-narrow: used the way the literature says to use it, the regime signal produces a genuine,
+sample-specificity about their own numbers). The binary switch is crude, and most of the ~2.3% of
+annual return given up is trading cost rather than insurance: at zero cost the switch gives up only
+about 0.7 points a year against buy-and-hold equity, so about 1.7 points a year are brokerage from
+about 15 full switches a year at 5 basis points per leg. None of this is a live trading system. The
+claim is narrow: used the way the literature says to use it, the regime signal produces a genuine,
 out-of-sample, cost-aware reduction in drawdown, and on this sample a plain trailing-vol switch
 achieves about the same.
 
