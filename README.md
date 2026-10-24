@@ -195,3 +195,21 @@ holdouts themselves are spent: a rerun is a reproduction, not a new test.
 
 A `CITATION.cff` file is in the repository root, so GitHub's "Cite this repository" button gives the
 reference. Release v1.0.0 is the version the write-up describes.
+
+## How this was built
+
+I chose the research questions, every claim that was tested and every holdout. The holdout protocols are:
+
+- docs/HOLDOUT_PROTOCOL.md (stock-bond correlation, 1962-2004)
+- docs/VIX_HOLDOUT_PROTOCOL.md (VIX, S&P 500 1990-2004 and 2024-2026)
+- docs/CROSS_INDEX_HOLDOUT_PROTOCOL.md (Nasdaq-100, Dow, Russell 2000)
+- docs/MSGARCH_CREDIT_HOLDOUT_PROTOCOL.md (oil, gold, EM and Brazil ETFs, MS-GARCH and credit)
+
+Each holdout was run once.
+
+Most of the code, and the first drafts of the write-up and the docs, were written by an AI assistant
+(Claude, Anthropic) working from my specifications. The October 2026 reproductions, post-hoc tables and
+development continuations were produced by an overnight agent working to a fixes-only scope I set, and
+its commits are the ones titled "Agent run". I checked the numbers in this README and the write-up by
+spot checks against the scripts and the committed result files, however I did not check every one. The
+interpretation, and any mistakes, are mine.

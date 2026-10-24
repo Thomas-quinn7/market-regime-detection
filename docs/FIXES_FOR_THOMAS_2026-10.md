@@ -234,6 +234,10 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
 
 ### P9. An AI-assistance section for the README (new section after "Citing this work")
 
+- Status: **APPLIED 2026-10-24 in Thomas's terms** (README.md, after "Citing this work"), not the draft
+  below. His rules: list the protocols without saying who wrote them; "each holdout was run" with no
+  more said about who ran it; the checking sentence says spot checks, not every number; the paper-rewrite
+  sentence is left out for now.
 - Proposed heading: "How this was built".
 - Proposed text (the fitness reviewer's draft, for Thomas to rewrite in his own words): "I wrote the
   research questions, chose every claim and holdout, wrote and pushed each protocol before its data was
