@@ -16,7 +16,7 @@ as well as the regime switch. Reporting both halves is the point.
 
 ## The model
 
-A 2-state Gaussian Markov-switching model where the regimes differ in variance
+A 2-state Gaussian Markov-switching model where the regimes differ in mean and variance
 (`statsmodels` `MarkovRegression(k_regimes=2, switching_variance=True)`), fit on daily S&P 500 log
 returns from 2005-01 to 2023-12 (4,780 observations). The two states separate cleanly:
 
@@ -161,10 +161,11 @@ Fitting the model for two, three and four states on the full S&P 500 sample:
 | 4 | 12668 | 12798 | **no** |
 
 The three- and four-state fits report lower information criteria, but they **fail to converge**: the
-optimiser cannot identify a stable third or fourth state on this data, so those numbers are not
-trustworthy. Among the fits that actually converged, both AIC and BIC select **two states**. The
-baseline count is the honest choice, not an assumption. (This is exactly why the `converged` flag is
-reported and non-converged fits are excluded from the selection rather than silently ranked.)
+optimiser cannot identify a stable third or fourth state on this data. That does not rescue two states,
+because a fit that stops early can only understate its likelihood, so the true criteria for three and
+four states would be lower still. The criteria favour more states; two states is a modelling choice,
+the largest count the optimiser estimates stably here, not a selection result. The `converged` flag is
+reported so that this is visible rather than hidden.
 
 ### Systemic or sector-specific? Cross-asset concordance
 

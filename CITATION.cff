@@ -18,6 +18,8 @@ abstract: >-
   error measurably; the regime models' own forecasts lost to HAR plus implied volatility on every
   holdout but one, where they were level. Richer regime models (Markov-switching multifractal,
   Markov-switching GARCH) beat the two-state model in places and still lost to the same baseline.
+  These verdicts are per comparison; most individual wins and losses do not survive a Holm correction
+  across the 81 registered comparisons, which cannot change the main null result.
 keywords:
   - volatility forecasting
   - Markov-switching

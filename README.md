@@ -38,22 +38,27 @@ caveats for every result below.
 |---|---|
 | Volatility-regime baseline | 0.57 correlation with next-month realised vol, walk-forward out-of-sample; letting future data in gives 0.61 on the same days, which is the look-ahead premium |
 | Against trailing vol | plain trailing vol forecasts next-month vol **better** (0.66 for 21-day realised vol, 0.68 for EWMA); on ranks the three are level, and the HMM adds little on top (R^2 0.44 to 0.46) |
-| Robustness | AIC/BIC pick 2 states; regimes survive an AR(1) mean (99% agreement) and from-scratch Student-t emissions (90%) |
+| Robustness | AIC and BIC are lower for 3 and 4 states, but those fits do not converge, so 2 states is a modelling choice rather than a selection result; regimes survive an AR(1) mean (99% agreement) and from-scratch Student-t emissions (90%) |
 | Cross-asset concordance | stress is systemic: the nine per-sector regimes agree at 0.67 mean pairwise correlation, out-of-sample |
 | Multivariate turbulence | a genuinely different signal from single-asset vol (74% label agreement); correlates 0.39 with next-month realised vol vs the single-asset model's 0.55 on its home turf, which is expected since its value is correlation-break detection |
 | Absorption Ratio | a real but modest drawdown-warning edge (lift 1.4 to 1.8x), but **76 to 92% of alerts are false**, measured here alongside the recall the literature emphasises |
 | Regime allocation | max drawdown -15% vs -51% for equities and -31% for 60/40, but Sharpe 0.66 vs 0.64 for 60/40, and a plain trailing-vol switch or vol targeting does about as well (Sharpe 0.55 to 0.74), and a block bootstrap cannot tell any of the Sharpe ratios apart; with one more day of execution lag the regime switch is Sharpe 0.44 with a -26% drawdown: loss avoidance, not alpha (out-of-sample, after costs, filled at the signal's close) |
 | Macro quadrants | does **not** beat a static 60/40. An honest null result, kept for the point-in-time data discipline it demonstrates |
 | Stock-bond correlation regimes | an HMM aimed at a state that is genuinely hidden, tested on a 1962-2004 holdout whose rules were committed first: **worse** than trailing correlation at forecasting it and no better at spotting flips; plain EWMA correlation won on both periods |
-| Adding the VIX | every signal scored as a forecast against HAR-RV, with two holdouts committed first (1996-2004, 2024-2026): adding the VIX cuts forecast error on both (about 9% on 1996-2004); a regime probability adds nothing once the VIX is in; the HMM's own forecast loses to HAR on RMSE on 1996-2004 and, on 2024-2026, is not shown to differ on RMSE and beats it on QLIKE |
+| Adding the VIX | every signal scored as a forecast against HAR-RV, with two holdouts committed first (1996-2004, 2024-2026): adding the VIX cuts forecast error on both at the registered per-comparison level (about 9% on 1996-2004), but neither gain survives a Holm correction across all 81 registered comparisons, and on 2024-2026 the Diebold-Mariano test does not confirm it; a regime probability adds nothing once the VIX is in; the HMM's own forecast loses to HAR on RMSE on 1996-2004 and, on 2024-2026, is not shown to differ on RMSE and beats it on QLIKE |
 | Three more attempts, and why it loses | VIX term structure, recession and Fed-easing labels, and intraday realised vol from S&P futures (development data): the HMM never beats a simple measure built from the same information. Its probability is a squashed EWMA vol, pinned near 0 or 1, with a forecast stuck between two levels; on simulated data it wins only when volatility truly has two states |
 | Better vol models, and three more indices | HARQ, SHAR, GJR-GARCH, a multifractal regime model (MSM) and a combination, tested on a Nasdaq-100, Dow and Russell 2000 holdout committed first: none beats HAR-RV + implied vol on any index; MSM beats the two-state HMM on the Russell 2000 only, so the regime claim is mixed |
 | Markov-switching GARCH and credit | a regime model where volatility moves inside each regime, plus the Baa credit spread, tested on an oil, gold, emerging-market and Brazil ETF holdout committed first: MS-GARCH loses to HAR + implied vol on all four on RMSE, the registered loss (on QLIKE, oil only; post hoc), is no better than one GJR-GARCH on either loss, and beats the two-state HMM on RMSE (confirmed: gold and emerging markets; on QLIKE the two assets are oil and Brazil, post hoc); credit adds nothing on either loss |
 
+Every verdict in this table uses the registered per-comparison 95% interval, with no multiple-testing
+correction. [docs/MULTIPLE_TESTING_2026-10.md](docs/MULTIPLE_TESTING_2026-10.md) applies Holm across all
+81 registered comparisons: most of the individual wins and losses do not survive it, and the main
+"no measurable difference" result is unaffected, since a correction can only remove differences.
+
 ## The idea
 
 Financial return series switch between persistent states: calm, low-volatility stretches and
-turbulent, high-volatility ones. A 2-state **Markov-switching model** (regimes differ in variance)
+turbulent, high-volatility ones. A 2-state **Markov-switching model** (regimes differ in mean and variance)
 infers those states from daily S&P 500 log returns.
 
 ## The point: filtered vs smoothed (the honest bit)
@@ -141,7 +146,7 @@ src/regimes/
   selection.py   # state-count selection by AIC/BIC
   cross_asset.py # per-sector regimes; systemic-stress concordance and breadth (+ OOS)
   plots.py       # every figure tagged smoothed (descriptive) or filtered/OOS (honest)
-tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (55 tests)
+tests/           # synthetic-regime recovery + an explicit no-look-ahead assertion (208 tests)
 notebooks/       # exploration only, not the headline
 ```
 
