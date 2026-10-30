@@ -1,0 +1,22 @@
+calibration (105s):
+ budget  k  hmm_turnover  hmm_exposure  hmm_budget_reached     s  band  vt_turnover  vt_exposure  vt_budget_reached
+    4.0  5      4.211699      0.760446                True 11.25  0.05     4.001605     0.761759               True
+    8.0  3      7.420613      0.753283               False 10.75  0.00     7.315104     0.755419              False
+   16.0  2     13.036212      0.748508               False 10.50  0.00     7.619335     0.744796              False
+                            window  budget  cost  ES gain (V-H)    95% lo    95% hi  days
+                 primary 2018-2023     4.0  5bps      -0.007101 -0.011450 -0.002991  1509
+                 primary 2018-2023     4.0 10bps      -0.007086 -0.011428 -0.003027  1509
+                 primary 2018-2023     8.0  5bps      -0.004739 -0.007128 -0.001892  1509
+                 primary 2018-2023     8.0 10bps      -0.004724 -0.007096 -0.001882  1509
+                 primary 2018-2023    16.0  5bps      -0.002927 -0.005511 -0.000779  1509
+                 primary 2018-2023    16.0 10bps      -0.002975 -0.005600 -0.000791  1509
+secondary 2024-01-02 to 2026-10-29     4.0  5bps       0.000979 -0.002850  0.006560   710
+secondary 2024-01-02 to 2026-10-29     4.0 10bps       0.000987 -0.002827  0.006560   710
+secondary 2024-01-02 to 2026-10-29     8.0  5bps       0.002168 -0.002741  0.009420   710
+secondary 2024-01-02 to 2026-10-29     8.0 10bps       0.002052 -0.002743  0.009106   710
+secondary 2024-01-02 to 2026-10-29    16.0  5bps       0.001808 -0.003032  0.008895   710
+secondary 2024-01-02 to 2026-10-29    16.0 10bps       0.001818 -0.003010  0.008907   710
+  sim continuous seed 1: gain -0.0107 [-0.0130, -0.0085] (267s)
+  sim continuous seed 2: gain -0.0101 [-0.0129, -0.0070] (268s)
+  sim continuous seed 3: gain -0.0068 [-0.0081, -0.0053] (277s)
+  sim continuous seed 4: gain -0.0059 [-0.0084, -0.0032] (269s)

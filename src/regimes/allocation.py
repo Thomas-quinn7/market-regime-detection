@@ -80,6 +80,51 @@ def regime_switch_weights(regime_prob: pd.Series, *, threshold: float = 0.5,
     return pd.DataFrame({risk_on: on, risk_off: 1.0 - on}, index=regime_prob.index)
 
 
+def confirmed_switch_weights(regime_prob: pd.Series, *, confirm: int = 1, threshold: float = 0.5,
+                             risk_on: str = "equity", risk_off: str = "cash") -> pd.DataFrame:
+    """``regime_switch_weights`` with a persistence rule: the state moves to the other side of
+    ``threshold`` only once the probability has been there for ``confirm`` consecutive closes.
+
+    ``confirm=1`` is exactly ``regime_switch_weights``. Larger values trade less and react later; this
+    is the HMM arm's turnover knob in the matched sizing test. Causal: the state at t uses
+    probabilities up to t only. The first state is the first raw reading.
+    """
+    if confirm < 1:
+        raise ValueError("confirm must be at least 1")
+    raw = (regime_prob.dropna() >= threshold).to_numpy()
+    state = np.empty(len(raw), dtype=bool)
+    run = 0
+    for t, stressed in enumerate(raw):
+        if t == 0:
+            state[t] = stressed
+            continue
+        run = run + 1 if stressed != state[t - 1] else 0
+        state[t] = stressed if run >= confirm else state[t - 1]
+        if state[t] != state[t - 1]:
+            run = 0
+    on = (~state).astype(float)
+    idx = regime_prob.dropna().index
+    return pd.DataFrame({risk_on: on, risk_off: 1.0 - on}, index=idx)
+
+
+def banded_vol_target_weights(vol: pd.Series, target: float, *, band: float = 0.0,
+                              risk_on: str = "equity", risk_off: str = "cash") -> pd.DataFrame:
+    """Vol-target weights with a no-trade band.
+
+    The target weight is ``min(1, target / vol)`` (``vol`` causal and in the units of ``target``). The
+    held weight starts at the first target and moves to the target only when the two differ by more than
+    ``band``; inside the band the position is left unchanged. ``band=0`` is the plain daily vol target.
+    """
+    if band < 0:
+        raise ValueError("band must be non-negative")
+    w_star = (target / vol.dropna()).clip(upper=1.0).to_numpy()
+    held = np.empty(len(w_star))
+    for t, w in enumerate(w_star):
+        held[t] = w if t == 0 or abs(w - held[t - 1]) > band else held[t - 1]
+    idx = vol.dropna().index
+    return pd.DataFrame({risk_on: held, risk_off: 1.0 - held}, index=idx)
+
+
 def vol_threshold_signal(vol: pd.Series, threshold: float) -> pd.Series:
     """Stress flag from a trailing volatility series: 1.0 at or above ``threshold``, else 0.0.
 

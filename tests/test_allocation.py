@@ -188,3 +188,31 @@ def test_block_bootstrap_drawdown_is_paired_and_deterministic():
     assert d1.shape == (100, 3) and np.allclose(d1, d2)
     assert np.allclose(d1["a"], d1["a_copy"])
     assert (d1 <= 0).all().all() and d1["b"].median() < d1["a"].median()
+
+
+def test_confirmed_switch_one_day_equals_plain_switch():
+    from regimes.allocation import confirmed_switch_weights
+    rng = np.random.default_rng(3)
+    prob = pd.Series(rng.random(300), index=_idx(300))
+    a = confirmed_switch_weights(prob, confirm=1)
+    b = regime_switch_weights(prob)
+    pd.testing.assert_frame_equal(a, b)
+
+
+def test_confirmed_switch_waits_k_closes_and_ignores_short_blips():
+    from regimes.allocation import confirmed_switch_weights
+    # calm, a 2-day blip, calm, then 3 stressed days, then calm.
+    prob = pd.Series([0.1, 0.9, 0.9, 0.1, 0.9, 0.9, 0.9, 0.1, 0.1, 0.1], index=_idx(10))
+    w = confirmed_switch_weights(prob, confirm=3)
+    # the blip never reaches 3 closes; the 3-day run switches on its third close; the way back needs 3 calm closes.
+    assert list(w["equity"]) == [1, 1, 1, 1, 1, 1, 0, 0, 0, 1]
+
+
+def test_banded_vol_target_holds_inside_band_and_matches_plain_at_zero():
+    from regimes.allocation import banded_vol_target_weights
+    vol = pd.Series([10.0, 10.5, 12.0, 12.5, 20.0, 5.0], index=_idx(6))
+    plain = banded_vol_target_weights(vol, 10.0, band=0.0)
+    assert np.allclose(plain["equity"], np.minimum(1.0, 10.0 / vol.to_numpy()))
+    w = banded_vol_target_weights(vol, 10.0, band=0.1)["equity"].to_numpy()
+    # 1.0 -> 0.952 (inside) -> 0.833 (outside, trade) -> 0.8 (inside) -> 0.5 (trade) -> 1.0 (trade)
+    assert np.allclose(w, [1.0, 1.0, 10 / 12, 10 / 12, 0.5, 1.0])

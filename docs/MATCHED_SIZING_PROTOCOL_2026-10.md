@@ -94,4 +94,67 @@ by an appended note that gives both the original and the corrected result.
 
 ## Results
 
-(appended after the run)
+Appended 2026-10-30 after the run, by `examples/matched_sizing.py`. Tables: `docs/results/matched_sizing/`
+(`calibration.csv`, `scores.csv`, `es_gain.csv`, `run_log.txt`). Spent data, exploratory, as section 0 says.
+
+### Calibration (2008-01-07 to 2017-12-29)
+
+| budget / yr | HMM k | HMM turnover | HMM exposure | VT s (%) | VT band | VT turnover | VT exposure |
+|---|---|---|---|---|---|---|---|
+| 4 | 5 | 4.21 | 0.760 | 11.25 | 0.050 | 4.00 | 0.762 |
+| 8 | 3 | 7.42 | 0.753 | 10.75 | 0.000 | 7.32 | 0.755 |
+| 16 | 2 | 13.04 | 0.749 | 10.50 | 0.000 | 7.62 | 0.745 |
+
+Budget 16 is not reachable for the vol target (with no band it trades about 7.6 a year here), and budget 8
+is reached only approximately by both arms (k = 2 gives 13.0 and k = 3 gives 7.4). Exposure matched to
+within 0.004 at every budget.
+
+### Primary window, 2018-01-02 to 2023-12-29 (1,509 days, 5 bps; 10 bps within 0.0001 of these)
+
+ES gain = ES(VT) - ES(HMM), daily 1 percent expected shortfall, positive favours the HMM.
+
+| budget | ES HMM | ES VT | ES gain | 95% interval | HMM turnover | VT turnover | HMM exposure | VT exposure |
+|---|---|---|---|---|---|---|---|---|
+| 4 | 3.40% | 2.69% | -0.71 pp | -1.15 to -0.30 | 12.0 | 5.1 | 0.67 | 0.72 |
+| 8 | 3.10% | 2.63% | -0.47 pp | -0.71 to -0.19 | 17.4 | 8.0 | 0.67 | 0.71 |
+| 16 | 2.89% | 2.60% | -0.29 pp | -0.55 to -0.08 | 22.0 | 8.1 | 0.67 | 0.70 |
+
+Reading (section 6): the HMM does not add anything here; at all three budgets the interval is below zero,
+so on this window the banded vol target had the smaller tail loss. The prediction (no interval above zero)
+held, and the result goes further than predicted. Secondary metrics, without reading: max drawdown and
+Sharpe favour the vol target at every budget; the worst 21-day loss favours the HMM (for example -9.6
+against -13.7 percent at budget 4), which fits a binary rule that is fully out during a long slide and
+fully in on the first days of a shock. The calibration match did not hold out of sample: the HMM traded
+two to three times its calibrated turnover in 2018-2023 while the vol target stayed near its own, and the
+HMM held slightly less equity, so neither a higher exposure nor costs explain its larger tail loss.
+
+### Secondary window, the spent holdout, 2024-01-02 to 2026-10-29 (710 days, 5 bps)
+
+Fresh Yahoo download of SPY and BIL from 2005-01-01 on 2026-10-30 (`data/SPY_2005-01-01_2026-10-30.csv`,
+`data/BIL_2005-01-01_2026-10-30.csv`), walk-forward signal recomputed on it, knobs from the calibration above.
+
+| budget | ES gain | 95% interval | HMM turnover | VT turnover | HMM exposure | VT exposure |
+|---|---|---|---|---|---|---|
+| 4 | +0.10 pp | -0.29 to +0.66 | 7.1 | 5.2 | 0.89 | 0.84 |
+| 8 | +0.22 pp | -0.27 to +0.94 | 11.4 | 9.3 | 0.88 | 0.83 |
+| 16 | +0.18 pp | -0.30 to +0.89 | 15.6 | 9.8 | 0.87 | 0.81 |
+
+Point estimates lean to the HMM, every interval spans zero. 710 days put only 8 days in the worst 1 percent,
+so this window cannot separate the arms.
+
+### Simulation check: incomplete
+
+The run was stopped by Claude Code on 2026-10-30 at about 20:25 because the laptop ran low on memory, after
+four of the ten simulated markets. Completed, all continuous (no regimes), budget 8, 5 bps:
+
+| seed | ES gain | 95% interval |
+|---|---|---|
+| 1 | -1.07 pp | -1.30 to -0.85 |
+| 2 | -1.01 pp | -1.29 to -0.70 |
+| 3 | -0.68 pp | -0.81 to -0.53 |
+| 4 | -0.59 pp | -0.84 to -0.32 |
+
+Continuous seed 7 and all five two-state seeds were not run. The two-state half is the part that says
+whether the HMM can win at all when its model is true, so the section 7 reading is not available yet.
+The run takes about 4.5 minutes per market; rerun with `python examples/matched_sizing.py --skip-download`
+on a machine with free memory (results then replace `run_log.txt`).
