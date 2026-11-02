@@ -85,8 +85,8 @@ standard errors, as the fitted loss difference at `p = 0` and at `p = 1` with 95
 interval is wholly below zero, is read as "the regime-based forecast is more accurate when the HMM
 reports stress, on this spent holdout". It is a lead, not a claim. It could only become a claim on a
 new holdout registered in advance (none can be opened before the 31 January 2027 gate). A rejection
-whose direction favours the reference in stress is reported the same way. No rejection is read as
-"no state dependence", not as proof of none, and the power is limited in the same way as POWER_2026-10.md.
+whose direction favours the reference in stress is reported the same way. A test that does not reject is
+not read as proof that there is no state dependence; the power is limited, as in POWER_2026-10.md.
 
 **Known limits, stated before the run.** Giacomini and White's asymptotics assume a rolling estimation
 window; these forecasts use expanding windows, so the chi-squared reference is approximate. The
