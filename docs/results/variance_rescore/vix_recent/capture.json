@@ -1,0 +1,215 @@
+{
+ "class": "post hoc, computed from the spent holdouts' reproduced forecasts; not a registered test",
+ "holdout": "vix_recent",
+ "n_calls": 11,
+ "level_fits": [],
+ "scratch_reproduction": "C:\\Users\\tq343\\AppData\\Local\\Temp\\variance_vix_recent_z1f20a0j",
+ "tables": [
+  {
+   "file": "variance_01.csv",
+   "block": "",
+   "n": 676,
+   "columns": {
+    "HMM implied vol": {
+     "match": "none exact",
+     "closest_gap": 0.22912822702606084,
+     "closest_call": 2,
+     "features": [
+      "hmm_implied_vol"
+     ]
+    },
+    "VIX-HMM implied vol": {
+     "match": "none exact",
+     "closest_gap": 0.37267856572503,
+     "closest_call": 3,
+     "features": [
+      "vix_hmm_implied_vol"
+     ]
+    },
+    "EWMA vol (0.94)": {
+     "match": "none exact",
+     "closest_gap": 0.7714086563324085,
+     "closest_call": 4,
+     "features": [
+      "log_return_pct"
+     ]
+    },
+    "trailing 21-day vol": {
+     "match": "none exact",
+     "closest_gap": 0.9868072778724675,
+     "closest_call": 5,
+     "features": [
+      "log_return_pct"
+     ]
+    },
+    "VIX": {
+     "match": "none exact",
+     "closest_gap": 0.39408173370942423,
+     "closest_call": 11,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "vix",
+      "vix_hmm_high_vol_prob"
+     ]
+    }
+   }
+  },
+  {
+   "file": "variance_02.csv",
+   "block": "",
+   "n": 676,
+   "columns": {
+    "HMM high-vol probability": {
+     "match": "within 1e-9",
+     "closest_gap": 4.770628336814298e-12,
+     "closest_call": 1,
+     "features": [
+      "high_vol_prob_oos"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1944172616626905,
+     "exp_s2_min": 1.1602881288770883,
+     "exp_s2_max": 1.2210103278033901
+    },
+    "HMM implied vol": {
+     "match": "within 1e-9",
+     "closest_gap": 4.75308681302522e-12,
+     "closest_call": 2,
+     "features": [
+      "hmm_implied_vol"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.2523275650491477,
+     "exp_s2_min": 1.2194858694757063,
+     "exp_s2_max": 1.3331832316556262
+    },
+    "VIX-HMM implied vol": {
+     "match": "within 1e-9",
+     "closest_gap": 8.282263763703668e-14,
+     "closest_call": 3,
+     "features": [
+      "vix_hmm_implied_vol"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.2796132627107681,
+     "exp_s2_min": 1.2423257637700302,
+     "exp_s2_max": 1.3630814672371705
+    },
+    "EWMA vol (0.94)": {
+     "match": "within 1e-9",
+     "closest_gap": 6.661338147750939e-16,
+     "closest_call": 4,
+     "features": [
+      "log_return_pct"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1424674844863731,
+     "exp_s2_min": 1.0960529786218456,
+     "exp_s2_max": 1.1776963189956458
+    },
+    "trailing 21-day vol": {
+     "match": "within 1e-9",
+     "closest_gap": 4.440892098500626e-16,
+     "closest_call": 5,
+     "features": [
+      "log_return_pct"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1599234554380644,
+     "exp_s2_min": 1.0968750161114875,
+     "exp_s2_max": 1.1922131952412063
+    },
+    "HAR": {
+     "match": "within 1e-9",
+     "closest_gap": 1.3322676295501878e-15,
+     "closest_call": 6,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1508453560575365,
+     "exp_s2_min": 1.0950422307142391,
+     "exp_s2_max": 1.1805607421571702
+    },
+    "VIX": {
+     "match": "within 1e-9",
+     "closest_gap": 1.3322676295501878e-15,
+     "closest_call": 7,
+     "features": [
+      "vix"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1170778474529464,
+     "exp_s2_min": 1.0662402251831955,
+     "exp_s2_max": 1.1458525977260354
+    },
+    "HAR + VIX": {
+     "match": "within 1e-9",
+     "closest_gap": 3.9968028886505635e-15,
+     "closest_call": 8,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "vix"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.117207227968385,
+     "exp_s2_min": 1.0646347662092919,
+     "exp_s2_max": 1.1459744586979523
+    },
+    "HAR + HMM prob": {
+     "match": "within 1e-9",
+     "closest_gap": 2.2586377212974185e-12,
+     "closest_call": 9,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "high_vol_prob_oos"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1663316547652882,
+     "exp_s2_min": 1.134638306447384,
+     "exp_s2_max": 1.1906645284094692
+    },
+    "HAR + VIX + HMM prob": {
+     "match": "within 1e-9",
+     "closest_gap": 1.0937917238607042e-12,
+     "closest_call": 10,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "vix",
+      "high_vol_prob_oos"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1378469922474712,
+     "exp_s2_min": 1.1152242105964218,
+     "exp_s2_max": 1.1585699844555706
+    },
+    "HAR + VIX + VIX-HMM prob": {
+     "match": "within 1e-9",
+     "closest_gap": 5.218048215738236e-15,
+     "closest_call": 11,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "vix",
+      "vix_hmm_high_vol_prob"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1409145911203113,
+     "exp_s2_min": 1.1201585480143306,
+     "exp_s2_max": 1.1617335282397683
+    }
+   }
+  }
+ ]
+}
