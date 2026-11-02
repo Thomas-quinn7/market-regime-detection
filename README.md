@@ -124,12 +124,13 @@ Everything runs with no API keys. `macro_quadrants.py` uses FRED/ALFRED data who
 cache is committed, so it runs offline too; a free `FRED_API_KEY` (`fred.stlouisfed.org` -> My Account
 -> API Keys) is needed only to refresh or extend that macro data.
 
-The development work and the two S&P 500 holdouts (claims A, B, C) use Yahoo's ^VIX; the cross-index
-holdout (P1-P5, R1-R3) uses FRED's VIXCLS as the implied vol for all three indices, and the ETF holdout
-(M1-M5) FRED's OVXCLS, GVZCLS, VXEEMCLS and VXEWZCLS. FRED's series equals Cboe's published history;
-Yahoo's differs from it on 12 of 6,037 common days in 2000-2023 by up to 0.98 points (2014-10-15) and has
-no row on 13 days FRED prints (2004-06-11 and twelve 2022-2023 US holidays). The stock-bond holdout uses
-no VIX.
+The development work and the two S&P 500 holdouts (claims A, B, C) use Yahoo's ^VIX. The cross-index
+holdout (P1-P5, R1-R3) uses each index's own implied vol index from FRED (VXNCLS for the Nasdaq-100,
+VXDCLS for the Dow, RVXCLS for the Russell 2000), and the ETF holdout (M1-M5) FRED's OVXCLS, GVZCLS,
+VXEEMCLS and VXEWZCLS. FRED's VIXCLS appears only in the S&P 500 development dry runs of those two holdout
+scripts. It equals Cboe's published VIX history; Yahoo's ^VIX differs from it on 12 of 6,037 common days
+in 2000-2023 by up to 0.98 points (2014-10-15) and has no row on 13 days FRED prints (2004-06-11 and
+twelve 2022-2023 US holidays). The stock-bond holdout uses no VIX.
 
 ## Layout
 
@@ -192,9 +193,20 @@ times are GitHub's record, not mine.
 
 `requirements-lock.txt` holds the exact package versions (Python 3.11.5) the holdouts were run with.
 The data pulls are cached and the bootstrap is seeded, so reruns of the development scripts are
-deterministic. The holdout scripts can be rerun too, and with the same cached data files they give the same
-forecasts (a fresh download can differ where Yahoo revises adjusted prices), however the
-holdouts themselves are spent: a rerun is a reproduction, not a new test.
+deterministic. The holdout scripts can be rerun too, however the holdouts themselves are spent: a rerun
+is a reproduction, not a new test. In October 2026 each was rerun on a second machine from the cached
+data files (docs/results/reproductions/REPRODUCTION_2026-10.md). Both VIX holdouts and the stock-bond
+holdout reproduced every number in the write-up's tables (52 numbers, compared by
+`examples/check_writeup_tables.py`). The cross-index holdout, run from the committed 5-minute RV caches
+because the licensed bar files were not on that machine, reproduced every table number, but not byte for
+byte: the printed last-fit MSM parameter b differs in the third decimal on each index. The ETF holdout
+reproduced exactly when re-scored from its frozen MS-GARCH checkpoints; a full refit of the MS-GARCH
+models did not reproduce those checkpoints (none of the 20 walk-forward files is identical, the largest
+RMSE change is 0.005), and no per-asset verdict or claim outcome moved on RMSE or QLIKE. A fresh download
+can differ where Yahoo revises adjusted prices.
+
+GitHub's server-side record of when each freeze commit was pushed (the Events API and the CI run list,
+captured on 2026-10-17) is saved in docs/results/audit/.
 
 ## Citing this work
 

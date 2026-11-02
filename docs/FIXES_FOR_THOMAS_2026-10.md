@@ -216,6 +216,12 @@ Each item: where, old text, proposed new text, why, evidence. Thomas's words win
   WRITEUP copy is not done. One change: "12 of 6,037 development days" became "12 of 6,037 common days in
   2000-2023", because the compared span includes 2000-2004, which is holdout, not development (re-run of
   `examples/vix_source_check.py` 2026-10-20: same counts, 12 / 6037 / 0.98 / 13 / 0).
+- Correction 2026-11-02 (panel review 2026-10-25 item B1, applied on Thomas's word on branch
+  readme-fixes-b1-b3-2026-11-02): the proposed and applied text said the cross-index holdout used FRED's
+  VIXCLS for all three indices. It did not: `examples/cross_index_holdout.py` maps the Nasdaq-100 to VXNCLS,
+  the Dow to VXDCLS and the Russell 2000 to RVXCLS, and VIXCLS appears only in its development dry run. The
+  README sentence, the source table and printed sentence in `examples/vix_source_check.py` are corrected;
+  the counts (12 / 6,037 / 0.98 / 13 / 0) compare Yahoo ^VIX with FRED VIXCLS and are unchanged.
 
 - Proposed (README, after the data description): "The development work and the two S&P 500 holdouts
   (claims A, B, C) use Yahoo's ^VIX; the cross-index holdout (P1-P5, R1-R3) uses FRED's VIXCLS as the
@@ -998,6 +1004,13 @@ on the laptop after checking the evidence.
 
 Supersedes P28's proposed text (P7 stays the longer optional paragraph). Class of every outcome named:
 reproduction, not a new test.
+
+- Status: **APPLIED 2026-11-02 on Thomas's word** (panel review 2026-10-25 item B3, branch
+  readme-fixes-b1-b3-2026-11-02), README and WRITEUP texts as proposed, plus two additions from B3: the
+  52-number check named in both ("52 numbers, compared by `examples/check_writeup_tables.py`") and a README
+  sentence pointing at docs/results/audit/ for GitHub's server-side push record. P28 is superseded; P7 is
+  not applied, because P28b now carries the same facts. The "Unsure" point below still stands: the
+  development-determinism sentence was kept as it was, not re-verified.
 
 - Old (README.md:189-192): "The data pulls are cached and the bootstrap is seeded, so reruns of the
   development scripts are deterministic. The holdout scripts can be rerun too, and with the same cached

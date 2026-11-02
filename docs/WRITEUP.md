@@ -974,8 +974,15 @@ refresh or extend it. Everything else needs no keys. The exceptions are `intrada
 `cross_index_holdout.py`, which also needs NQ, YM and RTY bars. They are licensed for internal use, so
 they are not in the repo.
 
-Every number and figure in this note comes straight from those scripts. The raw data pull is cached,
-so reruns are deterministic.
+Every number and figure in this note comes straight from those scripts. The raw data pull is cached and
+the bootstrap is seeded, so reruns of the development scripts are deterministic. The holdouts are spent,
+and a rerun of one is a reproduction, not a new test. In October 2026 each holdout was rerun on a second
+machine (docs/results/reproductions/REPRODUCTION_2026-10.md): the two VIX holdouts and the stock-bond
+holdout reproduced every number in the tables above (52 numbers, compared by
+`examples/check_writeup_tables.py`); the cross-index holdout reproduced every table number but not byte
+for byte (one printed MSM parameter differs in the third decimal on each index); the ETF holdout
+reproduced exactly from its frozen MS-GARCH checkpoints, while a full MS-GARCH refit did not reproduce
+them (largest RMSE change 0.005) and moved no verdict on RMSE or QLIKE.
 
 ## Possible extensions
 

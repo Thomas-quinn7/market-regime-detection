@@ -4,9 +4,10 @@ development data only (the comparison); the source table is read off the frozen 
 
 The repo mixes two VIX sources (desk, data-engineer, joint review 2026-10-18 finding 18): the development
 scripts and the two S&P 500 holdouts read Yahoo ``^VIX`` through ``regimes.data.load_vix``
-(src/regimes/data.py); the cross-index and the MS-GARCH/credit holdouts read FRED ``VIXCLS`` (and the
-FRED OVXCLS, GVZCLS, VXEEMCLS, VXEWZCLS series for the ETFs) through ``regimes.data.load_fred_series``
-(examples/cross_index_holdout.py, examples/msgarch_credit_holdout.py). FRED's VIXCLS equals Cboe's
+(src/regimes/data.py); the cross-index holdout reads each index's own FRED implied vol index (VXNCLS,
+VXDCLS, RVXCLS) and the MS-GARCH/credit holdout the FRED OVXCLS, GVZCLS, VXEEMCLS, VXEWZCLS series, both
+through ``regimes.data.load_fred_series`` (examples/cross_index_holdout.py, examples/msgarch_credit_holdout.py);
+FRED ``VIXCLS`` appears only in those two scripts' S&P 500 development dry runs. FRED's VIXCLS equals Cboe's
 published history exactly (desk, data-engineer, re-derived on 8,317 days); Yahoo's does not. This script
 compares the committed Yahoo development cache ``data/VIX_2000-01-01_2023-12-31.csv`` with the committed
 FRED cache ``data/fred_VIXCLS.csv`` on their common days to 2023-12-31 only (rule 3 of the reopen scope)
@@ -36,7 +37,8 @@ SOURCES = [
     ("VIX holdout claims A, B, C, S&P 500 1996-2004 and 2024-2026 (examples/vol_forecast_vix.py)",
      "Yahoo ^VIX", "regimes.data.load_vix"),
     ("Cross-index holdout claims P1-P5, R1-R3 (examples/cross_index_holdout.py)",
-     "FRED VIXCLS (S&P 500 VIX used as the implied vol for all three indices)", "regimes.data.load_fred_series('VIXCLS')"),
+     "FRED VXNCLS, VXDCLS, RVXCLS (each index's own implied vol index; VIXCLS in the dry run only)",
+     "regimes.data.load_fred_series(<id>)"),
     ("MS-GARCH and credit holdout claims M1-M5 (examples/msgarch_credit_holdout.py)",
      "FRED OVXCLS, GVZCLS, VXEEMCLS, VXEWZCLS (one Cboe ETF vol index per asset; VIXCLS in the dry run only)",
      "regimes.data.load_fred_series(<id>)"),
@@ -91,8 +93,8 @@ def main() -> None:
     print(f"  Yahoo rows with no FRED print: {len(r['yahoo_only'])} ({', '.join(r['yahoo_only'])})")
     print("  differing days (FRED minus Yahoo): " + ", ".join(f"{d} {v:+.2f}" for d, v in r["differing"].items()))
     print("\nOne sentence for the paper (proposal): The development work and the two S&P 500 holdouts use Yahoo's "
-          "^VIX; the cross-index holdout uses FRED's VIXCLS and the ETF holdout FRED's OVXCLS, GVZCLS, VXEEMCLS and "
-          f"VXEWZCLS. FRED equals Cboe's history; Yahoo differs from it on {r['days_differing']} of "
+          "^VIX; the cross-index holdout uses FRED's VXNCLS, VXDCLS and RVXCLS and the ETF holdout FRED's OVXCLS, "
+          f"GVZCLS, VXEEMCLS and VXEWZCLS. FRED's VIXCLS equals Cboe's VIX history; Yahoo differs from it on {r['days_differing']} of "
           f"{r['common_days']} development days by up to {r['max_abs_diff']:.2f} points and lacks "
           f"{len(r['fred_only'])} days FRED prints.")
 
