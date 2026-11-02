@@ -93,6 +93,25 @@ window; these forecasts use expanding windows, so the chi-squared reference is a
 conditioning variable is itself a model output from the same returns. The blocks are not independent
 (the three indices share crises, as do EM and Brazil).
 
+## Amendment A1 (2026-11-02, before the test was run on any holdout forecast)
+
+A simulation check of the test written above, run on synthetic data only, found it badly oversized:
+with losses that overlap over 21 days (a flat MA(20), Student-t(5) shocks) and a persistent
+conditioning variable independent of them, the Bartlett 20-lag version rejects 16.6%, 15.8% and 12.2%
+of the time at a nominal 5% for 676, 2,228 and 3,300 days (500 draws each). Bartlett weights with a
+bandwidth equal to the overlap understate the long-run variance of an MA(20) by about a third. Wider
+Bartlett windows (42, 63, 126 lags) did not fix it (8.4% to 19.4%). The truncated (rectangular) kernel
+with 20 lags, the usual choice for h-step forecasts, gave 7.4%, 5.4% and 5.2%, and its covariance was
+positive definite in every draw.
+
+Changes: (i) the GW statistic and the intervals of the direction regression use the rectangular
+kernel with 20 lags; if its covariance is not positive definite for a block, Bartlett with 63 lags is
+used there and the block is listed. (ii) The Bartlett 20-lag p-value is still printed beside it, as
+the originally planned version, and is not used for any reading. (iii) The simulation is part of the
+results. (iv) The same flaw applies to the Bartlett 20-lag DM tests in docs/POSTHOC_2026-10.md; the
+results file says so and gives their rectangular-kernel equivalents for the same pairs, as a note, not
+as a change to POSTHOC. Everything else in part 2 stands.
+
 ## Outputs
 
 `examples/variance_rescore.py` and `examples/gw_conditional.py`; results in
