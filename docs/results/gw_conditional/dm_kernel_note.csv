@@ -1,0 +1,155 @@
+holdout,block,claim,loss,p Bartlett 20 (POSTHOC),p rectangular 20
+cross_index,Nasdaq-100,P1,squared error,0.187794,0.199609
+cross_index,Nasdaq-100,P1,QLIKE,0.102856,0.122431
+cross_index,Nasdaq-100,P2,squared error,0.965018,0.97034
+cross_index,Nasdaq-100,P2,QLIKE,0.957479,0.963609
+cross_index,Nasdaq-100,P3,squared error,0.319798,0.390096
+cross_index,Nasdaq-100,P3,QLIKE,0.309506,0.361212
+cross_index,Nasdaq-100,P4,squared error,0.0863654,0.130958
+cross_index,Nasdaq-100,P4,QLIKE,0.0716851,0.118137
+cross_index,Nasdaq-100,P5,squared error,0.430099,0.469029
+cross_index,Nasdaq-100,P5,QLIKE,0.0555031,0.0846904
+cross_index,Nasdaq-100,R1,squared error,0.0598726,0.104486
+cross_index,Nasdaq-100,R1,QLIKE,0.0712131,0.126132
+cross_index,Nasdaq-100,R2,squared error,0.0226618,0.030076
+cross_index,Nasdaq-100,R2,QLIKE,0.0838027,0.0209533
+cross_index,Nasdaq-100,R3,squared error,0.245182,0.292554
+cross_index,Nasdaq-100,R3,QLIKE,0.198669,0.20062
+cross_index,Nasdaq-100,R4,squared error,0.0271496,0.0581741
+cross_index,Nasdaq-100,R4,QLIKE,0.0155749,0.0378602
+cross_index,Dow Jones Industrial Average,P1,squared error,0.288531,0.255173
+cross_index,Dow Jones Industrial Average,P1,QLIKE,0.781187,0.568627
+cross_index,Dow Jones Industrial Average,P2,squared error,0.91248,0.917876
+cross_index,Dow Jones Industrial Average,P2,QLIKE,0.605069,0.640624
+cross_index,Dow Jones Industrial Average,P3,squared error,0.113444,0.147292
+cross_index,Dow Jones Industrial Average,P3,QLIKE,0.105393,0.186031
+cross_index,Dow Jones Industrial Average,P4,squared error,0.15317,0.148188
+cross_index,Dow Jones Industrial Average,P4,QLIKE,0.148913,0.0759084
+cross_index,Dow Jones Industrial Average,P5,squared error,0.244306,0.331196
+cross_index,Dow Jones Industrial Average,P5,QLIKE,0.133647,0.222309
+cross_index,Dow Jones Industrial Average,R1,squared error,0.219629,0.265194
+cross_index,Dow Jones Industrial Average,R1,QLIKE,0.177828,0.223948
+cross_index,Dow Jones Industrial Average,R2,squared error,0.0428385,0.0541136
+cross_index,Dow Jones Industrial Average,R2,QLIKE,0.180332,0.131494
+cross_index,Dow Jones Industrial Average,R3,squared error,0.145468,0.104299
+cross_index,Dow Jones Industrial Average,R3,QLIKE,0.145897,0.227386
+cross_index,Dow Jones Industrial Average,R4,squared error,0.037097,0.0339942
+cross_index,Dow Jones Industrial Average,R4,QLIKE,0.0891935,0.107738
+cross_index,Russell 2000,P1,squared error,0.827004,0.764445
+cross_index,Russell 2000,P1,QLIKE,0.38899,0.330889
+cross_index,Russell 2000,P2,squared error,0.725513,0.749637
+cross_index,Russell 2000,P2,QLIKE,0.451692,0.447393
+cross_index,Russell 2000,P3,squared error,0.92548,0.931988
+cross_index,Russell 2000,P3,QLIKE,0.210859,0.277281
+cross_index,Russell 2000,P4,squared error,0.484956,0.511638
+cross_index,Russell 2000,P4,QLIKE,0.914904,0.913693
+cross_index,Russell 2000,P5,squared error,0.000848428,0.00584747
+cross_index,Russell 2000,P5,QLIKE,0.00153643,0.00800823
+cross_index,Russell 2000,R1,squared error,0.373343,0.408602
+cross_index,Russell 2000,R1,QLIKE,0.741261,0.757738
+cross_index,Russell 2000,R2,squared error,0.348163,0.323984
+cross_index,Russell 2000,R2,QLIKE,0.0202359,0.013195
+cross_index,Russell 2000,R3,squared error,0.381191,0.427067
+cross_index,Russell 2000,R3,QLIKE,0.105634,0.151398
+cross_index,Russell 2000,R4,squared error,0.170707,0.231806
+cross_index,Russell 2000,R4,QLIKE,0.0811053,0.148089
+etf,Crude oil (USO),M1,squared error,0.197336,0.321967
+etf,Crude oil (USO),M1,QLIKE,0.311283,0.349283
+etf,Crude oil (USO),M2,squared error,0.145485,0.195896
+etf,Crude oil (USO),M2,QLIKE,0.0556248,0.0913217
+etf,Crude oil (USO),M3,squared error,0.440056,0.528992
+etf,Crude oil (USO),M3,QLIKE,0.0547091,0.133949
+etf,Crude oil (USO),M4,squared error,0.611173,0.64351
+etf,Crude oil (USO),M4,QLIKE,0.819406,0.842383
+etf,Crude oil (USO),M5,squared error,0.0134099,0.0425905
+etf,Crude oil (USO),M5,QLIKE,0.00299495,0.0136806
+etf,Crude oil (USO),C1,squared error,0.373402,0.409734
+etf,Crude oil (USO),C1,QLIKE,0.222063,0.308105
+etf,Crude oil (USO),C2,squared error,0.414389,0.493153
+etf,Crude oil (USO),C2,QLIKE,0.0199726,0.05231
+etf,Crude oil (USO),R1,squared error,0.0624716,0.0592733
+etf,Crude oil (USO),R1,QLIKE,0.000591363,0.00417752
+etf,Crude oil (USO),R2,squared error,0.00794437,0.0223351
+etf,Crude oil (USO),R2,QLIKE,0.00127016,0.0068318
+etf,Gold (GLD),M1,squared error,0.484723,0.555301
+etf,Gold (GLD),M1,QLIKE,0.986211,0.988332
+etf,Gold (GLD),M2,squared error,0.0958309,0.161661
+etf,Gold (GLD),M2,QLIKE,0.081207,0.107151
+etf,Gold (GLD),M3,squared error,0.0122018,0.0346642
+etf,Gold (GLD),M3,QLIKE,0.186679,0.26284
+etf,Gold (GLD),M4,squared error,0.132121,0.185229
+etf,Gold (GLD),M4,QLIKE,0.0731615,0.134278
+etf,Gold (GLD),M5,squared error,7.45707e-05,0.00080861
+etf,Gold (GLD),M5,QLIKE,0.0578182,0.109089
+etf,Gold (GLD),C1,squared error,0.596684,0.659421
+etf,Gold (GLD),C1,QLIKE,0.540157,0.606041
+etf,Gold (GLD),C2,squared error,0.7946,0.830839
+etf,Gold (GLD),C2,QLIKE,0.133949,0.219093
+etf,Gold (GLD),R1,squared error,1.91737e-08,5.03643e-07
+etf,Gold (GLD),R1,QLIKE,0.0312639,0.0710006
+etf,Gold (GLD),R2,squared error,0.000112584,0.000982006
+etf,Gold (GLD),R2,QLIKE,0.0340906,0.0753472
+etf,Emerging markets (EEM),M1,squared error,0.395242,0.388089
+etf,Emerging markets (EEM),M1,QLIKE,0.249364,0.27291
+etf,Emerging markets (EEM),M2,squared error,0.519819,0.544052
+etf,Emerging markets (EEM),M2,QLIKE,0.862315,0.881603
+etf,Emerging markets (EEM),M3,squared error,0.00366051,0.0186398
+etf,Emerging markets (EEM),M3,QLIKE,0.118642,0.195493
+etf,Emerging markets (EEM),M4,squared error,0.403946,0.479147
+etf,Emerging markets (EEM),M4,QLIKE,0.677744,0.712514
+etf,Emerging markets (EEM),M5,squared error,0.0166475,0.0209905
+etf,Emerging markets (EEM),M5,QLIKE,0.242815,0.241094
+etf,Emerging markets (EEM),C1,squared error,0.12903,0.205173
+etf,Emerging markets (EEM),C1,QLIKE,0.234615,0.327981
+etf,Emerging markets (EEM),C2,squared error,0.351635,0.438934
+etf,Emerging markets (EEM),C2,QLIKE,0.0724042,0.131803
+etf,Emerging markets (EEM),R1,squared error,0.0131472,0.00227705
+etf,Emerging markets (EEM),R1,QLIKE,0.885155,0.871488
+etf,Emerging markets (EEM),R2,squared error,0.025435,0.0604739
+etf,Emerging markets (EEM),R2,QLIKE,0.453069,0.499052
+etf,Brazil (EWZ),M1,squared error,0.631974,0.664939
+etf,Brazil (EWZ),M1,QLIKE,0.292329,0.379913
+etf,Brazil (EWZ),M2,squared error,0.0153294,0.0208149
+etf,Brazil (EWZ),M2,QLIKE,0.139283,0.143791
+etf,Brazil (EWZ),M3,squared error,0.198734,0.279225
+etf,Brazil (EWZ),M3,QLIKE,0.00837155,0.0252893
+etf,Brazil (EWZ),M4,squared error,0.277602,0.0243228
+etf,Brazil (EWZ),M4,QLIKE,0.686081,0.653586
+etf,Brazil (EWZ),M5,squared error,0.00363893,0.00340669
+etf,Brazil (EWZ),M5,QLIKE,0.146172,0.0611248
+etf,Brazil (EWZ),C1,squared error,0.221361,0.30927
+etf,Brazil (EWZ),C1,QLIKE,0.366583,0.436458
+etf,Brazil (EWZ),C2,squared error,0.0880401,0.132727
+etf,Brazil (EWZ),C2,QLIKE,0.00535822,0.0130264
+etf,Brazil (EWZ),R1,squared error,0.06583,0.0214412
+etf,Brazil (EWZ),R1,QLIKE,0.979771,0.978514
+etf,Brazil (EWZ),R2,squared error,0.0959105,0.177376
+etf,Brazil (EWZ),R2,QLIKE,0.606005,0.647526
+vix_early,vix_early,1,squared error,0.00974021,0.0301409
+vix_early,vix_early,1,QLIKE,0.00262772,0.0107794
+vix_early,vix_early,2,squared error,0.00120028,0.00673145
+vix_early,vix_early,2,QLIKE,0.000112475,0.000995158
+vix_early,vix_early,3,squared error,0.407262,0.485448
+vix_early,vix_early,3,QLIKE,0.0249485,0.0607631
+vix_early,vix_early,4,squared error,0.682091,0.734383
+vix_early,vix_early,4,QLIKE,0.582889,0.641769
+vix_early,vix_early,5,squared error,0.641613,0.685883
+vix_early,vix_early,5,QLIKE,0.352852,0.438084
+vix_early,vix_early,6,squared error,0.00269209,0.0140957
+vix_early,vix_early,6,QLIKE,0.00279853,0.0157454
+vix_early,vix_early,7,squared error,0.0185038,0.058829
+vix_early,vix_early,7,QLIKE,0.0702275,0.151209
+vix_recent,vix_recent,1,squared error,0.296328,0.25297
+vix_recent,vix_recent,1,QLIKE,0.755835,0.74555
+vix_recent,vix_recent,2,squared error,0.215131,0.178278
+vix_recent,vix_recent,2,QLIKE,0.602465,0.574463
+vix_recent,vix_recent,3,squared error,0.217956,0.290933
+vix_recent,vix_recent,3,QLIKE,0.0528872,0.0698339
+vix_recent,vix_recent,4,squared error,0.233513,0.279308
+vix_recent,vix_recent,4,QLIKE,0.175725,0.198741
+vix_recent,vix_recent,5,squared error,0.437544,0.538555
+vix_recent,vix_recent,5,QLIKE,0.325588,0.388721
+vix_recent,vix_recent,6,squared error,0.210359,0.259003
+vix_recent,vix_recent,6,QLIKE,0.0202154,0.00737541
+vix_recent,vix_recent,7,squared error,0.697539,0.718184
+vix_recent,vix_recent,7,QLIKE,0.148224,0.103525

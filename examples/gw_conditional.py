@@ -35,6 +35,15 @@ sys.path.insert(0, str(ROOT / "src"))
 from regimes.forecast import qlike  # noqa: E402
 from regimes.posthoc import holm  # noqa: E402
 
+
+def md(df: pd.DataFrame) -> str:
+    """Markdown table without the optional tabulate dependency (floats to 4 significant figures)."""
+    cols = list(df.columns)
+    out = ["| " + " | ".join(map(str, cols)) + " |", "|" + "---|" * len(cols)]
+    for _, row in df.iterrows():
+        out.append("| " + " | ".join(f"{v:.4g}" if isinstance(v, float) else str(v) for v in row) + " |")
+    return "\n".join(out)
+
 REPRO = ROOT / "docs" / "results" / "reproductions"
 VAR = ROOT / "docs" / "results" / "variance_rescore"
 OUT = ROOT / "docs" / "results" / "gw_conditional"
@@ -91,6 +100,7 @@ def gw_test(d: np.ndarray, p: np.ndarray) -> dict:
     omega, kernel = hac(Z)
     stat = gw_stat(d, H, omega)
     stat_planned = gw_stat(d, H, nw_cov(Z, LAG, "bartlett"))
+    stat_b63 = gw_stat(d, H, nw_cov(Z, 63, "bartlett"))
     # Direction: OLS of d on (1, p) with HAC covariance (X'X)^-1 S (X'X)^-1 / n.
     XtX = H.T @ H / n
     beta = np.linalg.solve(XtX, H.T @ d / n)
@@ -102,7 +112,8 @@ def gw_test(d: np.ndarray, p: np.ndarray) -> dict:
     at1, se1 = float(w @ beta), float(np.sqrt(w @ V @ w))
     stressed = p >= 0.5
     return {"n": n, "stat": stat, "p": float(stats.chi2.sf(stat, 2)), "kernel": kernel,
-            "p (planned Bartlett 20)": float(stats.chi2.sf(stat_planned, 2)), "mean d": float(d.mean()),
+            "p (planned Bartlett 20)": float(stats.chi2.sf(stat_planned, 2)),
+            "p (Bartlett 63 diagnostic)": float(stats.chi2.sf(stat_b63, 2)), "mean d": float(d.mean()),
             "d at p=0": float(at0), "lo0": float(at0 - 1.96 * se0), "hi0": float(at0 + 1.96 * se0),
             "d at p=1": at1, "lo1": at1 - 1.96 * se1, "hi1": at1 + 1.96 * se1,
             "share p>=0.5": float(stressed.mean()),
@@ -252,6 +263,7 @@ def main() -> None:
         return {"block": r["block"], "pair": r["pair"], "loss": r["loss"], "n": r["n"],
                 "GW stat": f"{r['stat']:.2f}", "p": f"{r['p']:.3f}",
                 "p, Bartlett 20 (planned, not used)": f"{r['p (planned Bartlett 20)']:.3f}",
+                "p, Bartlett 63 (diagnostic)": f"{r['p (Bartlett 63 diagnostic)']:.3f}",
                 "Holm p": "" if np.isnan(r["Holm p"]) else f"{r['Holm p']:.3f}",
                 "d at p=0 (95%)": f"{r['d at p=0']:+.4f} ({r['lo0']:+.4f}, {r['hi0']:+.4f})",
                 "d at p=1 (95%)": f"{r['d at p=1']:+.4f} ({r['lo1']:+.4f}, {r['hi1']:+.4f})",
@@ -263,7 +275,9 @@ def main() -> None:
              f"Class: **{CLASS}**. Plan: docs/GW_QLIKE_PLAN_2026-11.md part 2. Written by "
              "`examples/gw_conditional.py`. d = loss of the forecast minus loss of the reference (negative "
              "favours the forecast); instruments (1, p_t), p_t the walk-forward HMM high-vol probability on the "
-             f"forecast date; Newey-West, Bartlett, {LAG} lags; chi-squared(2). Holm at 5% across the "
+             f"forecast date; HAC long-run covariance with the rectangular kernel, {LAG} lags (amendment A1; "
+             "Bartlett 63 if not positive definite); chi-squared(2). The Bartlett 20 p-value (the plan before "
+             "A1) and a Bartlett 63 p-value are shown as kernel diagnostics only. Holm at 5% across the "
              f"{n_primary} primary tests (squared error and QLIKE as in POSTHOC); QLIKE on the variance forecast "
              f"is a secondary family of {int(hs.sum())} with its own Holm.\n",
              "Pairs: G1 = the regime term added to the benchmark (HMM probability; MS-GARCH probability on the "
@@ -277,6 +291,11 @@ def main() -> None:
              f"{int(res.loc[primary, 'against (stress favours reference)'].sum())}.",
              f"- Secondary (QLIKE var): {int((res.loc[hs, 'p'] < 0.05).sum())} of {int(hs.sum())} reject before Holm, "
              f"{int(res.loc[hs, 'Holm reject'].sum())} after.\n"]
+    fragile = res[res["Holm reject"] & (res["p (Bartlett 63 diagnostic)"] >= 0.05)]
+    lines.append("- Holm rejections that do not reject at 5% under the Bartlett 63 diagnostic (kernel-fragile): "
+                 f"{len(fragile)}" + (": " + "; ".join(
+                     f"{r['block']} {r['pair']} {r['loss']} (Bartlett 63 p = {r['p (Bartlett 63 diagnostic)']:.3f})"
+                     for _, r in fragile.iterrows()) if len(fragile) else "") + ".")
     fallback = res[res["kernel"] != "rectangular 20"]
     lines.append(f"- Blocks where the rectangular covariance was not positive definite and Bartlett 63 was used: "
                  f"{len(fallback)} rows" + (": " + "; ".join(f"{r.block} {r.pair} {r.loss}" for r in fallback.itertuples()) if len(fallback) else "") + ".")
@@ -285,13 +304,13 @@ def main() -> None:
                  f"{n_primary} primary tests would reject at 5% before Holm.\n")
     for fam, mask in (("Primary family", primary), ("Secondary family: QLIKE on the variance forecast", hs)):
         if mask.any():
-            lines.append(f"\n## {fam}\n\n" + pd.DataFrame([fmt(r) for _, r in res[mask].iterrows()]).to_markdown(index=False) + "\n")
+            lines.append(f"\n## {fam}\n\n" + md(pd.DataFrame([fmt(r) for _, r in res[mask].iterrows()])) + "\n")
 
     size = size_check()
     size.to_csv(OUT / "size_check.csv", index=False)
     lines.append("\n## Size check (amendment A1; synthetic data only)\n\nRejection rate at a nominal 5% under a "
                  "true null: d a flat MA(20) of Student-t(5) shocks, p a persistent logistic AR(1) independent "
-                 "of d, 500 draws per length, seed 7.\n\n" + size.to_markdown(index=False) + "\n")
+                 "of d, 500 draws per length, seed 7.\n\n" + md(size) + "\n")
 
     dmn = dm_note()
     dmn.to_csv(OUT / "dm_kernel_note.csv", index=False, float_format="%.6g")
@@ -303,7 +322,7 @@ def main() -> None:
     lines.append("\n## Note on POSTHOC's DM tests (amendment A1 iv; not a change to POSTHOC)\n\nThe same "
                  "Bartlett 20-lag variance is used by the HAC Diebold-Mariano tests in docs/POSTHOC_2026-10.md, so "
                  "they share the size problem above. Rejections at 5% for the registered-claim pairs, per holdout "
-                 "and loss:\n\n" + tab.to_markdown(index=False) + "\n\n" +
+                 "and loss:\n\n" + md(tab) + "\n\n" +
                  f"{len(lost)} of {int((dmn['p Bartlett 20 (POSTHOC)'] < 0.05).sum())} Bartlett rejections are not "
                  "rejections under the rectangular kernel. The bootstrap intervals that decide every registered and "
                  "POSTHOC verdict are not affected; only the DM column is.\n")

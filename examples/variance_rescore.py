@@ -185,7 +185,7 @@ def capture(holdout: str) -> None:
 
 def score(n_boot: int) -> None:
     from cross_index_holdout import claim_verdict
-    from posthoc_stats import CROSS_CLAIMS, ETF_CLAIMS, VIX_COMPARISONS, verdict, vix_claim_outcomes
+    from posthoc_stats import CROSS_CLAIMS, ETF_CLAIMS, VIX_COMPARISONS, md_table, verdict, vix_claim_outcomes
     from regimes.forecast import qlike
     from regimes.posthoc import paired_interval
 
@@ -212,13 +212,13 @@ def score(n_boot: int) -> None:
              f"`examples/variance_rescore.py score`, {n_boot:,} draws, 63-day circular blocks, seed 0. "
              "'QLIKE' is the convention of docs/POSTHOC_2026-10.md (the squared mean-vol forecast); "
              "'QLIKE var' scores the variance forecast exp(2 fit + 2 s^2).\n"]
-    summary = []
+    summary, unscored = [], []
     for holdout, claims in (("cross_index", CROSS_CLAIMS), ("etf", ETF_CLAIMS), ("vix_early", None),
                             ("vix_recent", None)):
         cap = json.loads((OUT / holdout / "capture.json").read_text())
         blocks = load_scored(FOLDER[holdout])
         lines.append(f"\n## {holdout}\n")
-        lines.append("Size of the bias factor exp(s^2) per forecast (median over refits, first table): " +
+        lines.append("Size of the bias factor exp(s^2) per forecast (median over refits, last table): " +
                      "; ".join(f"{c} {v['exp_s2_median']:.3f}" for c, v in cap["tables"][-1]["columns"].items()
                                if v.get("match") in OK) + ".\n")
         unmatched = {(t["file"], c): v for t in cap["tables"] for c, v in t["columns"].items() if v.get("match") not in OK}
@@ -248,9 +248,11 @@ def score(n_boot: int) -> None:
                      else "not scored" for k in ("RMSE", "QLIKE", "QLIKE var")}
                 out_rows.append({"claim": cid, "expected": expected, "RMSE (registered)": o["RMSE"],
                                  "QLIKE (POSTHOC)": o["QLIKE"], "QLIKE var": o["QLIKE var"]})
-                if o["QLIKE"] != o["QLIKE var"]:
+                if o["QLIKE var"] == "not scored":
+                    unscored.append(f"{holdout} {cid}")
+                elif o["QLIKE"] != o["QLIKE var"]:
                     summary.append(f"{holdout} {cid}: {o['QLIKE']} under POSTHOC QLIKE -> {o['QLIKE var']} under QLIKE var")
-            lines.append("\n### Claim outcomes\n\n" + pd.DataFrame(out_rows).to_markdown(index=False) + "\n")
+            lines.append("\n### Claim outcomes\n\n" + md_table(pd.DataFrame(out_rows)) + "\n")
         else:
             df = blocks[1][1]
             var = pd.read_csv(OUT / holdout / cap["tables"][1]["file"], index_col=0, parse_dates=True)
@@ -266,16 +268,23 @@ def score(n_boot: int) -> None:
             out_rows = [{"claim": c, "RMSE (registered)": outs["RMSE"][c], "QLIKE (POSTHOC)": outs["QLIKE"][c],
                          "QLIKE var": outs["QLIKE var"][c]} for c in outs["RMSE"]]
             for row in out_rows:
-                if row["QLIKE (POSTHOC)"] != row["QLIKE var"]:
+                if row["QLIKE var"] == "not scored":
+                    unscored.append(f"{holdout} {row['claim']}")
+                elif row["QLIKE (POSTHOC)"] != row["QLIKE var"]:
                     summary.append(f"{holdout} {row['claim']}: {row['QLIKE (POSTHOC)']} -> {row['QLIKE var']}")
-            lines.append("\n### Claim outcomes\n\n" + pd.DataFrame(out_rows).to_markdown(index=False) + "\n")
+            lines.append("\n### Claim outcomes\n\n" + md_table(pd.DataFrame(out_rows)) + "\n")
         t = pd.DataFrame(tab)
         changed = t[t["QLIKE (POSTHOC)"] != t["QLIKE var"]]
         lines.append(f"\n### Per-comparison verdicts that differ between the two QLIKE columns ({len(changed)} of {len(t)})\n\n" +
-                     (changed.to_markdown(index=False) if len(changed) else "None.") + "\n")
-        lines.append("\n### Every comparison\n\n" + t.to_markdown(index=False) + "\n")
+                     (md_table(changed) if len(changed) else "None.") + "\n")
+        lines.append("\n### Every comparison\n\n" + md_table(t) + "\n")
     lines.insert(2, "\n## Summary: claim outcomes that change between POSTHOC QLIKE and QLIKE var\n\n" +
-                 ("\n".join(f"- {s}" for s in summary) if summary else "- None.") + "\n")
+                 ("\n".join(f"- {s}" for s in summary) if summary else "- None.") + "\n" +
+                 ("\nNot scored under QLIKE var, because a forecast in the claim has no matched regression "
+                  "variance (in the cross-index holdout GJR-GARCH, MSM and the combination are not regression "
+                  "forecasts, and HAR-RV + IV + MSM does not match the committed reproduction because the MSM "
+                  "refits differ across hosts by up to about 5e-4): " + ", ".join(unscored) + ".\n"
+                  if unscored else ""))
     (OUT / "RESULTS.md").write_text("\n".join(lines), encoding="utf-8")
     print("\n".join(summary) if summary else "no claim outcome changes")
     print(f"written to {(OUT / 'RESULTS.md').relative_to(ROOT)}")

@@ -1,0 +1,451 @@
+{
+ "class": "post hoc, computed from the spent holdouts' reproduced forecasts; not a registered test",
+ "holdout": "cross_index",
+ "n_calls": 30,
+ "level_fits": [],
+ "scratch_reproduction": "C:\\Users\\tq343\\AppData\\Local\\Temp\\variance_cross_index_qgbyz3nz",
+ "tables": [
+  {
+   "file": "variance_01.csv",
+   "block": "Nasdaq-100",
+   "n": 3286,
+   "columns": {
+    "HAR": {
+     "match": "within 1e-9",
+     "closest_gap": 7.771561172376096e-16,
+     "closest_call": 1,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0787485072195402,
+     "exp_s2_min": 1.0459138713575447,
+     "exp_s2_max": 1.097314939859355
+    },
+    "HAR-RV": {
+     "match": "within 1e-9",
+     "closest_gap": 1.7763568394002505e-15,
+     "closest_call": 2,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0705135262641061,
+     "exp_s2_min": 1.0387644475733635,
+     "exp_s2_max": 1.087024354960538
+    },
+    "HAR-RV + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 2.6645352591003757e-15,
+     "closest_call": 3,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0656321117245438,
+     "exp_s2_min": 1.036932862851149,
+     "exp_s2_max": 1.0803573414128917
+    },
+    "HARQ + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 1.7763568394002505e-15,
+     "closest_call": 4,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "q_term"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.065631465001926,
+     "exp_s2_min": 1.0369145855705477,
+     "exp_s2_max": 1.080349822819042
+    },
+    "SHAR + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 1.3322676295501878e-15,
+     "closest_call": 5,
+     "features": [
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "rv_neg",
+      "rv_pos"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0656466550903365,
+     "exp_s2_min": 1.0369003408628514,
+     "exp_s2_max": 1.0803075382605685
+    },
+    "GJR-GARCH": {
+     "match": "none exact",
+     "closest_gap": 2.165497755857171e-05,
+     "closest_call": 6,
+     "features": [
+      "garch"
+     ]
+    },
+    "MSM": {
+     "match": "none exact",
+     "closest_gap": 7.711978091684557e-05,
+     "closest_call": 7,
+     "features": [
+      "msm"
+     ]
+    },
+    "Two-state HMM implied vol": {
+     "match": "within 1e-9",
+     "closest_gap": 7.298606163885779e-13,
+     "closest_call": 8,
+     "features": [
+      "hmm_iv"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0863793925899374,
+     "exp_s2_min": 1.0507029076462837,
+     "exp_s2_max": 1.112037263346219
+    },
+    "HAR-RV + IV + MSM": {
+     "match": "none exact",
+     "closest_gap": 1.5154952922924458e-05,
+     "closest_call": 9,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "msm"
+     ]
+    },
+    "HAR-RV + IV + HMM prob": {
+     "match": "within 1e-9",
+     "closest_gap": 1.6431300764452317e-14,
+     "closest_call": 10,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "p"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0643839854739843,
+     "exp_s2_min": 1.0364657814872524,
+     "exp_s2_max": 1.078740091598683
+    },
+    "Combination": {
+     "match": "none exact",
+     "closest_gap": 0.36935849449106617,
+     "closest_call": 6,
+     "features": [
+      "garch"
+     ]
+    }
+   }
+  },
+  {
+   "file": "variance_02.csv",
+   "block": "Dow Jones Industrial Average",
+   "n": 3297,
+   "columns": {
+    "HAR": {
+     "match": "within 1e-9",
+     "closest_gap": 1.3322676295501878e-15,
+     "closest_call": 11,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.099175497741427,
+     "exp_s2_min": 1.0616204892262993,
+     "exp_s2_max": 1.1207556808225718
+    },
+    "HAR-RV": {
+     "match": "within 1e-9",
+     "closest_gap": 1.7763568394002505e-15,
+     "closest_call": 12,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0832161649788676,
+     "exp_s2_min": 1.0482601789873454,
+     "exp_s2_max": 1.105146401843693
+    },
+    "HAR-RV + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 8.881784197001252e-16,
+     "closest_call": 13,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0807164620372796,
+     "exp_s2_min": 1.0463817905562185,
+     "exp_s2_max": 1.1003240751129082
+    },
+    "HARQ + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 1.5543122344752192e-15,
+     "closest_call": 14,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "q_term"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.080636647094347,
+     "exp_s2_min": 1.0463735205163829,
+     "exp_s2_max": 1.1001721314354584
+    },
+    "SHAR + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 1.3322676295501878e-15,
+     "closest_call": 15,
+     "features": [
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "rv_neg",
+      "rv_pos"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0808165097002922,
+     "exp_s2_min": 1.046375499810894,
+     "exp_s2_max": 1.1003700065637487
+    },
+    "GJR-GARCH": {
+     "match": "none exact",
+     "closest_gap": 5.686009018268656e-05,
+     "closest_call": 16,
+     "features": [
+      "garch"
+     ]
+    },
+    "MSM": {
+     "match": "none exact",
+     "closest_gap": 0.0004730354345066079,
+     "closest_call": 17,
+     "features": [
+      "msm"
+     ]
+    },
+    "Two-state HMM implied vol": {
+     "match": "within 1e-9",
+     "closest_gap": 2.4893309635842797e-11,
+     "closest_call": 18,
+     "features": [
+      "hmm_iv"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1095340872670354,
+     "exp_s2_min": 1.0650839605903732,
+     "exp_s2_max": 1.1384471149608653
+    },
+    "HAR-RV + IV + MSM": {
+     "match": "none exact",
+     "closest_gap": 6.601410164708277e-05,
+     "closest_call": 19,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "msm"
+     ]
+    },
+    "HAR-RV + IV + HMM prob": {
+     "match": "within 1e-9",
+     "closest_gap": 4.55935289522813e-12,
+     "closest_call": 20,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "p"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0806057807149467,
+     "exp_s2_min": 1.0463318382259785,
+     "exp_s2_max": 1.0997927946379336
+    },
+    "Combination": {
+     "match": "none exact",
+     "closest_gap": 0.35232240991908537,
+     "closest_call": 20,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "p"
+     ]
+    }
+   }
+  },
+  {
+   "file": "variance_03.csv",
+   "block": "Russell 2000",
+   "n": 1513,
+   "columns": {
+    "HAR": {
+     "match": "within 1e-9",
+     "closest_gap": 1.7763568394002505e-15,
+     "closest_call": 21,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0884622394286707,
+     "exp_s2_min": 1.0770664337495672,
+     "exp_s2_max": 1.12804995589543
+    },
+    "HAR-RV": {
+     "match": "within 1e-9",
+     "closest_gap": 8.881784197001252e-16,
+     "closest_call": 22,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0773823132711802,
+     "exp_s2_min": 1.0679445584167655,
+     "exp_s2_max": 1.1117955011609406
+    },
+    "HAR-RV + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 1.7763568394002505e-15,
+     "closest_call": 23,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.070089882153617,
+     "exp_s2_min": 1.0615267865172395,
+     "exp_s2_max": 1.105280395728618
+    },
+    "HARQ + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 1.5543122344752192e-15,
+     "closest_call": 24,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "q_term"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0700894244168162,
+     "exp_s2_min": 1.0614998086474938,
+     "exp_s2_max": 1.1052650924391536
+    },
+    "SHAR + IV": {
+     "match": "within 1e-9",
+     "closest_gap": 3.1086244689504383e-15,
+     "closest_call": 25,
+     "features": [
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "rv_neg",
+      "rv_pos"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0700978286712655,
+     "exp_s2_min": 1.0615384292308445,
+     "exp_s2_max": 1.1052285060968554
+    },
+    "GJR-GARCH": {
+     "match": "none exact",
+     "closest_gap": 9.856197519164667e-05,
+     "closest_call": 26,
+     "features": [
+      "garch"
+     ]
+    },
+    "MSM": {
+     "match": "none exact",
+     "closest_gap": 6.896292412661431e-05,
+     "closest_call": 27,
+     "features": [
+      "msm"
+     ]
+    },
+    "Two-state HMM implied vol": {
+     "match": "within 1e-9",
+     "closest_gap": 6.927791673660977e-14,
+     "closest_call": 28,
+     "features": [
+      "hmm_iv"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.1153400672536693,
+     "exp_s2_min": 1.0977697244321936,
+     "exp_s2_max": 1.1482738119738543
+    },
+    "HAR-RV + IV + MSM": {
+     "match": "none exact",
+     "closest_gap": 3.491420549273094e-05,
+     "closest_call": 29,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "msm"
+     ]
+    },
+    "HAR-RV + IV + HMM prob": {
+     "match": "within 1e-9",
+     "closest_gap": 1.8207657603852567e-14,
+     "closest_call": 30,
+     "features": [
+      "rv_1d",
+      "rv_5d",
+      "rv_22d",
+      "iv",
+      "p"
+     ],
+     "log_target": true,
+     "exp_s2_median": 1.0700820087796572,
+     "exp_s2_min": 1.0615237142128775,
+     "exp_s2_max": 1.103683051937342
+    },
+    "Combination": {
+     "match": "none exact",
+     "closest_gap": 0.3129555580792689,
+     "closest_call": 27,
+     "features": [
+      "msm"
+     ]
+    }
+   }
+  }
+ ]
+}
